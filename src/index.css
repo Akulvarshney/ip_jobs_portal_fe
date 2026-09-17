@@ -1,0 +1,72 @@
+:root {
+  --primary-color: #0ea5e9;
+  --bg-color: #0f172a;
+  --text-color: #f3f4f6;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ant Design Table Overrides for Portal Dark Theme */
+.portal-table .ant-table {
+  background: transparent !important;
+  color: #f3f4f6 !important;
+}
+
+.portal-table .ant-table-thead > tr > th {
+  background: rgba(255, 255, 255, 0.04) !important;
+  color: #bae6fd !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  font-weight: 600;
+}
+
+.portal-table .ant-table-tbody > tr > td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+  color: #d1d5db !important;
+}
+
+.portal-table .ant-table-tbody > tr:hover > td {
+  background: rgba(14, 165, 233, 0.08) !important;
+}
+
+.portal-table .ant-pagination-item {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.portal-table .ant-pagination-item a {
+  color: #d1d5db !important;
+}
+
+.portal-table .ant-pagination-item-active {
+  background: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+}
+
+.portal-table .ant-pagination-item-active a {
+  color: white !important;
+}
+
+/* Modal dark overrides */
+.ant-modal-content {
+  background: #1e293b !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6) !important;
+}
+
+.ant-modal-header {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.ant-modal-close-icon {
+  color: #9ca3af !important;
+}

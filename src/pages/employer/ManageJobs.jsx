@@ -1,0 +1,121 @@
+import React, { useEffect, useState } from 'react';
+import { Table, Button, Tag, Badge, message } from 'antd';
+import { useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchEmployerJobs } from '../../store/employerSlice';
+import { PlusOutlined, FileTextOutlined, ArrowRightOutlined } from '@ant-design/icons';
+import { motion } from 'framer-motion';
+
+const ManageJobs = () => {
+  const { jobs } = useSelector((state) => state.employer);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    loadJobs();
+  }, [dispatch]);
+
+  const loadJobs = async () => {
+    setLoading(true);
+    try {
+      await dispatch(fetchEmployerJobs()).unwrap();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const columns = [
+    {
+      title: 'Mandate / Role Title',
+      dataIndex: 'title',
+      key: 'title',
+      render: (text, record) => (
+        <div>
+          <span 
+            style={{ fontWeight: 600, color: '#38bdf8', cursor: 'pointer', fontSize: '15px' }}
+            onClick={() => navigate(`/employer/jobs/${record.id}`)}
+          >
+            {text}
+          </span>
+          <div style={{ fontSize: '12px', color: '#9ca3af', marginTop: '2px' }}>
+            Listed on {new Date(record.createdAt).toLocaleDateString()}
+          </div>
+        </div>
+      )
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      render: (status) => (
+        <Tag color={status === 'ACTIVE' ? 'green' : (status === 'PAUSED' ? 'gold' : 'default')}>
+          {status || 'ACTIVE'}
+        </Tag>
+      )
+    },
+    {
+      title: 'Applications Received',
+      key: 'applicants',
+      render: (_, record) => (
+        <Badge count={record.applications?.length || 0} showZero color="#0ea5e9" />
+      )
+    },
+    {
+      title: 'Action',
+      key: 'action',
+      render: (_, record) => (
+        <button 
+          className="portal-btn-primary"
+          style={{ padding: '6px 14px', fontSize: '13px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+          onClick={() => navigate(`/employer/jobs/${record.id}`)}
+        >
+          <span>View Candidates & Details</span>
+          <ArrowRightOutlined style={{ fontSize: '11px' }} />
+        </button>
+      )
+    }
+  ];
+
+  return (
+    <div className="portal-page-wrapper">
+      <div className="portal-bg-glow">
+        <div className="portal-bg-blob-1"></div>
+        <div className="portal-bg-blob-2"></div>
+      </div>
+
+      <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '40px 24px 80px', position: 'relative', zIndex: 1 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px', flexWrap: 'wrap', gap: '16px' }}>
+          <div>
+            <h1 className="portal-section-title" style={{ fontSize: '32px' }}>Active Mandates</h1>
+            <p className="portal-section-subtitle">Manage your listed CIRP & Liquidation roles and review candidate submissions.</p>
+          </div>
+          <button className="portal-btn-primary" onClick={() => navigate('/employer')}>
+            <PlusOutlined />
+            <span>Post New Mandate</span>
+          </button>
+        </div>
+
+        <motion.div 
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="portal-glass-card" 
+          style={{ padding: '24px' }}
+        >
+          <Table 
+            dataSource={jobs}
+            columns={columns}
+            rowKey="id"
+            loading={loading}
+            pagination={{ pageSize: 8 }}
+            className="portal-table"
+          />
+        </motion.div>
+      </div>
+    </div>
+  );
+};
+
+export default ManageJobs;

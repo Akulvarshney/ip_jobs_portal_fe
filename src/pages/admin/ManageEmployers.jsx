@@ -1,0 +1,467 @@
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchAdminEmployers, updateAdminEmployerStatus } from '../../store/adminSlice';
+import AdminHeader from '../../components/AdminHeader';
+import { 
+  SearchOutlined, 
+  BankOutlined, 
+  CheckCircleOutlined, 
+  StopOutlined, 
+  EyeOutlined,
+  ReloadOutlined,
+  GlobalOutlined,
+  EnvironmentOutlined,
+  ClockCircleOutlined,
+  TeamOutlined
+} from '@ant-design/icons';
+import { Table, Input, Select, Tag, Button, Modal, message, Space, Tooltip } from 'antd';
+import { motion } from 'framer-motion';
+
+const { Option } = Select;
+
+const ManageEmployers = () => {
+  const dispatch = useDispatch();
+  const { employers: reduxEmployers, loading: reduxLoading } = useSelector((state) => state.admin);
+
+  const [employers, setEmployers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('ALL');
+  const [typeFilter, setTypeFilter] = useState('ALL');
+  const [selectedEmployer, setSelectedEmployer] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [actionLoadingId, setActionLoadingId] = useState(null);
+
+  const fetchEmployers = async () => {
+    setLoading(true);
+    try {
+      const params = {};
+      if (search.trim()) params.search = search.trim();
+      if (statusFilter !== 'ALL') params.status = statusFilter;
+      if (typeFilter !== 'ALL') params.type = typeFilter;
+
+      const res = await dispatch(fetchAdminEmployers(params)).unwrap();
+      const list = Array.isArray(res) ? res : res?.data || [];
+      setEmployers(list);
+    } catch (error) {
+      console.error('Error fetching employers:', error);
+      message.error('Failed to load organisations');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchEmployers();
+  }, [statusFilter, typeFilter, dispatch]);
+
+  const handleUpdateStatus = async (employerId, newStatus) => {
+    setActionLoadingId(employerId);
+    try {
+      await dispatch(updateAdminEmployerStatus({ id: employerId, status: newStatus })).unwrap();
+      message.success(`Organisation status updated to ${newStatus}`);
+      setEmployers((prev) => prev.map((e) => (e.id === employerId ? { ...e, status: newStatus } : e)));
+      if (selectedEmployer?.id === employerId) {
+        setSelectedEmployer((prev) => ({ ...prev, status: newStatus }));
+      }
+    } catch (error) {
+      console.error('Error updating employer status:', error);
+      message.error(typeof error === 'string' ? error : 'Failed to update status');
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
+  const openDossier = (employer) => {
+    setSelectedEmployer(employer);
+    setModalOpen(true);
+  };
+
+  const columns = [
+    {
+      title: 'Organisation Name',
+      key: 'name',
+      render: (_, record) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div 
+            style={{
+              width: '42px',
+              height: '42px',
+              borderRadius: '12px',
+              background: 'rgba(168, 85, 247, 0.15)',
+              border: '1px solid rgba(168, 85, 247, 0.3)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#d8b4fe',
+              fontWeight: 700,
+              fontSize: '18px'
+            }}
+          >
+            <BankOutlined />
+          </div>
+          <div>
+            <div style={{ fontWeight: 600, color: '#ffffff', fontSize: '15px' }}>{record.name}</div>
+            <div style={{ fontSize: '12px', color: '#9ca3af', display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
+              <EnvironmentOutlined /> {record.location || 'India'}
+              {record.website && (
+                <a href={record.website} target="_blank" rel="noopener noreferrer" style={{ color: '#38bdf8', marginLeft: '6px' }}>
+                  <GlobalOutlined /> Website
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: 'Type',
+      dataIndex: 'type',
+      key: 'type',
+      render: (type) => (
+        <Tag color="purple" style={{ fontWeight: 600 }}>
+          {type || 'OTHER'}
+        </Tag>
+      ),
+    },
+    {
+      title: 'Jobs Posted',
+      key: 'jobs',
+      render: (_, record) => (
+        <Tag color="cyan" style={{ fontWeight: 600, padding: '2px 8px' }}>
+          {record._count?.jobs || 0} Mandates
+        </Tag>
+      ),
+    },
+    {
+      title: 'Members',
+      key: 'members',
+      render: (_, record) => (
+        <span style={{ color: '#cbd5e1', fontSize: '13px' }}>
+          <TeamOutlined /> {record.members?.length || 0} User(s)
+        </span>
+      ),
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      render: (status) => {
+        let color = 'green';
+        if (status === 'PENDING') color = 'gold';
+        if (status === 'SUSPENDED') color = 'red';
+        return <Tag color={color} style={{ fontWeight: 600 }}>{status}</Tag>;
+      },
+    },
+    {
+      title: 'Actions',
+      key: 'actions',
+      render: (_, record) => (
+        <Space size="small">
+          <Button 
+            size="small" 
+            icon={<EyeOutlined />}
+            onClick={() => openDossier(record)}
+            style={{ 
+              background: 'rgba(255, 255, 255, 0.08)', 
+              borderColor: 'rgba(255, 255, 255, 0.15)', 
+              color: '#e0f2fe',
+              borderRadius: '6px'
+            }}
+          >
+            Dossier
+          </Button>
+
+          {record.status !== 'APPROVED' && (
+            <Button
+              size="small"
+              type="primary"
+              loading={actionLoadingId === record.id}
+              icon={<CheckCircleOutlined />}
+              onClick={() => handleUpdateStatus(record.id, 'APPROVED')}
+              style={{
+                borderRadius: '6px',
+                background: '#10b981',
+                borderColor: '#10b981',
+                color: '#ffffff'
+              }}
+            >
+              Approve
+            </Button>
+          )}
+
+          {record.status === 'APPROVED' && (
+            <Button
+              size="small"
+              danger
+              loading={actionLoadingId === record.id}
+              icon={<StopOutlined />}
+              onClick={() => handleUpdateStatus(record.id, 'SUSPENDED')}
+              style={{
+                borderRadius: '6px',
+                background: 'rgba(239, 68, 68, 0.15)',
+                borderColor: 'rgba(239, 68, 68, 0.4)',
+                color: '#fca5a5'
+              }}
+            >
+              Suspend
+            </Button>
+          )}
+        </Space>
+      ),
+    },
+  ];
+
+  return (
+    <div className="portal-page-wrapper">
+      <div className="portal-bg-glow">
+        <div className="portal-bg-blob-1"></div>
+        <div className="portal-bg-blob-2"></div>
+      </div>
+
+      <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '40px 24px 80px', position: 'relative', zIndex: 1 }}>
+        <AdminHeader 
+          title="Employer Organisation Management" 
+          subtitle="Review, approve, and govern Banks, ARCs, Law Firms, CA Firms, and Insolvency Entities."
+          actions={
+            <Button 
+              icon={<ReloadOutlined />} 
+              onClick={fetchEmployers}
+              loading={loading}
+              className="portal-btn-secondary"
+            >
+              Refresh
+            </Button>
+          }
+        />
+
+        {/* Search and Filters */}
+        <div 
+          className="portal-glass-card" 
+          style={{ 
+            padding: '16px 20px', 
+            marginBottom: '24px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '16px',
+            flexWrap: 'wrap'
+          }}
+        >
+          <div style={{ flex: '1 1 280px', display: 'flex', gap: '8px' }}>
+            <Input 
+              prefix={<SearchOutlined style={{ color: '#9ca3af' }} />}
+              placeholder="Search organisation, location, description..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              onPressEnter={fetchEmployers}
+              style={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                borderColor: 'rgba(255, 255, 255, 0.12)',
+                color: 'white',
+                borderRadius: '10px'
+              }}
+              allowClear
+            />
+            <Button type="primary" onClick={fetchEmployers} style={{ background: '#0ea5e9', borderColor: '#0ea5e9', borderRadius: '10px' }}>
+              Search
+            </Button>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+            <span style={{ color: '#9ca3af', fontSize: '13px' }}>Status:</span>
+            <Select 
+              value={statusFilter} 
+              onChange={setStatusFilter}
+              style={{ width: 140 }}
+            >
+              <Option value="ALL">All Statuses</Option>
+              <Option value="APPROVED">Approved</Option>
+              <Option value="PENDING">Pending</Option>
+              <Option value="SUSPENDED">Suspended</Option>
+            </Select>
+
+            <span style={{ color: '#9ca3af', fontSize: '13px' }}>Type:</span>
+            <Select 
+              value={typeFilter} 
+              onChange={setTypeFilter}
+              style={{ width: 180 }}
+            >
+              <Option value="ALL">All Entity Types</Option>
+              <Option value="BANK">Bank</Option>
+              <Option value="ARC">ARC</Option>
+              <Option value="CONSULTING_FIRM">Consulting Firm</Option>
+              <Option value="LAW_FIRM">Law Firm</Option>
+              <Option value="CA_FIRM">CA Firm</Option>
+              <Option value="RESOLUTION_APPLICANT">Resolution Applicant</Option>
+              <Option value="IP">Insolvency Professional</Option>
+              <Option value="IPE">Insolvency Professional Entity</Option>
+              <Option value="CORPORATE">Corporate</Option>
+              <Option value="OTHER">Other</Option>
+            </Select>
+          </div>
+        </div>
+
+        {/* Table */}
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="portal-glass-card" 
+          style={{ padding: '20px' }}
+        >
+          <Table 
+            columns={columns}
+            dataSource={employers}
+            rowKey="id"
+            loading={loading}
+            pagination={{ pageSize: 8 }}
+            className="portal-table"
+          />
+        </motion.div>
+
+        {/* Organisation Dossier Modal */}
+        <Modal
+          title={
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'white', fontSize: '18px', fontWeight: 700 }}>
+              <BankOutlined style={{ color: '#c084fc' }} /> Organisation Dossier #{selectedEmployer?.id}
+            </div>
+          }
+          open={modalOpen}
+          onCancel={() => setModalOpen(false)}
+          footer={null}
+          width={700}
+          styles={{
+            content: { background: '#1e293b', border: '1px solid rgba(255, 255, 255, 0.12)', borderRadius: '20px' },
+            header: { background: '#1e293b' },
+          }}
+        >
+          {selectedEmployer && (
+            <div style={{ color: '#e2e8f0', marginTop: '16px' }}>
+              <div 
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '16px',
+                  background: 'rgba(255, 255, 255, 0.04)',
+                  borderRadius: '12px',
+                  marginBottom: '20px'
+                }}
+              >
+                <div>
+                  <h3 style={{ margin: 0, color: '#ffffff', fontSize: '20px' }}>{selectedEmployer.name}</h3>
+                  <p style={{ margin: '4px 0 0', color: '#9ca3af', fontSize: '14px' }}>
+                    {selectedEmployer.location || 'India'}
+                  </p>
+                </div>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <Tag color="purple">{selectedEmployer.type || 'N/A'}</Tag>
+                  <Tag color={selectedEmployer.status === 'APPROVED' ? 'green' : (selectedEmployer.status === 'PENDING' ? 'gold' : 'red')}>
+                    {selectedEmployer.status}
+                  </Tag>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div>
+                  <h4 style={{ color: '#bae6fd', fontSize: '13px', textTransform: 'uppercase', marginBottom: '6px' }}>
+                    Entity Overview & Mandate Scope
+                  </h4>
+                  <p style={{ color: '#cbd5e1', lineHeight: 1.6, margin: 0 }}>
+                    {selectedEmployer.description || 'No detailed description provided by entity.'}
+                  </p>
+                </div>
+
+                {selectedEmployer.website && (
+                  <div>
+                    <h4 style={{ color: '#bae6fd', fontSize: '13px', textTransform: 'uppercase', marginBottom: '6px' }}>
+                      Official Website
+                    </h4>
+                    <a 
+                      href={selectedEmployer.website} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      style={{ color: '#38bdf8', wordBreak: 'break-all' }}
+                    >
+                      {selectedEmployer.website}
+                    </a>
+                  </div>
+                )}
+
+                {selectedEmployer.members?.length > 0 && (
+                  <div>
+                    <h4 style={{ color: '#bae6fd', fontSize: '13px', textTransform: 'uppercase', marginBottom: '8px' }}>
+                      Key Registered Representatives ({selectedEmployer.members.length})
+                    </h4>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {selectedEmployer.members.map((m) => (
+                        <div 
+                          key={m.id}
+                          style={{
+                            padding: '10px 12px',
+                            background: 'rgba(255,255,255,0.02)',
+                            border: '1px solid rgba(255,255,255,0.06)',
+                            borderRadius: '8px',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
+                          }}
+                        >
+                          <div>
+                            <span style={{ fontWeight: 600, color: '#ffffff' }}>{m.user?.name}</span>
+                            <span style={{ color: '#9ca3af', marginLeft: '8px', fontSize: '12px' }}>{m.user?.email}</span>
+                          </div>
+                          <Tag color="cyan">{m.role || 'MEMBER'}</Tag>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {selectedEmployer.jobs?.length > 0 && (
+                  <div>
+                    <h4 style={{ color: '#bae6fd', fontSize: '13px', textTransform: 'uppercase', marginBottom: '8px' }}>
+                      Active Mandates ({selectedEmployer.jobs.length})
+                    </h4>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      {selectedEmployer.jobs.map((j) => (
+                        <div key={j.id} style={{ fontSize: '13px', color: '#cbd5e1' }}>
+                          • <strong>{j.title}</strong> — <Tag color={j.status === 'ACTIVE' ? 'blue' : 'default'} style={{ fontSize: '11px' }}>{j.status}</Tag>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div style={{ marginTop: '28px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                <Button onClick={() => setModalOpen(false)}>Close</Button>
+                {selectedEmployer.status !== 'APPROVED' && (
+                  <Button
+                    type="primary"
+                    style={{ background: '#10b981', borderColor: '#10b981' }}
+                    onClick={() => handleUpdateStatus(selectedEmployer.id, 'APPROVED')}
+                    loading={actionLoadingId === selectedEmployer.id}
+                  >
+                    Approve Organisation
+                  </Button>
+                )}
+                {selectedEmployer.status === 'APPROVED' && (
+                  <Button
+                    danger
+                    onClick={() => handleUpdateStatus(selectedEmployer.id, 'SUSPENDED')}
+                    loading={actionLoadingId === selectedEmployer.id}
+                  >
+                    Suspend Organisation
+                  </Button>
+                )}
+              </div>
+            </div>
+          )}
+        </Modal>
+
+      </div>
+    </div>
+  );
+};
+
+export default ManageEmployers;
