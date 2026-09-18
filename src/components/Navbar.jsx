@@ -92,7 +92,7 @@ const Navbar = () => {
     : [
         {
           key: 'dashboard',
-          icon: user?.role === 'ADMIN' ? <SafetyCertificateOutlined style={{ color: '#fde047' }} /> : <DashboardOutlined />,
+          icon: <DashboardOutlined style={{ color: '#38bdf8' }} />,
           label: getUserDashboardLabel(),
           onClick: () => navigate(getUserDashboardPath()),
         },
@@ -143,8 +143,15 @@ const Navbar = () => {
           {isAuthenticated ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
               <Tag 
-                color={user?.role === 'ADMIN' ? 'gold' : (user?.role === 'EMPLOYER' ? 'purple' : 'cyan')} 
-                style={{ borderRadius: '12px', padding: '2px 10px', fontSize: '12px', fontWeight: 600 }}
+                style={{ 
+                  borderRadius: '12px', 
+                  padding: '2px 10px', 
+                  fontSize: '12px', 
+                  fontWeight: 600,
+                  background: 'rgba(14, 165, 233, 0.12)',
+                  borderColor: 'rgba(56, 189, 248, 0.3)',
+                  color: '#38bdf8'
+                }}
               >
                 {user?.role === 'ADMIN' ? 'Platform Admin' : (user?.role === 'EMPLOYER' ? 'Employer' : 'Professional')}
               </Tag>
@@ -153,8 +160,8 @@ const Navbar = () => {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', background: 'rgba(255, 255, 255, 0.08)', padding: '6px 14px', borderRadius: '20px', border: '1px solid rgba(255, 255, 255, 0.12)' }}>
                   <Avatar 
                     size="small" 
-                    icon={user?.role === 'ADMIN' ? <SafetyCertificateOutlined /> : <UserOutlined />} 
-                    style={{ backgroundColor: user?.role === 'ADMIN' ? '#eab308' : (user?.role === 'EMPLOYER' ? '#a855f7' : '#0ea5e9') }} 
+                    icon={<UserOutlined />} 
+                    style={{ backgroundColor: '#0ea5e9', color: '#ffffff' }} 
                   />
                   <span style={{ color: '#fff', fontSize: '14px', fontWeight: 500 }}>
                     {user?.name || user?.email?.split('@')[0]}

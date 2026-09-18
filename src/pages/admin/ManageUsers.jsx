@@ -95,17 +95,17 @@ const ManageUsers = () => {
               width: '38px',
               height: '38px',
               borderRadius: '10px',
-              background: record.role === 'ADMIN' ? 'rgba(234, 179, 8, 0.2)' : (record.role === 'EMPLOYER' ? 'rgba(168, 85, 247, 0.2)' : 'rgba(14, 165, 233, 0.2)'),
-              border: `1px solid ${record.role === 'ADMIN' ? 'rgba(234, 179, 8, 0.4)' : (record.role === 'EMPLOYER' ? 'rgba(168, 85, 247, 0.4)' : 'rgba(14, 165, 233, 0.4)')}`,
+              background: 'rgba(14, 165, 233, 0.15)',
+              border: '1px solid rgba(56, 189, 248, 0.3)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#ffffff',
+              color: '#38bdf8',
               fontWeight: 700,
               fontSize: '15px'
             }}
           >
-            {record.role === 'ADMIN' ? <SafetyCertificateOutlined style={{ color: '#fde047' }} /> : (record.role === 'EMPLOYER' ? <BankOutlined style={{ color: '#c084fc' }} /> : record.name?.charAt(0) || 'U')}
+            {record.name?.charAt(0) || 'U'}
           </div>
           <div>
             <div style={{ fontWeight: 600, color: '#ffffff', fontSize: '14px' }}>{record.name}</div>
@@ -206,14 +206,8 @@ const ManageUsers = () => {
   ];
 
   return (
-    <div className="portal-page-wrapper">
-      <div className="portal-bg-glow">
-        <div className="portal-bg-blob-1"></div>
-        <div className="portal-bg-blob-2"></div>
-      </div>
-
-      <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '40px 24px 80px', position: 'relative', zIndex: 1 }}>
-        <AdminHeader 
+    <div style={{ width: '100%' }}>
+      <AdminHeader 
           title="User Governance" 
           subtitle="Directory of insolvency candidates, employer representatives, and administrative accounts."
           actions={
@@ -415,9 +409,7 @@ const ManageUsers = () => {
             </div>
           )}
         </Modal>
-
       </div>
-    </div>
   );
 };
 

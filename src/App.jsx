@@ -16,7 +16,7 @@ import PrivacyPolicy from './pages/public/PrivacyPolicy';
 import TermsOfService from './pages/public/TermsOfService';
 import Security from './pages/public/Security';
 
-import CandidateLayout from './components/CandidateLayout';
+import PortalLayout from './components/PortalLayout';
 import CandidateProfile from './pages/candidate/CandidateProfile';
 import CandidateResume from './pages/candidate/CandidateResume';
 import CandidateJobs from './pages/candidate/CandidateJobs';
@@ -83,6 +83,7 @@ function App() {
           <Navbar />
           <main style={{ flex: 1 }}>
             <Routes>
+              {/* Public Routes */}
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/jobs" element={<JobSearch />} />
@@ -92,37 +93,40 @@ function App() {
               <Route path="/terms" element={<TermsOfService />} />
               <Route path="/security" element={<Security />} />
 
-              {/* Candidate Routes with Vertical Sidebar Layout */}
-              <Route path="/candidate" element={<CandidateLayout />}>
-                <Route index element={<CandidateDashboard />} />
-                <Route path="dashboard" element={<CandidateDashboard />} />
-                <Route path="profile" element={<CandidateProfile />} />
-                <Route path="education" element={<CandidateProfile />} />
-                <Route path="experience" element={<CandidateProfile />} />
-                <Route path="skills" element={<CandidateProfile />} />
-                <Route path="certifications" element={<CandidateProfile />} />
-                <Route path="resume" element={<CandidateResume />} />
-                <Route path="jobs" element={<CandidateJobs />} />
-                <Route path="applications" element={<CandidateApplications />} />
-                <Route path="saved-jobs" element={<CandidateSavedJobs />} />
-                <Route path="interviews" element={<CandidateInterviews />} />
-                <Route path="settings" element={<CandidateSettings />} />
+              {/* Single Unified Layout for All Portal Roles */}
+              <Route element={<PortalLayout />}>
+                {/* Candidate Routes */}
+                <Route path="/candidate" element={<CandidateDashboard />} />
+                <Route path="/candidate/dashboard" element={<CandidateDashboard />} />
+                <Route path="/candidate/profile" element={<CandidateProfile />} />
+                <Route path="/candidate/education" element={<CandidateProfile />} />
+                <Route path="/candidate/experience" element={<CandidateProfile />} />
+                <Route path="/candidate/skills" element={<CandidateProfile />} />
+                <Route path="/candidate/certifications" element={<CandidateProfile />} />
+                <Route path="/candidate/resume" element={<CandidateResume />} />
+                <Route path="/candidate/jobs" element={<CandidateJobs />} />
+                <Route path="/candidate/applications" element={<CandidateApplications />} />
+                <Route path="/candidate/saved-jobs" element={<CandidateSavedJobs />} />
+                <Route path="/candidate/interviews" element={<CandidateInterviews />} />
+                <Route path="/candidate/settings" element={<CandidateSettings />} />
+
+                {/* Employer Routes */}
+                <Route path="/employer" element={<EmployerDashboard />} />
+                <Route path="/employer/dashboard" element={<EmployerDashboard />} />
+                <Route path="/employer/organisation" element={<OrganisationProfile />} />
+                <Route path="/employer/jobs" element={<ManageJobs />} />
+                <Route path="/employer/jobs/:id" element={<EmployerJobDetails />} />
+                <Route path="/employer/applications" element={<ManageApplications />} />
+
+                {/* Admin Routes */}
+                <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                <Route path="/admin/users" element={<ManageUsers />} />
+                <Route path="/admin/employers" element={<ManageEmployers />} />
+                <Route path="/admin/jobs" element={<AdminManageJobs />} />
+                <Route path="/admin/applications" element={<AdminManageApplications />} />
+                <Route path="/admin/reports" element={<AdminManageReports />} />
               </Route>
-
-              {/* Employer Routes */}
-              <Route path="/employer" element={<EmployerDashboard />} />
-              <Route path="/employer/dashboard" element={<EmployerDashboard />} />
-              <Route path="/employer/organisation" element={<OrganisationProfile />} />
-              <Route path="/employer/jobs" element={<ManageJobs />} />
-              <Route path="/employer/jobs/:id" element={<EmployerJobDetails />} />
-              <Route path="/employer/applications" element={<ManageApplications />} />
-
-              <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/admin/users" element={<ManageUsers />} />
-              <Route path="/admin/employers" element={<ManageEmployers />} />
-              <Route path="/admin/jobs" element={<AdminManageJobs />} />
-              <Route path="/admin/applications" element={<AdminManageApplications />} />
-              <Route path="/admin/reports" element={<AdminManageReports />} />
 
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

@@ -28,6 +28,7 @@ import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchOrganisationProfile, updateOrganisationProfile } from '../../store/employerSlice';
+import api from '../../api';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -54,7 +55,39 @@ const OrganisationProfile = () => {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
   const [orgData, setOrgData] = useState(null);
+
+  const handleLogoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 3 * 1024 * 1024) {
+      message.error('Logo file size exceeds the 3MB limit. Please upload an image under 3MB.');
+      e.target.value = '';
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      setUploadingLogo(true);
+      const res = await api.post('/api/upload/company-logo', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      const logoUrl = res.data?.data?.logoUrl;
+      form.setFieldsValue({ logoUrl });
+      message.success('Organisation logo uploaded to Cloudflare R2!');
+      fetchOrg();
+    } catch (error) {
+      console.error('Logo upload failed:', error);
+      message.error(error?.response?.data?.message || 'Failed to upload logo to Cloudflare R2');
+    } finally {
+      setUploadingLogo(false);
+      e.target.value = '';
+    }
+  };
 
   const fetchOrg = async () => {
     try {
@@ -99,15 +132,8 @@ const OrganisationProfile = () => {
   const currentValues = Form.useWatch([], form) || {};
 
   return (
-    <div className="portal-page-wrapper">
-      <div className="portal-bg-glow">
-        <div className="portal-bg-blob-1"></div>
-        <div className="portal-bg-blob-2"></div>
-      </div>
-
-      <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '40px 24px 80px', position: 'relative', zIndex: 1 }}>
-        
-        {/* Navigation Breadcrumb / Header */}
+    <div style={{ width: '100%' }}>
+      {/* Navigation Breadcrumb / Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', flexWrap: 'wrap', gap: '16px' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
@@ -154,24 +180,54 @@ const OrganisationProfile = () => {
                 layout="vertical"
                 onFinish={handleSave}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '24px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '24px', flexWrap: 'wrap' }}>
                   <Avatar
                     size={72}
                     icon={<BankOutlined />}
                     src={currentValues.logoUrl || orgData?.logoUrl}
-                    style={{ backgroundColor: '#a855f7' }}
+                    style={{ backgroundColor: '#0ea5e9' }}
                   />
-                  <div style={{ flex: 1 }}>
-                    <Form.Item
-                      label={<span style={{ color: '#e2e8f0' }}>Organisation Logo URL</span>}
-                      name="logoUrl"
-                      style={{ marginBottom: 0 }}
-                    >
-                      <Input 
-                        placeholder="https://example.com/logo.png" 
-                        style={{ background: 'rgba(255, 255, 255, 0.05)', color: 'white', borderColor: 'rgba(255, 255, 255, 0.15)' }} 
-                      />
-                    </Form.Item>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, minWidth: '240px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <label
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          padding: '8px 16px',
+                          background: '#0ea5e9',
+                          borderRadius: '8px',
+                          color: 'white',
+                          cursor: uploadingLogo ? 'not-allowed' : 'pointer',
+                          fontSize: '13px',
+                          fontWeight: 600,
+                          boxShadow: '0 4px 12px rgba(14, 165, 233, 0.3)',
+                          opacity: uploadingLogo ? 0.6 : 1
+                        }}
+                      >
+                        <PlusOutlined spin={uploadingLogo} /> {uploadingLogo ? 'Uploading to R2...' : 'Upload Logo to Cloudflare R2'}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          style={{ display: 'none' }}
+                          disabled={uploadingLogo}
+                          onChange={handleLogoUpload}
+                        />
+                      </label>
+                      {currentValues.logoUrl && (
+                        <Button
+                          size="small"
+                          danger
+                          onClick={() => form.setFieldsValue({ logoUrl: '' })}
+                          style={{ borderRadius: '6px' }}
+                        >
+                          Remove
+                        </Button>
+                      )}
+                    </div>
+                    <span style={{ color: '#94a3b8', fontSize: '12px' }}>
+                      Upload corporate logo to Cloudflare R2 (PNG, JPG, SVG, WebP up to 3MB)
+                    </span>
                   </div>
                 </div>
 
@@ -328,9 +384,7 @@ const OrganisationProfile = () => {
 
           </div>
         )}
-
       </div>
-    </div>
   );
 };
 

@@ -107,14 +107,8 @@ const EmployerDashboard = () => {
   ];
 
   return (
-    <div className="portal-page-wrapper">
-      <div className="portal-bg-glow">
-        <div className="portal-bg-blob-1"></div>
-        <div className="portal-bg-blob-2"></div>
-      </div>
-
-      <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '40px 24px 80px', position: 'relative', zIndex: 1 }}>
-        <motion.div 
+    <div style={{ width: '100%' }}>
+      <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -216,7 +210,6 @@ const EmployerDashboard = () => {
           />
         </Modal>
       </div>
-    </div>
   );
 };
 

@@ -88,12 +88,12 @@ const ManageEmployers = () => {
               width: '42px',
               height: '42px',
               borderRadius: '12px',
-              background: 'rgba(168, 85, 247, 0.15)',
-              border: '1px solid rgba(168, 85, 247, 0.3)',
+              background: 'rgba(14, 165, 233, 0.12)',
+              border: '1px solid rgba(56, 189, 248, 0.3)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#d8b4fe',
+              color: '#38bdf8',
               fontWeight: 700,
               fontSize: '18px'
             }}
@@ -119,7 +119,7 @@ const ManageEmployers = () => {
       dataIndex: 'type',
       key: 'type',
       render: (type) => (
-        <Tag color="purple" style={{ fontWeight: 600 }}>
+        <Tag style={{ background: 'rgba(255, 255, 255, 0.06)', borderColor: 'rgba(255, 255, 255, 0.15)', color: '#cbd5e1', fontWeight: 600 }}>
           {type || 'OTHER'}
         </Tag>
       ),
@@ -213,14 +213,8 @@ const ManageEmployers = () => {
   ];
 
   return (
-    <div className="portal-page-wrapper">
-      <div className="portal-bg-glow">
-        <div className="portal-bg-blob-1"></div>
-        <div className="portal-bg-blob-2"></div>
-      </div>
-
-      <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '40px 24px 80px', position: 'relative', zIndex: 1 }}>
-        <AdminHeader 
+    <div style={{ width: '100%' }}>
+      <AdminHeader 
           title="Employer Organisation Management" 
           subtitle="Review, approve, and govern Banks, ARCs, Law Firms, CA Firms, and Insolvency Entities."
           actions={
@@ -458,9 +452,7 @@ const ManageEmployers = () => {
             </div>
           )}
         </Modal>
-
       </div>
-    </div>
   );
 };
 

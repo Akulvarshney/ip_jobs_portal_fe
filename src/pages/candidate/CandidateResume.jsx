@@ -15,6 +15,7 @@ import {
 import { motion } from 'framer-motion';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCandidateProfile, updateResume, deleteResume } from '../../store/candidateSlice';
+import api from '../../api';
 
 const CandidateResume = () => {
   const dispatch = useDispatch();
@@ -22,6 +23,7 @@ const CandidateResume = () => {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [inputUrl, setInputUrl] = useState('');
   const [previewVisible, setPreviewVisible] = useState(false);
 
@@ -52,7 +54,7 @@ const CandidateResume = () => {
       setSaving(true);
       await dispatch(updateResume({ resumeUrl: inputUrl.trim() })).unwrap();
       setInputUrl('');
-      message.success('Resume updated successfully!');
+      message.success('Resume link saved successfully!');
     } catch (error) {
       message.error(typeof error === 'string' ? error : 'Failed to save resume');
     } finally {
@@ -72,27 +74,33 @@ const CandidateResume = () => {
     }
   };
 
-  const handleSimulateLocalUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (file.size > 10 * 1024 * 1024) {
-        message.error('File size exceeds 10MB limit.');
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = async (event) => {
-        const base64Url = event.target.result;
-        try {
-          setSaving(true);
-          await dispatch(updateResume({ resumeUrl: base64Url })).unwrap();
-          message.success(`Uploaded ${file.name} successfully!`);
-        } catch (error) {
-          message.error(typeof error === 'string' ? error : 'Upload failed');
-        } finally {
-          setSaving(false);
-        }
-      };
-      reader.readAsDataURL(file);
+  const handleFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 3 * 1024 * 1024) {
+      message.error('File size exceeds the 3MB limit. Please upload a resume under 3MB.');
+      e.target.value = '';
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      setUploading(true);
+      const res = await api.post('/api/upload/resume', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      message.success(`Resume "${file.name}" uploaded to Cloudflare R2 successfully!`);
+      loadProfile();
+    } catch (error) {
+      console.error('R2 upload failed:', error);
+      const errorMsg = error?.response?.data?.message || error?.message || 'Failed to upload resume to Cloudflare R2';
+      message.error(errorMsg);
+    } finally {
+      setUploading(false);
+      e.target.value = '';
     }
   };
 
@@ -189,17 +197,19 @@ const CandidateResume = () => {
                       border: '1px dashed rgba(255, 255, 255, 0.2)',
                       borderRadius: '8px',
                       color: '#38bdf8',
-                      cursor: 'pointer',
+                      cursor: uploading ? 'not-allowed' : 'pointer',
                       fontSize: '13px',
-                      fontWeight: 500
+                      fontWeight: 500,
+                      opacity: uploading ? 0.6 : 1
                     }}
                   >
-                    <SyncOutlined /> Choose New File (PDF, DOCX)
+                    <SyncOutlined spin={uploading} /> {uploading ? 'Uploading to Cloudflare R2...' : 'Replace File (PDF, DOCX)'}
                     <input
                       type="file"
                       accept=".pdf,.doc,.docx"
                       style={{ display: 'none' }}
-                      onChange={handleSimulateLocalUpload}
+                      disabled={uploading}
+                      onChange={handleFileUpload}
                     />
                   </label>
                 </div>
@@ -218,7 +228,7 @@ const CandidateResume = () => {
                   Upload Your Latest Resume
                 </h3>
                 <p style={{ color: '#9ca3af', fontSize: '14px', margin: '6px 0 20px' }}>
-                  Supports PDF, DOC, DOCX up to 10MB.
+                  Securely stored on Cloudflare R2. Supports PDF, DOC, DOCX up to 3MB.
                 </p>
 
                 <label
@@ -230,18 +240,20 @@ const CandidateResume = () => {
                     background: '#0ea5e9',
                     borderRadius: '10px',
                     color: 'white',
-                    cursor: 'pointer',
+                    cursor: uploading ? 'not-allowed' : 'pointer',
                     fontSize: '14px',
                     fontWeight: 600,
-                    boxShadow: '0 4px 14px rgba(14, 165, 233, 0.4)'
+                    boxShadow: '0 4px 14px rgba(14, 165, 233, 0.4)',
+                    opacity: uploading ? 0.6 : 1
                   }}
                 >
-                  <UploadOutlined /> Select File to Upload
+                  <UploadOutlined spin={uploading} /> {uploading ? 'Uploading to Cloudflare R2...' : 'Select File to Upload'}
                   <input
                     type="file"
                     accept=".pdf,.doc,.docx"
                     style={{ display: 'none' }}
-                    onChange={handleSimulateLocalUpload}
+                    disabled={uploading}
+                    onChange={handleFileUpload}
                   />
                 </label>
 

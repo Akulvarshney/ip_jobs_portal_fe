@@ -184,14 +184,8 @@ const ManageApplications = () => {
   ];
 
   return (
-    <div className="portal-page-wrapper">
-      <div className="portal-bg-glow">
-        <div className="portal-bg-blob-1"></div>
-        <div className="portal-bg-blob-2"></div>
-      </div>
-
-      <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '40px 24px 80px', position: 'relative', zIndex: 1 }}>
-        <AdminHeader 
+    <div style={{ width: '100%' }}>
+      <AdminHeader 
           title="Application Pipeline & Moderation" 
           subtitle="Audit candidate submissions, track hiring pipeline health, and assist resolution support."
           actions={
@@ -362,9 +356,7 @@ const ManageApplications = () => {
             </div>
           )}
         </Modal>
-
       </div>
-    </div>
   );
 };
 

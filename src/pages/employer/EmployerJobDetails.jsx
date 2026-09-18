@@ -263,7 +263,7 @@ const EmployerJobDetails = () => {
 
   if (loading && !job) {
     return (
-      <div className="portal-page-wrapper" style={{ padding: '60px 24px', textAlign: 'center' }}>
+      <div style={{ padding: '60px 24px', textAlign: 'center' }}>
         <p style={{ color: '#9ca3af', fontSize: '16px' }}>Loading mandate details & candidates...</p>
       </div>
     );
@@ -275,15 +275,8 @@ const EmployerJobDetails = () => {
   const selectedCount = applicationsList.filter(a => a.status === 'SELECTED').length;
 
   return (
-    <div className="portal-page-wrapper">
-      <div className="portal-bg-glow">
-        <div className="portal-bg-blob-1"></div>
-        <div className="portal-bg-blob-2"></div>
-      </div>
-
-      <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '40px 24px 80px', position: 'relative', zIndex: 1 }}>
-        
-        {/* Navigation & Header */}
+    <div style={{ width: '100%' }}>
+      {/* Navigation & Header */}
         <div style={{ marginBottom: '24px' }}>
           <button 
             className="portal-btn-secondary"
@@ -697,9 +690,7 @@ const EmployerJobDetails = () => {
             </div>
           )}
         </Modal>
-
       </div>
-    </div>
   );
 };
 

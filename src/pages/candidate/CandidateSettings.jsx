@@ -36,6 +36,7 @@ const CandidateSettings = () => {
   const [jobAlerts, setJobAlerts] = useState(true);
   const [applicationUpdates, setApplicationUpdates] = useState(true);
   const [interviewReminders, setInterviewReminders] = useState(true);
+  const [stayUpdated, setStayUpdated] = useState(false);
 
   const [passwordForm] = Form.useForm();
   const dispatch = useDispatch();
@@ -55,11 +56,13 @@ const CandidateSettings = () => {
       if (settings.jobAlerts !== undefined) setJobAlerts(settings.jobAlerts);
       if (settings.applicationUpdates !== undefined) setApplicationUpdates(settings.applicationUpdates);
       if (settings.interviewReminders !== undefined) setInterviewReminders(settings.interviewReminders);
+      if (settings.stayUpdated !== undefined) setStayUpdated(settings.stayUpdated);
 
       if (settings.notifications) {
         if (settings.notifications.jobAlerts !== undefined) setJobAlerts(settings.notifications.jobAlerts);
         if (settings.notifications.applicationUpdates !== undefined) setApplicationUpdates(settings.notifications.applicationUpdates);
         if (settings.notifications.interviewReminders !== undefined) setInterviewReminders(settings.notifications.interviewReminders);
+        if (settings.notifications.stayUpdated !== undefined) setStayUpdated(settings.notifications.stayUpdated);
       }
     }
   }, [settings]);
@@ -71,7 +74,8 @@ const CandidateSettings = () => {
         visibility,
         jobAlerts,
         applicationUpdates,
-        interviewReminders
+        interviewReminders,
+        stayUpdated
       })).unwrap();
       message.success('Preferences updated and saved successfully');
     } catch (error) {
@@ -237,6 +241,17 @@ const CandidateSettings = () => {
                   <div style={{ color: '#94a3b8', fontSize: '12px' }}>Receive calendar notifications and reminders 1 hour before scheduled video calls.</div>
                 </div>
                 <Switch checked={interviewReminders} onChange={setInterviewReminders} />
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <div style={{ color: 'white', fontWeight: 500, fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    Stay Updated & Insolvency Insights
+                    {stayUpdated && <Tag color="success" style={{ borderRadius: '10px', fontSize: '11px' }}>Enrolled</Tag>}
+                  </div>
+                  <div style={{ color: '#94a3b8', fontSize: '12px' }}>Receive curated weekly IBC restructuring alerts, NCLT jurisprudence digests, and executive job digests.</div>
+                </div>
+                <Switch checked={stayUpdated} onChange={setStayUpdated} />
               </div>
             </div>
 

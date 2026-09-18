@@ -113,8 +113,11 @@ const CandidateDashboard = () => {
     shortlisted: 0,
     interviews: 0,
     savedJobs: 0,
-    profileCompleteness: 30
+    profileCompleteness: 0
   };
+
+  const completeness = data?.completenessDetails || data?.profile?.completeness || null;
+  const nextMissingItem = completeness?.missingItems?.[0] || null;
 
   return (
     <div style={{ width: '100%', margin: 0, padding: 0 }}>
@@ -130,58 +133,74 @@ const CandidateDashboard = () => {
           padding: '28px 32px',
           marginTop: 0,
           marginBottom: '32px',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            flexWrap: 'wrap',
-            gap: '24px',
-            boxShadow: '0 20px 40px -15px rgba(0, 0, 0, 0.4)'
-          }}
-        >
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-              <span style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '1px', color: '#38bdf8', fontWeight: 600 }}>
-                Candidate Portal
-              </span>
-              <Tag color="cyan" style={{ borderRadius: '12px', fontSize: '11px', padding: '0 8px' }}>
-                {data?.profile?.professionalCategory || 'Insolvency & Restructuring Professional'}
-              </Tag>
-            </div>
-            <h1 style={{ fontSize: '30px', fontWeight: 700, color: '#ffffff', margin: 0 }}>
-              Welcome back, {user?.name || 'Professional'} 👋
-            </h1>
-            <p style={{ color: '#9ca3af', marginTop: '6px', marginBottom: 0, fontSize: '15px' }}>
-              Track your Insolvency & Bankruptcy mandates, interview schedules, and employer requests.
-            </p>
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '24px',
+          boxShadow: '0 20px 40px -15px rgba(0, 0, 0, 0.4)'
+        }}
+      >
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+            <span style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '1px', color: '#38bdf8', fontWeight: 600 }}>
+              Candidate Portal
+            </span>
+            <Tag color="cyan" style={{ borderRadius: '12px', fontSize: '11px', padding: '0 8px' }}>
+              {data?.profile?.professionalCategory || 'Insolvency & Restructuring Professional'}
+            </Tag>
           </div>
+          <h1 style={{ fontSize: '30px', fontWeight: 700, color: '#ffffff', margin: 0 }}>
+            Welcome back, {user?.name || 'Professional'} 👋
+          </h1>
+          <p style={{ color: '#9ca3af', marginTop: '6px', marginBottom: 0, fontSize: '15px' }}>
+            Track your Insolvency & Bankruptcy mandates, interview schedules, and employer requests.
+          </p>
+        </div>
 
-          <div style={{
-            background: 'rgba(255, 255, 255, 0.04)',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            padding: '16px 20px',
-            borderRadius: '16px',
-            minWidth: '260px'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-              <span style={{ fontSize: '13px', color: '#e2e8f0', fontWeight: 500 }}>Profile Completeness</span>
-              <span style={{ fontSize: '14px', color: '#38bdf8', fontWeight: 700 }}>{stats.profileCompleteness}%</span>
-            </div>
-            <Progress 
-              percent={stats.profileCompleteness} 
-              showInfo={false} 
-              strokeColor={{ '0%': '#0ea5e9', '100%': '#38bdf8' }} 
-              trailColor="rgba(255, 255, 255, 0.1)"
-            />
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px' }}>
+        <div style={{
+          background: 'rgba(255, 255, 255, 0.04)',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          padding: '16px 20px',
+          borderRadius: '16px',
+          minWidth: '280px'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+            <span style={{ fontSize: '13px', color: '#e2e8f0', fontWeight: 500 }}>Profile Completeness</span>
+            <span style={{ 
+              fontSize: '14px', 
+              color: stats.profileCompleteness === 100 ? '#34d399' : '#38bdf8', 
+              fontWeight: 700 
+            }}>
+              {stats.profileCompleteness}%
+            </span>
+          </div>
+          <Progress 
+            percent={stats.profileCompleteness} 
+            showInfo={false} 
+            strokeColor={stats.profileCompleteness === 100 ? '#10b981' : { '0%': '#0ea5e9', '100%': '#38bdf8' }} 
+            trailColor="rgba(255, 255, 255, 0.1)"
+          />
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px', gap: '8px' }}>
+            {stats.profileCompleteness === 100 ? (
+              <span style={{ fontSize: '12px', color: '#34d399', fontWeight: 500 }}>
+                ✓ Profile 100% Complete
+              </span>
+            ) : nextMissingItem ? (
+              <Link to={nextMissingItem.route || '/candidate/profile'} style={{ fontSize: '12px', color: '#38bdf8', fontWeight: 500 }}>
+                + {nextMissingItem.label} (+{nextMissingItem.points - (nextMissingItem.earned || 0)}%)
+              </Link>
+            ) : (
               <Link to="/candidate/profile" style={{ fontSize: '12px', color: '#38bdf8', fontWeight: 500 }}>
                 + Add Experience / Skills
               </Link>
-              <Link to="/candidate/resume" style={{ fontSize: '12px', color: '#94a3b8' }}>
-                Upload Resume
-              </Link>
-            </div>
+            )}
+            <Link to="/candidate/profile" style={{ fontSize: '12px', color: '#94a3b8' }}>
+              Edit Profile →
+            </Link>
           </div>
-        </motion.div>
+        </div>
+      </motion.div>
 
         {/* 4 Stat Cards as defined in ProductMap 4.1 */}
         <div style={{

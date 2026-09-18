@@ -216,14 +216,8 @@ const ManageReports = () => {
   ];
 
   return (
-    <div className="portal-page-wrapper">
-      <div className="portal-bg-glow">
-        <div className="portal-bg-blob-1"></div>
-        <div className="portal-bg-blob-2"></div>
-      </div>
-
-      <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '40px 24px 80px', position: 'relative', zIndex: 1 }}>
-        <AdminHeader 
+    <div style={{ width: '100%' }}>
+      <AdminHeader 
           title="Platform Moderation & Reports" 
           subtitle="Audit reported fake jobs, unverified organisations, spam mandates, or compliance violations."
           actions={
@@ -463,9 +457,7 @@ const ManageReports = () => {
             </Form.Item>
           </Form>
         </Modal>
-
       </div>
-    </div>
   );
 };
 

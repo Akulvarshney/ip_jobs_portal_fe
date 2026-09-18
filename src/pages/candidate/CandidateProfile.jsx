@@ -17,8 +17,10 @@ import {
   Row,
   Col,
   Avatar,
-  Upload
+  Upload,
+  Progress
 } from 'antd';
+import { useNavigate } from 'react-router-dom';
 import {
   UserOutlined,
   BookOutlined,
@@ -110,6 +112,75 @@ const CandidateProfile = () => {
 
   const [customSkillInput, setCustomSkillInput] = useState('');
   const [selectedSkills, setSelectedSkills] = useState([]);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [uploadingCertDoc, setUploadingCertDoc] = useState(false);
+  const [showCompletenessDetails, setShowCompletenessDetails] = useState(false);
+  const navigate = useNavigate();
+
+  const fetchProfile = () => {
+    dispatch(fetchCandidateProfile());
+  };
+
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 3 * 1024 * 1024) {
+      message.error('Photo size exceeds the 3MB limit. Please upload an image under 3MB.');
+      e.target.value = '';
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      setUploadingPhoto(true);
+      const res = await api.post('/api/upload/avatar', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      const photoUrl = res.data?.data?.profilePhoto;
+      form.setFieldsValue({ profilePhoto: photoUrl });
+      message.success('Profile photo uploaded to Cloudflare R2 successfully!');
+      fetchProfile();
+    } catch (error) {
+      console.error('Photo upload failed:', error);
+      message.error(error?.response?.data?.message || 'Failed to upload photo to Cloudflare R2');
+    } finally {
+      setUploadingPhoto(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleCertDocUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 3 * 1024 * 1024) {
+      message.error('Document size exceeds the 3MB limit. Please upload a file under 3MB.');
+      e.target.value = '';
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      setUploadingCertDoc(true);
+      const res = await api.post('/api/upload/document', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      const docUrl = res.data?.data?.documentUrl;
+      certForm.setFieldsValue({ documentUrl: docUrl });
+      message.success('Certificate document uploaded to Cloudflare R2!');
+    } catch (error) {
+      console.error('Document upload failed:', error);
+      message.error(error?.response?.data?.message || 'Failed to upload document to Cloudflare R2');
+    } finally {
+      setUploadingCertDoc(false);
+      e.target.value = '';
+    }
+  };
 
   useEffect(() => {
     dispatch(fetchCandidateProfile());
@@ -351,24 +422,56 @@ const CandidateProfile = () => {
           onFinish={handleSaveBasic}
           style={{ maxWidth: '900px' }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '24px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '24px', flexWrap: 'wrap' }}>
             <Avatar
-              size={72}
+              size={76}
               icon={<UserOutlined />}
               src={form.getFieldValue('profilePhoto')}
-              style={{ backgroundColor: '#0ea5e9' }}
+              style={{ backgroundColor: '#0ea5e9', border: '2px solid rgba(56, 189, 248, 0.4)' }}
             />
-            <div style={{ flex: 1 }}>
-              <Form.Item
-                label={<span style={{ color: '#e2e8f0' }}>Profile Photo URL</span>}
-                name="profilePhoto"
-                style={{ marginBottom: 0 }}
-              >
-                <Input
-                  placeholder="https://example.com/avatar.jpg"
-                  style={{ background: 'rgba(255, 255, 255, 0.05)', color: 'white', borderColor: 'rgba(255, 255, 255, 0.15)' }}
-                />
-              </Form.Item>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <label
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '8px 16px',
+                    background: '#0ea5e9',
+                    borderRadius: '8px',
+                    color: 'white',
+                    cursor: uploadingPhoto ? 'not-allowed' : 'pointer',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    boxShadow: '0 4px 12px rgba(14, 165, 233, 0.3)',
+                    opacity: uploadingPhoto ? 0.6 : 1
+                  }}
+                >
+                  <PlusOutlined spin={uploadingPhoto} /> {uploadingPhoto ? 'Uploading to R2...' : 'Upload Photo'}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    style={{ display: 'none' }}
+                    disabled={uploadingPhoto}
+                    onChange={handlePhotoUpload}
+                  />
+                </label>
+                {form.getFieldValue('profilePhoto') && (
+                  <Button
+                    size="small"
+                    danger
+                    onClick={() => {
+                      form.setFieldsValue({ profilePhoto: '' });
+                    }}
+                    style={{ borderRadius: '6px' }}
+                  >
+                    Remove
+                  </Button>
+                )}
+              </div>
+              <span style={{ color: '#94a3b8', fontSize: '12px' }}>
+                Uploaded to Cloudflare R2 (JPG, PNG, WebP up to 3MB)
+              </span>
             </div>
           </div>
 
@@ -845,6 +948,156 @@ const CandidateProfile = () => {
           </p>
         </div>
 
+        {/* Profile Completeness Interactive Banner */}
+        {profile?.completeness && (
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.8) 100%)',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            borderRadius: '14px',
+            padding: '18px 24px',
+            marginBottom: '28px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '12px'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span style={{ fontSize: '15px', fontWeight: 600, color: 'white' }}>Profile Completeness</span>
+                  <Tag color={profile.completeness.score === 100 ? 'success' : 'processing'} style={{ borderRadius: '12px', fontWeight: 600 }}>
+                    {profile.completeness.score}% Completed
+                  </Tag>
+                  <span style={{ fontSize: '12px', color: '#94a3b8' }}>
+                    ({profile.completeness.completedCount}/{profile.completeness.totalItemsCount} criteria fulfilled)
+                  </span>
+                </div>
+                <p style={{ color: '#94a3b8', fontSize: '13px', margin: '4px 0 0' }}>
+                  {profile.completeness.score === 100 
+                    ? '🎉 Your profile is 100% complete and verified for top priority employer searches.' 
+                    : 'Complete pending sections to boost your profile visibility to restructuring firms & insolvency recruiters.'}
+                </p>
+              </div>
+
+              <Button 
+                size="small"
+                onClick={() => setShowCompletenessDetails(!showCompletenessDetails)}
+                style={{ 
+                  background: 'rgba(56, 189, 248, 0.1)', 
+                  borderColor: 'rgba(56, 189, 248, 0.3)', 
+                  color: '#38bdf8', 
+                  borderRadius: '8px' 
+                }}
+              >
+                {showCompletenessDetails ? 'Hide Breakdown ▲' : 'View Checklist ▼'}
+              </Button>
+            </div>
+
+            <Progress
+              percent={profile.completeness.score}
+              strokeColor={profile.completeness.score === 100 ? '#10b981' : { '0%': '#0ea5e9', '100%': '#38bdf8' }}
+              trailColor="rgba(255, 255, 255, 0.08)"
+              showInfo={false}
+            />
+
+            {/* Quick action badges for missing items */}
+            {profile.completeness.score < 100 && profile.completeness.missingItems?.length > 0 && !showCompletenessDetails && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center', marginTop: '4px' }}>
+                <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 500 }}>Next recommendations:</span>
+                {profile.completeness.missingItems.slice(0, 3).map((item) => (
+                  <button
+                    key={item.key}
+                    type="button"
+                    onClick={() => {
+                      if (item.key === 'resume') {
+                        navigate('/candidate/resume');
+                      } else if (item.key === 'skills') {
+                        setActiveTab('skills');
+                      } else if (item.key === 'experienceHistory') {
+                        setActiveTab('experience');
+                      } else if (item.key === 'education') {
+                        setActiveTab('education');
+                      } else if (item.key === 'certification') {
+                        setActiveTab('certifications');
+                      } else {
+                        setActiveTab('basic');
+                      }
+                    }}
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.05)',
+                      border: '1px solid rgba(56, 189, 248, 0.25)',
+                      borderRadius: '6px',
+                      padding: '3px 10px',
+                      color: '#38bdf8',
+                      fontSize: '12px',
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}
+                  >
+                    + {item.label} <span style={{ opacity: 0.7 }}>(+{item.points - (item.earned || 0)}%)</span>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Expanded Detailed Checklist */}
+            {showCompletenessDetails && (
+              <div style={{
+                marginTop: '12px',
+                paddingTop: '16px',
+                borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+                gap: '12px'
+              }}>
+                {profile.completeness.breakdown?.map((item) => (
+                  <div
+                    key={item.key}
+                    onClick={() => {
+                      if (item.key === 'resume') {
+                        navigate('/candidate/resume');
+                      } else if (item.key === 'skills') {
+                        setActiveTab('skills');
+                      } else if (item.key === 'experienceHistory') {
+                        setActiveTab('experience');
+                      } else if (item.key === 'education') {
+                        setActiveTab('education');
+                      } else if (item.key === 'certification') {
+                        setActiveTab('certifications');
+                      } else {
+                        setActiveTab('basic');
+                      }
+                    }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '8px 12px',
+                      background: item.completed ? 'rgba(16, 185, 129, 0.08)' : 'rgba(255, 255, 255, 0.03)',
+                      border: `1px solid ${item.completed ? 'rgba(16, 185, 129, 0.2)' : 'rgba(255, 255, 255, 0.06)'}`,
+                      borderRadius: '8px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ color: item.completed ? '#10b981' : '#64748b', fontSize: '14px' }}>
+                        {item.completed ? '✓' : '○'}
+                      </span>
+                      <span style={{ fontSize: '13px', color: item.completed ? '#e2e8f0' : '#94a3b8', fontWeight: item.completed ? 500 : 400 }}>
+                        {item.label}
+                      </span>
+                    </div>
+                    <span style={{ fontSize: '12px', fontWeight: 600, color: item.completed ? '#10b981' : '#38bdf8' }}>
+                      {item.earned}/{item.points}%
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         <Tabs
           activeKey={activeTab}
           onChange={setActiveTab}
@@ -995,10 +1248,37 @@ const CandidateProfile = () => {
             </Col>
           </Row>
           <Form.Item
-            label={<span style={{ color: '#e2e8f0' }}>Certificate Document URL (Optional)</span>}
+            label={<span style={{ color: '#e2e8f0' }}>Certificate Document / Proof</span>}
             name="documentUrl"
           >
-            <Input placeholder="https://example.com/certificates/ibbi_cert.pdf" />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <Input placeholder="https://example.com/certificates/ibbi_cert.pdf or upload below" />
+              <label
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '8px 14px',
+                  background: 'rgba(255, 255, 255, 0.06)',
+                  border: '1px dashed rgba(255, 255, 255, 0.2)',
+                  borderRadius: '8px',
+                  color: '#38bdf8',
+                  cursor: uploadingCertDoc ? 'not-allowed' : 'pointer',
+                  fontSize: '12px',
+                  fontWeight: 500,
+                  width: 'fit-content'
+                }}
+              >
+                <PlusOutlined spin={uploadingCertDoc} /> {uploadingCertDoc ? 'Uploading to Cloudflare R2...' : 'Upload Document to Cloudflare R2 (PDF, JPG, PNG up to 3MB)'}
+                <input
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                  style={{ display: 'none' }}
+                  disabled={uploadingCertDoc}
+                  onChange={handleCertDocUpload}
+                />
+              </label>
+            </div>
           </Form.Item>
         </Form>
       </Modal>

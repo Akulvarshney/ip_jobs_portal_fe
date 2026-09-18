@@ -80,40 +80,33 @@ const ManageJobs = () => {
   ];
 
   return (
-    <div className="portal-page-wrapper">
-      <div className="portal-bg-glow">
-        <div className="portal-bg-blob-1"></div>
-        <div className="portal-bg-blob-2"></div>
-      </div>
-
-      <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '40px 24px 80px', position: 'relative', zIndex: 1 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px', flexWrap: 'wrap', gap: '16px' }}>
-          <div>
-            <h1 className="portal-section-title" style={{ fontSize: '32px' }}>Active Mandates</h1>
-            <p className="portal-section-subtitle">Manage your listed CIRP & Liquidation roles and review candidate submissions.</p>
-          </div>
-          <button className="portal-btn-primary" onClick={() => navigate('/employer')}>
-            <PlusOutlined />
-            <span>Post New Mandate</span>
-          </button>
+    <div style={{ width: '100%' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px', flexWrap: 'wrap', gap: '16px' }}>
+        <div>
+          <h1 className="portal-section-title" style={{ fontSize: '30px' }}>Active Mandates</h1>
+          <p className="portal-section-subtitle">Manage your listed CIRP & Liquidation roles and review candidate submissions.</p>
         </div>
-
-        <motion.div 
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="portal-glass-card" 
-          style={{ padding: '24px' }}
-        >
-          <Table 
-            dataSource={jobs}
-            columns={columns}
-            rowKey="id"
-            loading={loading}
-            pagination={{ pageSize: 8 }}
-            className="portal-table"
-          />
-        </motion.div>
+        <button className="portal-btn-primary" onClick={() => navigate('/employer')}>
+          <PlusOutlined />
+          <span>Post New Mandate</span>
+        </button>
       </div>
+
+      <motion.div 
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="portal-glass-card" 
+        style={{ padding: '24px' }}
+      >
+        <Table 
+          dataSource={jobs}
+          columns={columns}
+          rowKey="id"
+          loading={loading}
+          pagination={{ pageSize: 8 }}
+          className="portal-table"
+        />
+      </motion.div>
     </div>
   );
 };

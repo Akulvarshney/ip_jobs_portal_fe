@@ -43,59 +43,53 @@ const AdminDashboard = () => {
     {
       title: 'Total Candidates',
       count: stats?.totalCandidates ?? 0,
-      icon: <UserOutlined style={{ fontSize: '24px', color: '#38bdf8' }} />,
+      icon: <UserOutlined style={{ fontSize: '22px', color: '#38bdf8' }} />,
       subtitle: 'Registered IPs & Professionals',
-      color: 'linear-gradient(135deg, rgba(14, 165, 233, 0.2) 0%, rgba(30, 41, 59, 0.8) 100%)',
-      borderColor: 'rgba(14, 165, 233, 0.3)',
+      color: 'rgba(30, 41, 59, 0.7)',
+      borderColor: 'rgba(255, 255, 255, 0.08)',
       link: '/admin/users?role=CANDIDATE',
     },
     {
       title: 'Total Employers',
       count: stats?.totalEmployers ?? 0,
-      icon: <BankOutlined style={{ fontSize: '24px', color: '#a855f7' }} />,
+      icon: <BankOutlined style={{ fontSize: '22px', color: '#38bdf8' }} />,
       subtitle: `${stats?.pendingEmployers ?? 0} pending approvals`,
-      color: 'linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(30, 41, 59, 0.8) 100%)',
-      borderColor: 'rgba(168, 85, 247, 0.3)',
+      color: 'rgba(30, 41, 59, 0.7)',
+      borderColor: 'rgba(255, 255, 255, 0.08)',
       link: '/admin/employers',
     },
     {
       title: 'Active Job Mandates',
       count: stats?.activeJobs ?? 0,
-      icon: <FileTextOutlined style={{ fontSize: '24px', color: '#10b981' }} />,
+      icon: <FileTextOutlined style={{ fontSize: '22px', color: '#38bdf8' }} />,
       subtitle: `${(stats?.pausedJobs ?? 0) + (stats?.closedJobs ?? 0)} paused/closed`,
-      color: 'linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(30, 41, 59, 0.8) 100%)',
-      borderColor: 'rgba(16, 185, 129, 0.3)',
+      color: 'rgba(30, 41, 59, 0.7)',
+      borderColor: 'rgba(255, 255, 255, 0.08)',
       link: '/admin/jobs',
     },
     {
       title: 'Applications Logged',
       count: stats?.totalApplications ?? 0,
-      icon: <SolutionOutlined style={{ fontSize: '24px', color: '#f59e0b' }} />,
+      icon: <SolutionOutlined style={{ fontSize: '22px', color: '#38bdf8' }} />,
       subtitle: 'Total candidate submissions',
-      color: 'linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(30, 41, 59, 0.8) 100%)',
-      borderColor: 'rgba(245, 158, 11, 0.3)',
+      color: 'rgba(30, 41, 59, 0.7)',
+      borderColor: 'rgba(255, 255, 255, 0.08)',
       link: '/admin/applications',
     },
     {
       title: 'Moderation Reports',
       count: stats?.totalReports ?? 0,
-      icon: <AlertOutlined style={{ fontSize: '24px', color: '#ef4444' }} />,
+      icon: <AlertOutlined style={{ fontSize: '22px', color: '#38bdf8' }} />,
       subtitle: `${stats?.openReports ?? 0} open investigation(s)`,
-      color: 'linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(30, 41, 59, 0.8) 100%)',
-      borderColor: 'rgba(239, 68, 68, 0.3)',
+      color: 'rgba(30, 41, 59, 0.7)',
+      borderColor: 'rgba(255, 255, 255, 0.08)',
       link: '/admin/reports',
     },
   ];
 
   return (
-    <div className="portal-page-wrapper">
-      <div className="portal-bg-glow">
-        <div className="portal-bg-blob-1"></div>
-        <div className="portal-bg-blob-2"></div>
-      </div>
-
-      <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '40px 24px 80px', position: 'relative', zIndex: 1 }}>
-        <AdminHeader 
+    <div style={{ width: '100%' }}>
+      <AdminHeader 
           title="Platform Governance & Analytics" 
           subtitle="System overview of registered insolvency professionals, corporate employers, active mandates, and safety moderation."
           actions={
@@ -326,9 +320,7 @@ const AdminDashboard = () => {
             </div>
           )}
         </div>
-
       </div>
-    </div>
   );
 };
 

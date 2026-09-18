@@ -324,15 +324,8 @@ const ManageApplications = () => {
   ];
 
   return (
-    <div className="portal-page-wrapper">
-      <div className="portal-bg-glow">
-        <div className="portal-bg-blob-1"></div>
-        <div className="portal-bg-blob-2"></div>
-      </div>
-
-      <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '40px 24px 80px', position: 'relative', zIndex: 1 }}>
-        
-        {/* Page Header */}
+    <div style={{ width: '100%' }}>
+      {/* Page Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px', flexWrap: 'wrap', gap: '16px' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
@@ -424,7 +417,6 @@ const ManageApplications = () => {
             }}
           />
         </motion.div>
-      </div>
 
       {/* Candidate Profile Details Modal */}
       <Modal

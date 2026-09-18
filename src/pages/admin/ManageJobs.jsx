@@ -218,14 +218,8 @@ const ManageJobs = () => {
   ];
 
   return (
-    <div className="portal-page-wrapper">
-      <div className="portal-bg-glow">
-        <div className="portal-bg-blob-1"></div>
-        <div className="portal-bg-blob-2"></div>
-      </div>
-
-      <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '40px 24px 80px', position: 'relative', zIndex: 1 }}>
-        <AdminHeader 
+    <div style={{ width: '100%' }}>
+      <AdminHeader 
           title="Mandates & Job Listings Moderation" 
           subtitle="Audit, approve, pause, close, or remove insolvency and restructuring job mandates."
           actions={
@@ -401,9 +395,7 @@ const ManageJobs = () => {
             </div>
           )}
         </Modal>
-
       </div>
-    </div>
   );
 };
 
