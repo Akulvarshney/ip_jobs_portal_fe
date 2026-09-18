@@ -24,7 +24,6 @@ import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchSavedJobs, toggleSaveJob } from '../../store/candidateSlice';
 import api from '../../api';
-import CandidateNav from '../../components/CandidateNav';
 
 const CandidateSavedJobs = () => {
   const dispatch = useDispatch();
@@ -77,20 +76,12 @@ const CandidateSavedJobs = () => {
   };
 
   return (
-    <div className="portal-page-wrapper">
-      <div className="portal-bg-glow">
-        <div className="portal-bg-blob-1"></div>
-        <div className="portal-bg-blob-2"></div>
-      </div>
-
-      <CandidateNav activeKey="/candidate/saved-jobs" />
-
-      <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '0 24px 80px', position: 'relative', zIndex: 1 }}>
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          style={{ marginBottom: '28px' }}
-        >
+    <div>
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        style={{ marginBottom: '28px' }}
+      >
           <h1 style={{ fontSize: '28px', fontWeight: 700, color: 'white', margin: 0 }}>Saved Mandates</h1>
           <p style={{ color: '#9ca3af', fontSize: '14px', margin: '4px 0 0' }}>
             Bookmarked opportunities for quick reference and application.
@@ -221,8 +212,6 @@ const CandidateSavedJobs = () => {
             </Link>
           </div>
         )}
-
-      </div>
 
       {/* Apply Modal */}
       <Modal

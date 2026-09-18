@@ -3,7 +3,6 @@ import { Card, Button, Typography, Tag, Progress, message, Tooltip, Badge, Modal
 import { useNavigate, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCandidateStats, toggleSaveJob, applyToJob } from '../store/candidateSlice';
-import CandidateNav from '../components/CandidateNav';
 import { 
   SendOutlined, 
   CheckCircleOutlined, 
@@ -118,27 +117,19 @@ const CandidateDashboard = () => {
   };
 
   return (
-    <div className="portal-page-wrapper">
-      <div className="portal-bg-glow">
-        <div className="portal-bg-blob-1"></div>
-        <div className="portal-bg-blob-2"></div>
-      </div>
-
-      <CandidateNav activeKey="/candidate" />
-
-      <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '0 24px 80px', position: 'relative', zIndex: 1 }}>
-        
-        {/* Header Greeting & Profile Progress Banner */}
-        <motion.div
-          initial={{ opacity: 0, y: -15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          style={{
-            background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            borderRadius: '20px',
-            padding: '28px 32px',
-            marginBottom: '32px',
+    <div style={{ width: '100%', margin: 0, padding: 0 }}>
+      {/* Header Greeting & Profile Progress Banner */}
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        style={{
+          background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%)',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          borderRadius: '20px',
+          padding: '28px 32px',
+          marginTop: 0,
+          marginBottom: '32px',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
@@ -603,8 +594,6 @@ const CandidateDashboard = () => {
           </div>
 
         </div>
-
-      </div>
 
       {/* Quick Apply Modal */}
       <Modal

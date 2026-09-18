@@ -15,7 +15,6 @@ import {
 import { motion } from 'framer-motion';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCandidateProfile, updateResume, deleteResume } from '../../store/candidateSlice';
-import CandidateNav from '../../components/CandidateNav';
 
 const CandidateResume = () => {
   const dispatch = useDispatch();
@@ -98,20 +97,12 @@ const CandidateResume = () => {
   };
 
   return (
-    <div className="portal-page-wrapper">
-      <div className="portal-bg-glow">
-        <div className="portal-bg-blob-1"></div>
-        <div className="portal-bg-blob-2"></div>
-      </div>
-
-      <CandidateNav activeKey="/candidate/resume" />
-
-      <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '0 24px 80px', position: 'relative', zIndex: 1 }}>
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.8fr) minmax(0, 1.2fr)', gap: '32px' }}
-        >
+    <div>
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.8fr) minmax(0, 1.2fr)', gap: '32px' }}
+      >
           
           {/* Main Resume Card */}
           <div className="portal-glass-card" style={{ padding: '32px' }}>
@@ -318,7 +309,6 @@ const CandidateResume = () => {
           </div>
 
         </motion.div>
-      </div>
 
       {/* Preview Modal */}
       <Modal

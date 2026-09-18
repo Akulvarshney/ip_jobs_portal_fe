@@ -74,8 +74,13 @@
 }
 
 @keyframes floatBlob {
-  0% { transform: translate(0, 0) scale(1); }
-  100% { transform: translate(40px, 30px) scale(1.08); }
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  100% {
+    transform: translate(40px, 30px) scale(1.08);
+  }
 }
 
 /* Navbar */
@@ -141,7 +146,8 @@
   transition: color 0.2s ease;
 }
 
-.portal-nav-link:hover, .portal-nav-link.active {
+.portal-nav-link:hover,
+.portal-nav-link.active {
   color: #ffffff;
 }
 
@@ -150,6 +156,173 @@
   align-items: center;
   gap: 14px;
 }
+
+/* Candidate Portal 2-Column Sidebar Layout */
+.candidate-portal-layout {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 24px 24px 80px;
+  display: flex;
+  align-items: flex-start;
+  gap: 28px;
+  position: relative;
+  z-index: 1;
+}
+
+@media (max-width: 992px) {
+  .candidate-portal-layout {
+    flex-direction: column;
+    gap: 20px;
+    padding: 16px 16px 60px;
+  }
+}
+
+.candidate-portal-sidebar {
+  width: 260px;
+  min-width: 260px;
+  flex-shrink: 0;
+  position: sticky;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+}
+
+@media (max-width: 992px) {
+  .candidate-portal-sidebar {
+    width: 100%;
+    position: static;
+  }
+}
+
+.candidate-portal-content {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.candidate-sidebar-card {
+  background: rgba(30, 41, 59, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  padding: 16px 12px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.candidate-sidebar-user {
+  padding: 12px 14px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.candidate-sidebar-user-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 18px;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.35);
+  flex-shrink: 0;
+}
+
+.candidate-sidebar-user-info {
+  min-width: 0;
+}
+
+.candidate-sidebar-user-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.candidate-sidebar-user-role {
+  font-size: 11px;
+  color: #38bdf8;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.candidate-sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #94a3b8;
+  text-decoration: none;
+  background: transparent;
+  border: 1px solid transparent;
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+}
+
+.candidate-sidebar-link:hover {
+  color: #f1f5f9;
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.08);
+  transform: translateX(3px);
+}
+
+.candidate-sidebar-link.active {
+  color: #ffffff;
+  font-weight: 600;
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.22) 0%, rgba(56, 189, 248, 0.32) 100%);
+  border: 1px solid rgba(56, 189, 248, 0.45);
+  box-shadow: 0 4px 16px rgba(14, 165, 233, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.candidate-sidebar-link.active .candidate-sidebar-icon {
+  color: #38bdf8;
+  filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.6));
+}
+
+.candidate-sidebar-icon {
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease, transform 0.2s ease;
+  width: 20px;
+}
+
+.candidate-sidebar-link:hover .candidate-sidebar-icon {
+  color: #38bdf8;
+  transform: scale(1.15);
+}
+
+.candidate-sidebar-badge {
+  margin-left: auto;
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: 10px;
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  font-weight: 600;
+}
+
 
 /* Glass Cards */
 .portal-glass-card {
@@ -710,7 +883,7 @@
 }
 
 /* Form Styles Override for Ant Design in Portal Theme */
-.portal-login-card .ant-form-item-label > label {
+.portal-login-card .ant-form-item-label>label {
   color: #d1d5db !important;
   font-weight: 500;
 }
@@ -807,20 +980,51 @@
 
 /* Responsive queries */
 @media (max-width: 992px) {
-  .portal-hero-title { font-size: 42px; }
-  .portal-stats-grid { grid-template-columns: repeat(2, 1fr); }
-  .portal-dual-cta { grid-template-columns: 1fr; }
-  .portal-features-grid { grid-template-columns: 1fr; }
-  .portal-footer-container { grid-template-columns: 1fr 1fr; }
+  .portal-hero-title {
+    font-size: 42px;
+  }
+
+  .portal-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .portal-dual-cta {
+    grid-template-columns: 1fr;
+  }
+
+  .portal-features-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .portal-footer-container {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 @media (max-width: 640px) {
-  .portal-hero-title { font-size: 32px; }
-  .portal-nav-links { display: none; }
-  .portal-search-box { flex-direction: column; }
-  .portal-stats-grid { grid-template-columns: 1fr; }
-  .portal-footer-container { grid-template-columns: 1fr; }
-  .portal-login-card { padding: 24px; }
+  .portal-hero-title {
+    font-size: 32px;
+  }
+
+  .portal-nav-links {
+    display: none;
+  }
+
+  .portal-search-box {
+    flex-direction: column;
+  }
+
+  .portal-stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .portal-footer-container {
+    grid-template-columns: 1fr;
+  }
+
+  .portal-login-card {
+    padding: 24px;
+  }
 }
 
 /* ========================================================= */
@@ -875,7 +1079,7 @@
 }
 
 /* Form items and labels in modals */
-.ant-modal .ant-form-item-label > label {
+.ant-modal .ant-form-item-label>label {
   color: #bae6fd !important;
   font-weight: 600 !important;
   font-size: 13px !important;
@@ -907,7 +1111,7 @@
   color: #e2e8f0 !important;
 }
 
-.portal-table .ant-table-thead > tr > th {
+.portal-table .ant-table-thead>tr>th {
   background: rgba(15, 23, 42, 0.6) !important;
   color: #9ca3af !important;
   font-weight: 600 !important;
@@ -915,12 +1119,12 @@
   font-size: 13px !important;
 }
 
-.portal-table .ant-table-tbody > tr > td {
+.portal-table .ant-table-tbody>tr>td {
   border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
   color: #cbd5e1 !important;
 }
 
-.portal-table .ant-table-tbody > tr:hover > td {
+.portal-table .ant-table-tbody>tr:hover>td {
   background: rgba(14, 165, 233, 0.06) !important;
 }
 
@@ -950,4 +1154,3 @@
   background: rgba(255, 255, 255, 0.05) !important;
   border-radius: 8px !important;
 }
-

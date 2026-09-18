@@ -27,7 +27,6 @@ import { useNavigate } from 'react-router-dom';
 import { logout } from '../../store/authSlice';
 import { fetchCandidateSettings, updateCandidateSettings } from '../../store/candidateSlice';
 import api from '../../api';
-import CandidateNav from '../../components/CandidateNav';
 
 const CandidateSettings = () => {
   const [savingSettings, setSavingSettings] = useState(false);
@@ -49,18 +48,34 @@ const CandidateSettings = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (settings?.visibility) {
-      setVisibility(settings.visibility);
+    if (settings) {
+      if (settings.visibility) {
+        setVisibility(settings.visibility);
+      }
+      if (settings.jobAlerts !== undefined) setJobAlerts(settings.jobAlerts);
+      if (settings.applicationUpdates !== undefined) setApplicationUpdates(settings.applicationUpdates);
+      if (settings.interviewReminders !== undefined) setInterviewReminders(settings.interviewReminders);
+
+      if (settings.notifications) {
+        if (settings.notifications.jobAlerts !== undefined) setJobAlerts(settings.notifications.jobAlerts);
+        if (settings.notifications.applicationUpdates !== undefined) setApplicationUpdates(settings.notifications.applicationUpdates);
+        if (settings.notifications.interviewReminders !== undefined) setInterviewReminders(settings.notifications.interviewReminders);
+      }
     }
   }, [settings]);
 
   const handleSaveVisibilityAndNotifications = async () => {
     try {
       setSavingSettings(true);
-      await dispatch(updateCandidateSettings({ visibility })).unwrap();
-      message.success('Preferences updated successfully');
+      await dispatch(updateCandidateSettings({ 
+        visibility,
+        jobAlerts,
+        applicationUpdates,
+        interviewReminders
+      })).unwrap();
+      message.success('Preferences updated and saved successfully');
     } catch (error) {
-      message.error(error || 'Failed to update preferences');
+      message.error(typeof error === 'string' ? error : 'Failed to update preferences');
     } finally {
       setSavingSettings(false);
     }
@@ -90,21 +105,13 @@ const CandidateSettings = () => {
   };
 
   return (
-    <div className="portal-page-wrapper">
-      <div className="portal-bg-glow">
-        <div className="portal-bg-blob-1"></div>
-        <div className="portal-bg-blob-2"></div>
-      </div>
-
-      <CandidateNav activeKey="/candidate/settings" />
-
-      <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '0 24px 80px', position: 'relative', zIndex: 1 }}>
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="portal-glass-card"
-          style={{ padding: '36px' }}
-        >
+    <div>
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="portal-glass-card"
+        style={{ padding: '36px' }}
+      >
           <div style={{ marginBottom: '28px' }}>
             <h1 style={{ fontSize: '28px', fontWeight: 700, color: 'white', margin: 0 }}>Candidate Settings</h1>
             <p style={{ color: '#9ca3af', fontSize: '14px', margin: '4px 0 0' }}>
@@ -311,7 +318,6 @@ const CandidateSettings = () => {
           </div>
 
         </motion.div>
-      </div>
     </div>
   );
 };

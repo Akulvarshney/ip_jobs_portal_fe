@@ -31,7 +31,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchAllJobs } from '../../store/jobsSlice';
 import { fetchSavedJobs, fetchCandidateApplications, toggleSaveJob, applyToJob } from '../../store/candidateSlice';
-import CandidateNav from '../../components/CandidateNav';
 
 const { Option } = Select;
 
@@ -166,17 +165,8 @@ const CandidateJobs = () => {
   });
 
   return (
-    <div className="portal-page-wrapper">
-      <div className="portal-bg-glow">
-        <div className="portal-bg-blob-1"></div>
-        <div className="portal-bg-blob-2"></div>
-      </div>
-
-      <CandidateNav activeKey="/candidate/jobs" />
-
-      <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '0 24px 80px', position: 'relative', zIndex: 1 }}>
-        
-        {/* Page Header */}
+    <div>
+      {/* Page Header */}
         <div style={{ marginBottom: '28px' }}>
           <h1 style={{ fontSize: '28px', fontWeight: 700, color: 'white', margin: 0 }}>
             Insolvency & Restructuring Mandates
@@ -413,8 +403,6 @@ const CandidateJobs = () => {
             </Button>
           </div>
         )}
-
-      </div>
 
       {/* Apply Modal */}
       <Modal

@@ -1,48 +1,48 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Tabs, 
-  Form, 
-  Input, 
-  Select, 
-  InputNumber, 
-  Button, 
-  message, 
-  Card, 
-  Modal, 
-  DatePicker, 
-  Checkbox, 
-  Tag, 
-  Popconfirm, 
-  Divider, 
-  Row, 
-  Col, 
-  Avatar, 
-  Upload 
+import {
+  Tabs,
+  Form,
+  Input,
+  Select,
+  InputNumber,
+  Button,
+  message,
+  Card,
+  Modal,
+  DatePicker,
+  Checkbox,
+  Tag,
+  Popconfirm,
+  Divider,
+  Row,
+  Col,
+  Avatar,
+  Upload
 } from 'antd';
-import { 
-  UserOutlined, 
-  BookOutlined, 
-  BankOutlined, 
-  ToolOutlined, 
-  SafetyCertificateOutlined, 
-  PlusOutlined, 
-  EditOutlined, 
-  DeleteOutlined, 
-  SaveOutlined, 
+import {
+  UserOutlined,
+  BookOutlined,
+  BankOutlined,
+  ToolOutlined,
+  SafetyCertificateOutlined,
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  SaveOutlined,
   FileDoneOutlined,
   CheckCircleOutlined
 } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
-import { 
-  fetchCandidateProfile, 
-  updateCandidateProfile, 
-  deleteEducation, 
-  deleteExperience, 
-  removeSkill, 
-  deleteCertification 
+import {
+  fetchCandidateProfile,
+  updateCandidateProfile,
+  deleteEducation,
+  deleteExperience,
+  removeSkill,
+  deleteCertification
 } from '../../store/candidateSlice';
 import api from '../../api';
-import CandidateNav from '../../components/CandidateNav';
+import { motion } from 'framer-motion';
 import dayjs from 'dayjs';
 
 const { Option } = Select;
@@ -352,21 +352,21 @@ const CandidateProfile = () => {
           style={{ maxWidth: '900px' }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '24px' }}>
-            <Avatar 
-              size={72} 
-              icon={<UserOutlined />} 
+            <Avatar
+              size={72}
+              icon={<UserOutlined />}
               src={form.getFieldValue('profilePhoto')}
               style={{ backgroundColor: '#0ea5e9' }}
             />
             <div style={{ flex: 1 }}>
-              <Form.Item 
-                label={<span style={{ color: '#e2e8f0' }}>Profile Photo URL</span>} 
+              <Form.Item
+                label={<span style={{ color: '#e2e8f0' }}>Profile Photo URL</span>}
                 name="profilePhoto"
                 style={{ marginBottom: 0 }}
               >
-                <Input 
-                  placeholder="https://example.com/avatar.jpg" 
-                  style={{ background: 'rgba(255, 255, 255, 0.05)', color: 'white', borderColor: 'rgba(255, 255, 255, 0.15)' }} 
+                <Input
+                  placeholder="https://example.com/avatar.jpg"
+                  style={{ background: 'rgba(255, 255, 255, 0.05)', color: 'white', borderColor: 'rgba(255, 255, 255, 0.15)' }}
                 />
               </Form.Item>
             </div>
@@ -497,19 +497,19 @@ const CandidateProfile = () => {
                 label={<span style={{ color: '#e2e8f0' }}>Professional Bio / Executive Summary</span>}
                 name="bio"
               >
-                <TextArea 
-                  rows={4} 
-                  placeholder="Summary of your insolvency, restructuring, resolution planning, and legal proceedings background..." 
-                  style={{ background: 'rgba(255, 255, 255, 0.05)', color: 'white', borderColor: 'rgba(255, 255, 255, 0.15)' }} 
+                <TextArea
+                  rows={4}
+                  placeholder="Summary of your insolvency, restructuring, resolution planning, and legal proceedings background..."
+                  style={{ background: 'rgba(255, 255, 255, 0.05)', color: 'white', borderColor: 'rgba(255, 255, 255, 0.15)' }}
                 />
               </Form.Item>
             </Col>
           </Row>
 
-          <Button 
-            type="primary" 
-            htmlType="submit" 
-            icon={<SaveOutlined />} 
+          <Button
+            type="primary"
+            htmlType="submit"
+            icon={<SaveOutlined />}
             loading={saving}
             style={{ borderRadius: '8px', padding: '0 24px', height: '40px', background: '#0ea5e9', marginTop: '12px' }}
           >
@@ -532,9 +532,9 @@ const CandidateProfile = () => {
               <h3 style={{ color: 'white', fontSize: '18px', margin: 0 }}>Education & Qualifications</h3>
               <p style={{ color: '#9ca3af', fontSize: '13px', margin: '4px 0 0' }}>Add your degrees, CA/CS qualifications, and academic institutions.</p>
             </div>
-            <Button 
-              type="primary" 
-              icon={<PlusOutlined />} 
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
               onClick={() => handleOpenEduModal()}
               style={{ background: '#0ea5e9', borderRadius: '8px' }}
             >
@@ -605,9 +605,9 @@ const CandidateProfile = () => {
               <h3 style={{ color: 'white', fontSize: '18px', margin: 0 }}>Work Experience & IBC Matters</h3>
               <p style={{ color: '#9ca3af', fontSize: '13px', margin: '4px 0 0' }}>Highlight organisations, designations, and restructuring assignments.</p>
             </div>
-            <Button 
-              type="primary" 
-              icon={<PlusOutlined />} 
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
               onClick={() => handleOpenExpModal()}
               style={{ background: '#0ea5e9', borderRadius: '8px' }}
             >
@@ -735,10 +735,10 @@ const CandidateProfile = () => {
             <div style={{ color: '#94a3b8', fontSize: '13px' }}>
               {selectedSkills.length} skills selected
             </div>
-            <Button 
-              type="primary" 
-              icon={<SaveOutlined />} 
-              loading={saving} 
+            <Button
+              type="primary"
+              icon={<SaveOutlined />}
+              loading={saving}
               onClick={handleSaveSkills}
               style={{ background: '#0ea5e9', borderRadius: '8px', height: '40px', padding: '0 24px' }}
             >
@@ -762,9 +762,9 @@ const CandidateProfile = () => {
               <h3 style={{ color: 'white', fontSize: '18px', margin: 0 }}>Certifications & Statutory Registrations</h3>
               <p style={{ color: '#9ca3af', fontSize: '13px', margin: '4px 0 0' }}>IBBI Registration number, ICAI/ICSI membership, and legal certifications.</p>
             </div>
-            <Button 
-              type="primary" 
-              icon={<PlusOutlined />} 
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
               onClick={() => handleOpenCertModal()}
               style={{ background: '#0ea5e9', borderRadius: '8px' }}
             >
@@ -831,36 +831,27 @@ const CandidateProfile = () => {
   ];
 
   return (
-    <div className="portal-page-wrapper">
-      <div className="portal-bg-glow">
-        <div className="portal-bg-blob-1"></div>
-        <div className="portal-bg-blob-2"></div>
-      </div>
+    <div>
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="portal-glass-card"
+        style={{ padding: '32px' }}
+      >
+        <div style={{ marginBottom: '24px' }}>
+          <h1 style={{ fontSize: '28px', fontWeight: 700, color: 'white', margin: 0 }}>Candidate Profile</h1>
+          <p style={{ color: '#9ca3af', fontSize: '14px', margin: '6px 0 0' }}>
+            Manage your personal background, professional categories, education, experience, IBC competencies, and certifications.
+          </p>
+        </div>
 
-      <CandidateNav activeKey="/candidate/profile" />
-
-      <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '0 24px 80px', position: 'relative', zIndex: 1 }}>
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="portal-glass-card"
-          style={{ padding: '32px' }}
-        >
-          <div style={{ marginBottom: '24px' }}>
-            <h1 style={{ fontSize: '28px', fontWeight: 700, color: 'white', margin: 0 }}>Candidate Profile</h1>
-            <p style={{ color: '#9ca3af', fontSize: '14px', margin: '6px 0 0' }}>
-              Manage your personal background, professional categories, education, experience, IBC competencies, and certifications.
-            </p>
-          </div>
-
-          <Tabs
-            activeKey={activeTab}
-            onChange={setActiveTab}
-            items={tabItems}
-            type="card"
-          />
-        </motion.div>
-      </div>
+        <Tabs
+          activeKey={activeTab}
+          onChange={setActiveTab}
+          items={tabItems}
+          type="card"
+        />
+      </motion.div>
 
       {/* Education Modal */}
       <Modal

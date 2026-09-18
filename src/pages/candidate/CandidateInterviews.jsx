@@ -26,7 +26,6 @@ import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCandidateInterviews } from '../../store/candidateSlice';
 import api from '../../api';
-import CandidateNav from '../../components/CandidateNav';
 
 const CandidateInterviews = () => {
   const dispatch = useDispatch();
@@ -184,29 +183,20 @@ const CandidateInterviews = () => {
   ];
 
   return (
-    <div className="portal-page-wrapper">
-      <div className="portal-bg-glow">
-        <div className="portal-bg-blob-1"></div>
-        <div className="portal-bg-blob-2"></div>
+    <div>
+      <div style={{ marginBottom: '28px' }}>
+        <h1 style={{ fontSize: '28px', fontWeight: 700, color: 'white', margin: 0 }}>Interview Schedule</h1>
+        <p style={{ color: '#9ca3af', fontSize: '14px', margin: '4px 0 0' }}>
+          Direct access to scheduled video meetings, discussion agendas, and interviewer instructions.
+        </p>
       </div>
 
-      <CandidateNav activeKey="/candidate/interviews" />
-
-      <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '0 24px 80px', position: 'relative', zIndex: 1 }}>
-        <div style={{ marginBottom: '28px' }}>
-          <h1 style={{ fontSize: '28px', fontWeight: 700, color: 'white', margin: 0 }}>Interview Schedule</h1>
-          <p style={{ color: '#9ca3af', fontSize: '14px', margin: '4px 0 0' }}>
-            Direct access to scheduled video meetings, discussion agendas, and interviewer instructions.
-          </p>
-        </div>
-
-        <Tabs
-          activeKey={activeTab}
-          onChange={setActiveTab}
-          items={tabItems}
-          type="card"
-        />
-      </div>
+      <Tabs
+        activeKey={activeTab}
+        onChange={setActiveTab}
+        items={tabItems}
+        type="card"
+      />
     </div>
   );
 };
