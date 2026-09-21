@@ -82,8 +82,8 @@ const CandidateSavedJobs = () => {
         animate={{ opacity: 1, y: 0 }}
         style={{ marginBottom: '28px' }}
       >
-          <h1 style={{ fontSize: '28px', fontWeight: 700, color: 'white', margin: 0 }}>Saved Mandates</h1>
-          <p style={{ color: '#9ca3af', fontSize: '14px', margin: '4px 0 0' }}>
+          <h1 style={{ fontSize: '28px', fontWeight: 700, color: 'var(--theme-heading)', margin: 0 }}>Saved Mandates</h1>
+          <p style={{ color: 'var(--theme-muted)', fontSize: '14px', margin: '4px 0 0' }}>
             Bookmarked opportunities for quick reference and application.
           </p>
         </motion.div>
@@ -108,7 +108,7 @@ const CandidateSavedJobs = () => {
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'space-between',
-                    border: '1px solid rgba(255, 255, 255, 0.1)'
+                    border: '1px solid rgba(var(--theme-contrast-rgb), 0.1)'
                   }}
                 >
                   <div>
@@ -132,7 +132,7 @@ const CandidateSavedJobs = () => {
                           <div style={{ fontSize: '12px', color: '#10b981', fontWeight: 600 }}>
                             {job?.employer?.type || 'VERIFIED ORG'}
                           </div>
-                          <div style={{ fontSize: '14px', color: '#cbd5e1', fontWeight: 500 }}>
+                          <div style={{ fontSize: '14px', color: 'var(--theme-detail)', fontWeight: 500 }}>
                             {job?.employer?.name || 'Insolvency Entity'}
                           </div>
                         </div>
@@ -153,12 +153,12 @@ const CandidateSavedJobs = () => {
                       </Popconfirm>
                     </div>
 
-                    <h3 style={{ fontSize: '17px', fontWeight: 600, color: 'white', margin: '0 0 8px' }}>
+                    <h3 style={{ fontSize: '17px', fontWeight: 600, color: 'var(--theme-heading)', margin: '0 0 8px' }}>
                       {job?.title}
                     </h3>
 
                     <p style={{
-                      color: '#9ca3af',
+                      color: 'var(--theme-muted)',
                       fontSize: '13px',
                       lineHeight: '1.5',
                       marginBottom: '14px',
@@ -172,15 +172,15 @@ const CandidateSavedJobs = () => {
 
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '14px' }}>
                       {job?.skills?.slice(0, 3).map(s => (
-                        <Tag key={s.skill?.id} style={{ borderRadius: '6px', fontSize: '11px', background: 'rgba(255, 255, 255, 0.05)', color: '#cbd5e1', border: 'none' }}>
+                        <Tag key={s.skill?.id} style={{ borderRadius: '6px', fontSize: '11px', background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-detail)', border: 'none' }}>
                           {s.skill?.name}
                         </Tag>
                       ))}
                     </div>
                   </div>
 
-                  <div style={{ paddingTop: '16px', borderTop: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Link to={`/jobs/${job?.id}`} style={{ fontSize: '13px', color: '#38bdf8', fontWeight: 500 }}>
+                  <div style={{ paddingTop: '16px', borderTop: '1px solid rgba(var(--theme-contrast-rgb), 0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Link to={`/jobs/${job?.id}`} style={{ fontSize: '13px', color: 'var(--theme-link)', fontWeight: 500 }}>
                       View Mandate ↗
                     </Link>
 
@@ -205,8 +205,8 @@ const CandidateSavedJobs = () => {
         {savedJobs.length === 0 && !loading && (
           <div className="portal-glass-card" style={{ padding: '60px', textAlign: 'center', marginTop: '20px' }}>
             <BookOutlined style={{ fontSize: '48px', color: '#10b981', marginBottom: '16px', opacity: 0.6 }} />
-            <h3 style={{ color: 'white', fontSize: '20px', margin: 0 }}>No saved mandates yet</h3>
-            <p style={{ color: '#9ca3af', marginTop: '8px' }}>Save interesting roles from the search page to apply later.</p>
+            <h3 style={{ color: 'var(--theme-heading)', fontSize: '20px', margin: 0 }}>No saved mandates yet</h3>
+            <p style={{ color: 'var(--theme-muted)', marginTop: '8px' }}>Save interesting roles from the search page to apply later.</p>
             <Link to="/candidate/jobs">
               <Button type="primary" style={{ marginTop: '12px', borderRadius: '8px' }}>Explore Mandates</Button>
             </Link>
@@ -234,11 +234,11 @@ const CandidateSavedJobs = () => {
         ]}
       >
         <div style={{ padding: '8px 0' }}>
-          <p style={{ color: '#cbd5e1', fontSize: '14px' }}>
+          <p style={{ color: 'var(--theme-detail)', fontSize: '14px' }}>
             Applying to: <strong>{selectedJob?.employer?.name}</strong>
           </p>
           <div style={{ marginTop: '16px', marginBottom: '8px' }}>
-            <label style={{ display: 'block', fontSize: '13px', color: '#94a3b8', marginBottom: '6px' }}>
+            <label style={{ display: 'block', fontSize: '13px', color: 'var(--theme-subtle)', marginBottom: '6px' }}>
               Cover Note (Optional):
             </label>
             <Input.TextArea
@@ -246,7 +246,7 @@ const CandidateSavedJobs = () => {
               value={coverNote}
               onChange={(e) => setCoverNote(e.target.value)}
               placeholder="Highlight relevant CIRP, liquidation, resolution plan, or forensic assignments..."
-              style={{ borderRadius: '8px', background: 'rgba(255, 255, 255, 0.05)', color: 'white', borderColor: 'rgba(255, 255, 255, 0.15)' }}
+              style={{ borderRadius: '8px', background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.15)' }}
             />
           </div>
         </div>

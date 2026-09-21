@@ -85,25 +85,25 @@ const Footer = () => {
             <div className="portal-logo-icon">
               <RocketOutlined />
             </div>
-            <span>Res<span style={{ color: "#38bdf8" }}>olve</span></span>
+            <span>Res<span style={{ color: "var(--theme-link)" }}>olve</span></span>
           </Link>
           <p>
             Connecting world-class insolvency, restructuring, and legal professionals with premier advisory firms and corporate debtors.
           </p>
           <div style={{ display: 'flex', gap: '14px', marginTop: '20px' }}>
-            <a href="#" style={{ color: '#9ca3af', fontSize: '20px', transition: 'color 0.2s' }}><GithubOutlined /></a>
-            <a href="#" style={{ color: '#9ca3af', fontSize: '20px', transition: 'color 0.2s' }}><TwitterOutlined /></a>
-            <a href="#" style={{ color: '#9ca3af', fontSize: '20px', transition: 'color 0.2s' }}><LinkedinOutlined /></a>
+            <a href="#" style={{ color: 'var(--theme-muted)', fontSize: '20px', transition: 'color 0.2s' }}><GithubOutlined /></a>
+            <a href="#" style={{ color: 'var(--theme-muted)', fontSize: '20px', transition: 'color 0.2s' }}><TwitterOutlined /></a>
+            <a href="#" style={{ color: 'var(--theme-muted)', fontSize: '20px', transition: 'color 0.2s' }}><LinkedinOutlined /></a>
           </div>
         </div>
 
-        <div>
+        {/* <div>
           <h4 className="portal-footer-title">For Candidates</h4>
           <ul className="portal-footer-links">
             <li><Link to="/candidate">Browse CIRP Roles</Link></li>
             <li><Link to="/candidate/jobs">Insolvency Mandates</Link></li>
             <li><Link to="/candidate/profile">Profile Completeness</Link></li>
-            <li><Link to="/candidate/resume">Upload Resume</Link></li>
+            <li><Link to="/candidate/profile?tab=resume">Upload Resume</Link></li>
           </ul>
         </div>
 
@@ -115,7 +115,7 @@ const Footer = () => {
             <li><Link to="/employer/organisation">Entity Profile</Link></li>
             <li><Link to="/employer">Special Invites</Link></li>
           </ul>
-        </div>
+        </div> */}
 
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
@@ -126,7 +126,7 @@ const Footer = () => {
               </Tag>
             )}
           </div>
-          <p style={{ color: '#9ca3af', fontSize: '14px', marginBottom: '14px' }}>
+          <p style={{ color: 'var(--theme-muted)', fontSize: '14px', marginBottom: '14px' }}>
             {isRegistered
               ? "You're registered in our Stay Tuned program for curated insolvency mandates and regulatory alerts."
               : "Get weekly curated IBC mandates and restructuring opportunities sent to your inbox."}
@@ -141,33 +141,33 @@ const Footer = () => {
               background: 'rgba(16, 185, 129, 0.1)',
               border: '1px solid rgba(16, 185, 129, 0.25)',
               borderRadius: '10px',
-              color: '#34d399',
+              color: 'var(--theme-success)',
               fontSize: '13px'
             }}>
               <CheckCircleFilled style={{ fontSize: '16px' }} />
               <div>
-                <strong style={{ color: '#e2e8f0', display: 'block' }}>Already Registered</strong>
-                <span style={{ fontSize: '12px', color: '#94a3b8' }}>{emailInput || user?.email || 'Your account is active in Stay Tuned'}</span>
+                <strong style={{ color: 'var(--theme-secondary)', display: 'block' }}>Already Registered</strong>
+                <span style={{ fontSize: '12px', color: 'var(--theme-subtle)' }}>{emailInput || user?.email || 'Your account is active in Stay Tuned'}</span>
               </div>
             </div>
           ) : (
             <form onSubmit={handleSubscribe} style={{ display: 'flex', gap: '8px' }}>
-              <Input 
+              <Input
                 type="email"
                 required
                 value={emailInput}
                 onChange={(e) => setEmailInput(e.target.value)}
-                placeholder="Enter your email" 
-                style={{ 
-                  background: 'rgba(255, 255, 255, 0.05)', 
-                  border: '1px solid rgba(255, 255, 255, 0.12)', 
-                  color: 'white', 
-                  borderRadius: '10px' 
-                }} 
+                placeholder="Enter your email"
+                style={{
+                  background: 'rgba(var(--theme-contrast-rgb), 0.05)',
+                  border: '1px solid rgba(var(--theme-contrast-rgb), 0.12)',
+                  color: 'var(--theme-heading)',
+                  borderRadius: '10px'
+                }}
               />
-              <button 
-                className="portal-btn-primary" 
-                type="submit" 
+              <button
+                className="portal-btn-primary"
+                type="submit"
                 disabled={submitting}
                 style={{ padding: '8px 14px', cursor: submitting ? 'not-allowed' : 'pointer' }}
               >
@@ -179,11 +179,11 @@ const Footer = () => {
       </div>
 
       <div className="portal-footer-bottom">
-        <div>© {new Date().getFullYear()} Resolve Portal. All rights reserved. • Support: <a href={`mailto:${supportEmail}`} style={{ color: '#38bdf8', textDecoration: 'none' }}>{supportEmail}</a></div>
+        <div>© {new Date().getFullYear()} Resolve Portal. All rights reserved. • Support: <a href={`mailto:${supportEmail}`} style={{ color: 'var(--theme-link)', textDecoration: 'none' }}>{supportEmail}</a></div>
         <div style={{ display: 'flex', gap: '20px' }}>
-          <Link to="/privacy" style={{ color: '#9ca3af', textDecoration: 'none', transition: 'color 0.2s' }}>Privacy Policy</Link>
-          <Link to="/terms" style={{ color: '#9ca3af', textDecoration: 'none', transition: 'color 0.2s' }}>Terms of Service</Link>
-          <Link to="/security" style={{ color: '#9ca3af', textDecoration: 'none', transition: 'color 0.2s' }}>Security</Link>
+          <Link to="/privacy" style={{ color: 'var(--theme-muted)', textDecoration: 'none', transition: 'color 0.2s' }}>Privacy Policy</Link>
+          <Link to="/terms" style={{ color: 'var(--theme-muted)', textDecoration: 'none', transition: 'color 0.2s' }}>Terms of Service</Link>
+          <Link to="/security" style={{ color: 'var(--theme-muted)', textDecoration: 'none', transition: 'color 0.2s' }}>Security</Link>
         </div>
       </div>
     </footer>

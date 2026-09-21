@@ -14,6 +14,8 @@ import {
   CalendarOutlined,
   SettingOutlined
 } from '@ant-design/icons';
+import { getFileUrl } from '../utils/fileUrl';
+import ThemeSwitcher from './ThemeSwitcher';
 
 const Navbar = () => {
   const { user, isAuthenticated } = useSelector((state) => state.auth);
@@ -41,37 +43,37 @@ const Navbar = () => {
   const getCandidateMenuItems = () => [
     {
       key: 'dashboard',
-      icon: <DashboardOutlined style={{ color: '#38bdf8' }} />,
+      icon: <DashboardOutlined style={{ color: 'var(--theme-link)' }} />,
       label: 'Candidate Dashboard',
       onClick: () => navigate('/candidate'),
     },
     {
       key: 'profile',
-      icon: <UserOutlined style={{ color: '#38bdf8' }} />,
+      icon: <UserOutlined style={{ color: 'var(--theme-link)' }} />,
       label: 'My Profile',
       onClick: () => navigate('/candidate/profile'),
     },
     {
       key: 'applications',
-      icon: <SendOutlined style={{ color: '#38bdf8' }} />,
+      icon: <SendOutlined style={{ color: 'var(--theme-link)' }} />,
       label: 'Applications',
       onClick: () => navigate('/candidate/applications'),
     },
     {
       key: 'saved-jobs',
-      icon: <BookOutlined style={{ color: '#38bdf8' }} />,
+      icon: <BookOutlined style={{ color: 'var(--theme-link)' }} />,
       label: 'Saved Jobs',
       onClick: () => navigate('/candidate/saved-jobs'),
     },
     {
       key: 'interviews',
-      icon: <CalendarOutlined style={{ color: '#38bdf8' }} />,
+      icon: <CalendarOutlined style={{ color: 'var(--theme-link)' }} />,
       label: 'Interviews',
       onClick: () => navigate('/candidate/interviews'),
     },
     {
       key: 'settings',
-      icon: <SettingOutlined style={{ color: '#38bdf8' }} />,
+      icon: <SettingOutlined style={{ color: 'var(--theme-link)' }} />,
       label: 'Settings',
       onClick: () => navigate('/candidate/settings'),
     },
@@ -92,7 +94,7 @@ const Navbar = () => {
     : [
         {
           key: 'dashboard',
-          icon: <DashboardOutlined style={{ color: '#38bdf8' }} />,
+          icon: <DashboardOutlined style={{ color: 'var(--theme-link)' }} />,
           label: getUserDashboardLabel(),
           onClick: () => navigate(getUserDashboardPath()),
         },
@@ -121,7 +123,7 @@ const Navbar = () => {
           <div className="portal-logo-icon">
             <RocketOutlined />
           </div>
-          <span>Res<span style={{ color: "#38bdf8" }}>olve</span></span>
+          <span>Res<span style={{ color: "var(--theme-link)" }}>olve</span></span>
         </Link>
 
         <nav className="portal-nav-links">
@@ -140,6 +142,7 @@ const Navbar = () => {
         </nav>
 
         <div className="portal-nav-actions">
+          <ThemeSwitcher />
           {isAuthenticated ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
               <Tag 
@@ -150,20 +153,21 @@ const Navbar = () => {
                   fontWeight: 600,
                   background: 'rgba(14, 165, 233, 0.12)',
                   borderColor: 'rgba(56, 189, 248, 0.3)',
-                  color: '#38bdf8'
+                  color: 'var(--theme-link)'
                 }}
               >
                 {user?.role === 'ADMIN' ? 'Platform Admin' : (user?.role === 'EMPLOYER' ? 'Employer' : 'Professional')}
               </Tag>
               
               <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" arrow>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', background: 'rgba(255, 255, 255, 0.08)', padding: '6px 14px', borderRadius: '20px', border: '1px solid rgba(255, 255, 255, 0.12)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', background: 'rgba(var(--theme-contrast-rgb), 0.08)', padding: '6px 14px', borderRadius: '20px', border: '1px solid rgba(var(--theme-contrast-rgb), 0.12)' }}>
                   <Avatar 
                     size="small" 
                     icon={<UserOutlined />} 
-                    style={{ backgroundColor: '#0ea5e9', color: '#ffffff' }} 
+                    src={getFileUrl(user?.profilePhoto || user?.candidateProfile?.profilePhoto)}
+                    style={{ backgroundColor: '#0ea5e9', color: 'var(--theme-on-primary)' }} 
                   />
-                  <span style={{ color: '#fff', fontSize: '14px', fontWeight: 500 }}>
+                  <span style={{ color: 'var(--theme-heading)', fontSize: '14px', fontWeight: 500 }}>
                     {user?.name || user?.email?.split('@')[0]}
                   </span>
                 </div>

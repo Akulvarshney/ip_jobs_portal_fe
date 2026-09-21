@@ -425,10 +425,10 @@ const Login = () => {
         {/* Top Logo / Brand */}
         <div style={{ textAlign: 'center', marginBottom: '24px' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', background: 'rgba(56, 189, 248, 0.1)', border: '1px solid rgba(56, 189, 248, 0.25)', padding: '8px 18px', borderRadius: '50px', marginBottom: '12px' }}>
-            <RocketOutlined style={{ color: '#38bdf8', fontSize: '18px' }} />
-            <span style={{ color: '#38bdf8', fontWeight: 700, letterSpacing: '1px', fontSize: '13px' }}>RESOLVE PLATFORM AUTH</span>
+            <RocketOutlined style={{ color: 'var(--theme-link)', fontSize: '18px' }} />
+            <span style={{ color: 'var(--theme-link)', fontWeight: 700, letterSpacing: '1px', fontSize: '13px' }}>RESOLVE PLATFORM AUTH</span>
           </div>
-          <Title level={2} style={{ color: 'white', margin: 0, fontWeight: 800, fontSize: '28px' }}>
+          <Title level={2} style={{ color: 'var(--theme-heading)', margin: 0, fontWeight: 800, fontSize: '28px' }}>
             {googleOnboardingUser 
               ? 'Complete Your Profile'
               : isLogin 
@@ -436,7 +436,7 @@ const Login = () => {
                 : 'Join the Network'
             }
           </Title>
-          <Text style={{ color: '#9ca3af', fontSize: '14px', marginTop: '6px', display: 'block' }}>
+          <Text style={{ color: 'var(--theme-muted)', fontSize: '14px', marginTop: '6px', display: 'block' }}>
             {googleOnboardingUser
               ? 'Select how you want to use the Insolvency & Valuation ecosystem'
               : isLogin
@@ -452,7 +452,7 @@ const Login = () => {
           animate={{ opacity: 1, y: 0 }} 
           transition={{ duration: 0.3 }}
           className="portal-card"
-          style={{ padding: '32px', background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255, 255, 255, 0.12)', borderRadius: '20px', boxShadow: '0 20px 40px -15px rgba(0,0,0,0.5)' }}
+          style={{ padding: '32px', background: 'rgba(var(--theme-bg-rgb), 0.85)', backdropFilter: 'blur(20px)', border: '1px solid rgba(var(--theme-contrast-rgb), 0.12)', borderRadius: '20px', boxShadow: '0 20px 40px -15px rgba(var(--theme-shadow-rgb),0.5)' }}
         >
           {errorMessage && (
             <Alert
@@ -461,7 +461,7 @@ const Login = () => {
               showIcon
               closable
               onClose={() => setErrorMessage('')}
-              style={{ marginBottom: '20px', borderRadius: '10px', background: 'rgba(239, 68, 68, 0.12)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#fca5a5' }}
+              style={{ marginBottom: '20px', borderRadius: '10px', background: 'rgba(239, 68, 68, 0.12)', border: '1px solid rgba(239, 68, 68, 0.3)', color: 'var(--theme-danger)' }}
             />
           )}
 
@@ -483,7 +483,7 @@ const Login = () => {
               }}>
                 <Avatar 
                   size={48} 
-                  src={googleOnboardingUser.photoUrl} 
+                  src={googleOnboardingUser.photoUrl || null} 
                   icon={<UserOutlined />} 
                   style={{ border: '2px solid #38bdf8', backgroundColor: '#0284c7' }} 
                 />
@@ -493,7 +493,7 @@ const Login = () => {
                       <CheckCircleFilled /> Google Verified
                     </Tag>
                   </div>
-                  <div style={{ color: 'white', fontWeight: 600, fontSize: '14px' }}>
+                  <div style={{ color: 'var(--theme-heading)', fontWeight: 600, fontSize: '14px' }}>
                     {googleOnboardingUser.email}
                   </div>
                 </div>
@@ -507,22 +507,22 @@ const Login = () => {
               >
                 {/* Full Name */}
                 <Form.Item
-                  label={<span style={{ color: '#e2e8f0', fontSize: '13px', fontWeight: 600 }}>Your Full Name</span>}
+                  label={<span style={{ color: 'var(--theme-secondary)', fontSize: '13px', fontWeight: 600 }}>Your Full Name</span>}
                   name="name"
                   rules={[{ required: true, message: 'Please enter your name' }]}
                   style={{ marginBottom: '20px' }}
                 >
                   <Input
-                    prefix={<UserOutlined style={{ color: '#38bdf8' }} />}
+                    prefix={<UserOutlined style={{ color: 'var(--theme-link)' }} />}
                     placeholder="e.g. Adv. Rahul Sharma"
                     size="large"
-                    style={{ background: 'rgba(255, 255, 255, 0.05)', color: 'white', borderColor: 'rgba(255, 255, 255, 0.12)', borderRadius: '10px' }}
+                    style={{ background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)', borderRadius: '10px' }}
                   />
                 </Form.Item>
 
                 {/* Role Selection Cards */}
                 <div style={{ marginBottom: '20px' }}>
-                  <label style={{ color: '#e2e8f0', fontSize: '13px', fontWeight: 600, display: 'block', marginBottom: '10px' }}>
+                  <label style={{ color: 'var(--theme-secondary)', fontSize: '13px', fontWeight: 600, display: 'block', marginBottom: '10px' }}>
                     How would you like to register?
                   </label>
 
@@ -537,19 +537,19 @@ const Login = () => {
                         transition: 'all 0.25s ease',
                         border: googleRole === 'CANDIDATE' 
                           ? '2px solid #38bdf8' 
-                          : '1px solid rgba(255, 255, 255, 0.1)',
+                          : '1px solid rgba(var(--theme-contrast-rgb), 0.1)',
                         background: googleRole === 'CANDIDATE' 
                           ? 'rgba(56, 189, 248, 0.12)' 
-                          : 'rgba(255, 255, 255, 0.03)',
+                          : 'rgba(var(--theme-contrast-rgb), 0.03)',
                         boxShadow: googleRole === 'CANDIDATE' ? '0 0 15px rgba(56, 189, 248, 0.2)' : 'none',
                         textAlign: 'center'
                       }}
                     >
-                      <UserOutlined style={{ fontSize: '24px', color: googleRole === 'CANDIDATE' ? '#38bdf8' : '#9ca3af', marginBottom: '8px', display: 'block' }} />
-                      <div style={{ color: 'white', fontWeight: 600, fontSize: '14px', marginBottom: '4px' }}>
+                      <UserOutlined style={{ fontSize: '24px', color: googleRole === 'CANDIDATE' ? '#38bdf8' : 'var(--theme-muted)', marginBottom: '8px', display: 'block' }} />
+                      <div style={{ color: 'var(--theme-heading)', fontWeight: 600, fontSize: '14px', marginBottom: '4px' }}>
                         Job Seeker / IP
                       </div>
-                      <div style={{ color: '#94a3b8', fontSize: '11px', lineHeight: 1.3 }}>
+                      <div style={{ color: 'var(--theme-subtle)', fontSize: '11px', lineHeight: 1.3 }}>
                         Insolvency Professional, Valuer, CA, CS, Legal Expert
                       </div>
                     </div>
@@ -564,19 +564,19 @@ const Login = () => {
                         transition: 'all 0.25s ease',
                         border: googleRole === 'EMPLOYER' 
                           ? '2px solid #38bdf8' 
-                          : '1px solid rgba(255, 255, 255, 0.1)',
+                          : '1px solid rgba(var(--theme-contrast-rgb), 0.1)',
                         background: googleRole === 'EMPLOYER' 
                           ? 'rgba(56, 189, 248, 0.12)' 
-                          : 'rgba(255, 255, 255, 0.03)',
+                          : 'rgba(var(--theme-contrast-rgb), 0.03)',
                         boxShadow: googleRole === 'EMPLOYER' ? '0 0 15px rgba(56, 189, 248, 0.2)' : 'none',
                         textAlign: 'center'
                       }}
                     >
-                      <BankOutlined style={{ fontSize: '24px', color: googleRole === 'EMPLOYER' ? '#38bdf8' : '#9ca3af', marginBottom: '8px', display: 'block' }} />
-                      <div style={{ color: 'white', fontWeight: 600, fontSize: '14px', marginBottom: '4px' }}>
+                      <BankOutlined style={{ fontSize: '24px', color: googleRole === 'EMPLOYER' ? '#38bdf8' : 'var(--theme-muted)', marginBottom: '8px', display: 'block' }} />
+                      <div style={{ color: 'var(--theme-heading)', fontWeight: 600, fontSize: '14px', marginBottom: '4px' }}>
                         Employer / Entity
                       </div>
-                      <div style={{ color: '#94a3b8', fontSize: '11px', lineHeight: 1.3 }}>
+                      <div style={{ color: 'var(--theme-subtle)', fontSize: '11px', lineHeight: 1.3 }}>
                         IPE, Bank, ARC, Law Firm hiring professionals
                       </div>
                     </div>
@@ -587,15 +587,15 @@ const Login = () => {
                 {googleRole === 'EMPLOYER' && (
                   <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} style={{ marginBottom: '20px' }}>
                     <Form.Item
-                      label={<span style={{ color: '#e2e8f0', fontSize: '13px', fontWeight: 600 }}>Organization / Company Name</span>}
+                      label={<span style={{ color: 'var(--theme-secondary)', fontSize: '13px', fontWeight: 600 }}>Organization / Company Name</span>}
                       name="companyName"
                       rules={[{ required: true, message: 'Please enter your company / firm name' }]}
                     >
                       <Input
-                        prefix={<BankOutlined style={{ color: '#38bdf8' }} />}
+                        prefix={<BankOutlined style={{ color: 'var(--theme-link)' }} />}
                         placeholder="e.g. Arcil Resolution Services Pvt Ltd"
                         size="large"
-                        style={{ background: 'rgba(255, 255, 255, 0.05)', color: 'white', borderColor: 'rgba(255, 255, 255, 0.12)', borderRadius: '10px' }}
+                        style={{ background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)', borderRadius: '10px' }}
                       />
                     </Form.Item>
                   </motion.div>
@@ -612,15 +612,15 @@ const Login = () => {
 
                 <div style={{ textAlign: 'center', marginTop: '12px', fontSize: '11px', color: '#64748b' }}>
                   By completing setup, you agree to our{' '}
-                  <Link to="/terms" style={{ color: '#38bdf8' }}>Terms</Link> and{' '}
-                  <Link to="/privacy" style={{ color: '#38bdf8' }}>Privacy Policy</Link>.
+                  <Link to="/terms" style={{ color: 'var(--theme-link)' }}>Terms</Link> and{' '}
+                  <Link to="/privacy" style={{ color: 'var(--theme-link)' }}>Privacy Policy</Link>.
                 </div>
 
                 <div style={{ textAlign: 'center', marginTop: '14px' }}>
                   <button
                     type="button"
                     onClick={() => { setGoogleOnboardingUser(null); setIsLogin(true); }}
-                    style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '13px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                    style={{ background: 'none', border: 'none', color: 'var(--theme-subtle)', cursor: 'pointer', fontSize: '13px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
                   >
                     <ArrowLeftOutlined /> Use a different account
                   </button>
@@ -643,9 +643,9 @@ const Login = () => {
                   width: '100%',
                   padding: '12px 16px',
                   borderRadius: '12px',
-                  background: 'rgba(255, 255, 255, 0.08)',
-                  border: '1px solid rgba(255, 255, 255, 0.18)',
-                  color: 'white',
+                  background: 'rgba(var(--theme-contrast-rgb), 0.08)',
+                  border: '1px solid rgba(var(--theme-contrast-rgb), 0.18)',
+                  color: 'var(--theme-heading)',
                   fontSize: '15px',
                   fontWeight: 600,
                   display: 'flex',
@@ -655,20 +655,20 @@ const Login = () => {
                   transition: 'all 0.2s ease',
                   marginBottom: '20px'
                 }}
-                onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.14)'}
-                onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'}
+                onMouseOver={(e) => e.currentTarget.style.background = 'rgba(var(--theme-contrast-rgb), 0.14)'}
+                onMouseOut={(e) => e.currentTarget.style.background = 'rgba(var(--theme-contrast-rgb), 0.08)'}
               >
                 <GoogleIcon />
                 {googleLoading ? 'Connecting to Google...' : 'Continue with Google'}
               </button>
 
-              <Divider style={{ borderColor: 'rgba(255, 255, 255, 0.12)', color: '#64748b', fontSize: '12px', margin: '20px 0' }}>
+              <Divider style={{ borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)', color: '#64748b', fontSize: '12px', margin: '20px 0' }}>
                 OR SIGN IN WITH EMAIL
               </Divider>
 
               <Form form={loginForm} layout="vertical" onFinish={onLoginFinish} requiredMark={false}>
                 <Form.Item
-                  label={<span style={{ color: '#e2e8f0', fontSize: '13px' }}>Email Address</span>}
+                  label={<span style={{ color: 'var(--theme-secondary)', fontSize: '13px' }}>Email Address</span>}
                   name="email"
                   rules={[
                     { required: true, message: 'Please enter your email' },
@@ -677,21 +677,21 @@ const Login = () => {
                   style={{ marginBottom: '16px' }}
                 >
                   <Input
-                    prefix={<MailOutlined style={{ color: '#38bdf8' }} />}
+                    prefix={<MailOutlined style={{ color: 'var(--theme-link)' }} />}
                     placeholder="name@example.com"
                     size="large"
-                    style={{ background: 'rgba(255, 255, 255, 0.05)', color: 'white', borderColor: 'rgba(255, 255, 255, 0.12)', borderRadius: '10px' }}
+                    style={{ background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)', borderRadius: '10px' }}
                   />
                 </Form.Item>
 
                 <Form.Item
                   label={
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                      <span style={{ color: '#e2e8f0', fontSize: '13px' }}>Password</span>
+                      <span style={{ color: 'var(--theme-secondary)', fontSize: '13px' }}>Password</span>
                       <button
                         type="button"
                         onClick={openForgotPasswordModal}
-                        style={{ background: 'none', border: 'none', color: '#38bdf8', fontSize: '12px', cursor: 'pointer', padding: 0, fontWeight: 500 }}
+                        style={{ background: 'none', border: 'none', color: 'var(--theme-link)', fontSize: '12px', cursor: 'pointer', padding: 0, fontWeight: 500 }}
                       >
                         Forgot Password?
                       </button>
@@ -702,10 +702,10 @@ const Login = () => {
                   style={{ marginBottom: '24px' }}
                 >
                   <Input.Password
-                    prefix={<LockOutlined style={{ color: '#38bdf8' }} />}
+                    prefix={<LockOutlined style={{ color: 'var(--theme-link)' }} />}
                     placeholder="••••••••"
                     size="large"
-                    style={{ background: 'rgba(255, 255, 255, 0.05)', color: 'white', borderColor: 'rgba(255, 255, 255, 0.12)', borderRadius: '10px' }}
+                    style={{ background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)', borderRadius: '10px' }}
                   />
                 </Form.Item>
 
@@ -720,7 +720,7 @@ const Login = () => {
               </Form>
 
               {/* Quick Demo Login Fillers */}
-              <div style={{ marginTop: '24px', paddingTop: '18px', borderTop: '1px dashed rgba(255, 255, 255, 0.1)' }}>
+              <div style={{ marginTop: '24px', paddingTop: '18px', borderTop: '1px dashed rgba(var(--theme-contrast-rgb), 0.1)' }}>
                 <div style={{ color: '#64748b', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '10px', textAlign: 'center' }}>
                   ⚡ Quick Demo Accounts
                 </div>
@@ -728,7 +728,7 @@ const Login = () => {
                   <button
                     type="button"
                     onClick={() => autofillDemo('CANDIDATE')}
-                    style={{ background: 'rgba(56, 189, 248, 0.08)', border: '1px solid rgba(56, 189, 248, 0.2)', color: '#38bdf8', padding: '7px 4px', borderRadius: '8px', fontSize: '11px', cursor: 'pointer', fontWeight: 600 }}
+                    style={{ background: 'rgba(56, 189, 248, 0.08)', border: '1px solid rgba(56, 189, 248, 0.2)', color: 'var(--theme-link)', padding: '7px 4px', borderRadius: '8px', fontSize: '11px', cursor: 'pointer', fontWeight: 600 }}
                   >
                     Candidate
                   </button>
@@ -765,9 +765,9 @@ const Login = () => {
                   width: '100%',
                   padding: '12px 16px',
                   borderRadius: '12px',
-                  background: 'rgba(255, 255, 255, 0.08)',
-                  border: '1px solid rgba(255, 255, 255, 0.18)',
-                  color: 'white',
+                  background: 'rgba(var(--theme-contrast-rgb), 0.08)',
+                  border: '1px solid rgba(var(--theme-contrast-rgb), 0.18)',
+                  color: 'var(--theme-heading)',
                   fontSize: '15px',
                   fontWeight: 600,
                   display: 'flex',
@@ -777,29 +777,29 @@ const Login = () => {
                   transition: 'all 0.2s ease',
                   marginBottom: '20px'
                 }}
-                onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.14)'}
-                onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'}
+                onMouseOver={(e) => e.currentTarget.style.background = 'rgba(var(--theme-contrast-rgb), 0.14)'}
+                onMouseOut={(e) => e.currentTarget.style.background = 'rgba(var(--theme-contrast-rgb), 0.08)'}
               >
                 <GoogleIcon />
                 {googleLoading ? 'Connecting to Google...' : 'Sign Up with Google'}
               </button>
 
-              <Divider style={{ borderColor: 'rgba(255, 255, 255, 0.12)', color: '#64748b', fontSize: '12px', margin: '20px 0' }}>
+              <Divider style={{ borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)', color: '#64748b', fontSize: '12px', margin: '20px 0' }}>
                 OR REGISTER WITH EMAIL OTP
               </Divider>
 
               {/* Progress Indicator for Email OTP Flow */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', background: 'rgba(255, 255, 255, 0.03)', padding: '10px 14px', borderRadius: '10px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', background: 'rgba(var(--theme-contrast-rgb), 0.03)', padding: '10px 14px', borderRadius: '10px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: registerStep >= 0 ? '#38bdf8' : '#64748b', fontSize: '12px', fontWeight: 600 }}>
                   <span style={{ width: '20px', height: '20px', borderRadius: '50%', background: registerStep >= 0 ? '#38bdf8' : '#334155', color: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 700 }}>1</span>
                   Email
                 </div>
-                <div style={{ width: '20px', height: '1px', background: registerStep >= 1 ? '#38bdf8' : 'rgba(255, 255, 255, 0.1)' }}></div>
+                <div style={{ width: '20px', height: '1px', background: registerStep >= 1 ? '#38bdf8' : 'rgba(var(--theme-contrast-rgb), 0.1)' }}></div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: registerStep >= 1 ? '#38bdf8' : '#64748b', fontSize: '12px', fontWeight: 600 }}>
                   <span style={{ width: '20px', height: '20px', borderRadius: '50%', background: registerStep >= 1 ? '#38bdf8' : '#334155', color: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 700 }}>2</span>
                   OTP Verify
                 </div>
-                <div style={{ width: '20px', height: '1px', background: registerStep >= 2 ? '#38bdf8' : 'rgba(255, 255, 255, 0.1)' }}></div>
+                <div style={{ width: '20px', height: '1px', background: registerStep >= 2 ? '#38bdf8' : 'rgba(var(--theme-contrast-rgb), 0.1)' }}></div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: registerStep >= 2 ? '#38bdf8' : '#64748b', fontSize: '12px', fontWeight: 600 }}>
                   <span style={{ width: '20px', height: '20px', borderRadius: '50%', background: registerStep >= 2 ? '#38bdf8' : '#334155', color: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 700 }}>3</span>
                   Profile
@@ -810,17 +810,17 @@ const Login = () => {
               {registerStep === 0 && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                   <div style={{ marginBottom: '16px' }}>
-                    <label style={{ color: '#e2e8f0', fontSize: '13px', display: 'block', marginBottom: '8px' }}>
+                    <label style={{ color: 'var(--theme-secondary)', fontSize: '13px', display: 'block', marginBottom: '8px' }}>
                       Enter Your Email
                     </label>
                     <Input
-                      prefix={<MailOutlined style={{ color: '#38bdf8' }} />}
+                      prefix={<MailOutlined style={{ color: 'var(--theme-link)' }} />}
                       placeholder="e.g. insolvency.specialist@domain.com"
                       size="large"
                       value={registerEmail}
                       onChange={(e) => setRegisterEmail(e.target.value)}
                       onPressEnter={handleSendOtp}
-                      style={{ background: 'rgba(255, 255, 255, 0.05)', color: 'white', borderColor: 'rgba(255, 255, 255, 0.12)', borderRadius: '10px' }}
+                      style={{ background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)', borderRadius: '10px' }}
                     />
                   </div>
 
@@ -841,31 +841,31 @@ const Login = () => {
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                   <div style={{ marginBottom: '16px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                      <label style={{ color: '#e2e8f0', fontSize: '13px' }}>
+                      <label style={{ color: 'var(--theme-secondary)', fontSize: '13px' }}>
                         Enter 6-Digit OTP Code
                       </label>
                       <button 
                         type="button" 
                         onClick={() => setRegisterStep(0)} 
-                        style={{ background: 'none', border: 'none', color: '#38bdf8', fontSize: '12px', cursor: 'pointer' }}
+                        style={{ background: 'none', border: 'none', color: 'var(--theme-link)', fontSize: '12px', cursor: 'pointer' }}
                       >
                         Change Email ({registerEmail})
                       </button>
                     </div>
 
                     <Input
-                      prefix={<KeyOutlined style={{ color: '#38bdf8' }} />}
+                      prefix={<KeyOutlined style={{ color: 'var(--theme-link)' }} />}
                       placeholder="Enter 6-digit OTP code"
                       size="large"
                       maxLength={6}
                       value={otpCode}
                       onChange={(e) => setOtpCode(e.target.value)}
                       onPressEnter={handleVerifyOtp}
-                      style={{ background: 'rgba(255, 255, 255, 0.05)', color: 'white', borderColor: 'rgba(255, 255, 255, 0.12)', borderRadius: '10px', letterSpacing: '4px', fontSize: '18px', textAlign: 'center' }}
+                      style={{ background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)', borderRadius: '10px', letterSpacing: '4px', fontSize: '18px', textAlign: 'center' }}
                     />
 
                     {devOtpHint && (
-                      <div style={{ marginTop: '8px', fontSize: '12px', color: '#38bdf8', background: 'rgba(56, 189, 248, 0.1)', padding: '6px 10px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <div style={{ marginTop: '8px', fontSize: '12px', color: 'var(--theme-link)', background: 'rgba(56, 189, 248, 0.1)', padding: '6px 10px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         <span>⚡ Development OTP: <strong>{devOtpHint}</strong></span>
                         <button 
                           type="button" 
@@ -914,22 +914,22 @@ const Login = () => {
                   <Form form={passwordForm} layout="vertical" onFinish={onCompleteRegistration} requiredMark={false}>
                     {/* Full Name */}
                     <Form.Item
-                      label={<span style={{ color: '#e2e8f0', fontSize: '13px' }}>Your Full Name</span>}
+                      label={<span style={{ color: 'var(--theme-secondary)', fontSize: '13px' }}>Your Full Name</span>}
                       name="name"
                       rules={[{ required: true, message: 'Please enter your name' }]}
                       style={{ marginBottom: '16px' }}
                     >
                       <Input
-                        prefix={<UserOutlined style={{ color: '#38bdf8' }} />}
+                        prefix={<UserOutlined style={{ color: 'var(--theme-link)' }} />}
                         placeholder="e.g. Adv. Rajesh Mehta"
                         size="large"
-                        style={{ background: 'rgba(255, 255, 255, 0.05)', color: 'white', borderColor: 'rgba(255, 255, 255, 0.12)', borderRadius: '10px' }}
+                        style={{ background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)', borderRadius: '10px' }}
                       />
                     </Form.Item>
 
                     {/* Role Selection */}
                     <div style={{ marginBottom: '16px' }}>
-                      <label style={{ color: '#e2e8f0', fontSize: '13px', display: 'block', marginBottom: '8px' }}>
+                      <label style={{ color: 'var(--theme-secondary)', fontSize: '13px', display: 'block', marginBottom: '8px' }}>
                         Register As:
                       </label>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
@@ -939,14 +939,14 @@ const Login = () => {
                             padding: '12px 10px',
                             borderRadius: '10px',
                             cursor: 'pointer',
-                            border: manualRole === 'CANDIDATE' ? '2px solid #38bdf8' : '1px solid rgba(255, 255, 255, 0.1)',
-                            background: manualRole === 'CANDIDATE' ? 'rgba(56, 189, 248, 0.12)' : 'rgba(255, 255, 255, 0.03)',
+                            border: manualRole === 'CANDIDATE' ? '2px solid #38bdf8' : '1px solid rgba(var(--theme-contrast-rgb), 0.1)',
+                            background: manualRole === 'CANDIDATE' ? 'rgba(56, 189, 248, 0.12)' : 'rgba(var(--theme-contrast-rgb), 0.03)',
                             textAlign: 'center'
                           }}
                         >
-                          <UserOutlined style={{ color: manualRole === 'CANDIDATE' ? '#38bdf8' : '#9ca3af', fontSize: '18px', marginBottom: '4px', display: 'block' }} />
-                          <div style={{ color: 'white', fontWeight: 600, fontSize: '13px' }}>Candidate / IP</div>
-                          <div style={{ color: '#94a3b8', fontSize: '10px' }}>Job Seeker / Specialist</div>
+                          <UserOutlined style={{ color: manualRole === 'CANDIDATE' ? '#38bdf8' : 'var(--theme-muted)', fontSize: '18px', marginBottom: '4px', display: 'block' }} />
+                          <div style={{ color: 'var(--theme-heading)', fontWeight: 600, fontSize: '13px' }}>Candidate / IP</div>
+                          <div style={{ color: 'var(--theme-subtle)', fontSize: '10px' }}>Job Seeker / Specialist</div>
                         </div>
 
                         <div
@@ -955,14 +955,14 @@ const Login = () => {
                             padding: '12px 10px',
                             borderRadius: '10px',
                             cursor: 'pointer',
-                            border: manualRole === 'EMPLOYER' ? '2px solid #38bdf8' : '1px solid rgba(255, 255, 255, 0.1)',
-                            background: manualRole === 'EMPLOYER' ? 'rgba(56, 189, 248, 0.12)' : 'rgba(255, 255, 255, 0.03)',
+                            border: manualRole === 'EMPLOYER' ? '2px solid #38bdf8' : '1px solid rgba(var(--theme-contrast-rgb), 0.1)',
+                            background: manualRole === 'EMPLOYER' ? 'rgba(56, 189, 248, 0.12)' : 'rgba(var(--theme-contrast-rgb), 0.03)',
                             textAlign: 'center'
                           }}
                         >
-                          <BankOutlined style={{ color: manualRole === 'EMPLOYER' ? '#38bdf8' : '#9ca3af', fontSize: '18px', marginBottom: '4px', display: 'block' }} />
-                          <div style={{ color: 'white', fontWeight: 600, fontSize: '13px' }}>Employer / Entity</div>
-                          <div style={{ color: '#94a3b8', fontSize: '10px' }}>Hiring Organization</div>
+                          <BankOutlined style={{ color: manualRole === 'EMPLOYER' ? '#38bdf8' : 'var(--theme-muted)', fontSize: '18px', marginBottom: '4px', display: 'block' }} />
+                          <div style={{ color: 'var(--theme-heading)', fontWeight: 600, fontSize: '13px' }}>Employer / Entity</div>
+                          <div style={{ color: 'var(--theme-subtle)', fontSize: '10px' }}>Hiring Organization</div>
                         </div>
                       </div>
                     </div>
@@ -970,22 +970,22 @@ const Login = () => {
                     {/* If Employer selected, Organization Name */}
                     {manualRole === 'EMPLOYER' && (
                       <Form.Item
-                        label={<span style={{ color: '#e2e8f0', fontSize: '13px' }}>Company / Organization Name</span>}
+                        label={<span style={{ color: 'var(--theme-secondary)', fontSize: '13px' }}>Company / Organization Name</span>}
                         name="companyName"
                         rules={[{ required: true, message: 'Please enter company name' }]}
                         style={{ marginBottom: '16px' }}
                       >
                         <Input
-                          prefix={<BankOutlined style={{ color: '#38bdf8' }} />}
+                          prefix={<BankOutlined style={{ color: 'var(--theme-link)' }} />}
                           placeholder="e.g. Insolvency Advisory Partners"
                           size="large"
-                          style={{ background: 'rgba(255, 255, 255, 0.05)', color: 'white', borderColor: 'rgba(255, 255, 255, 0.12)', borderRadius: '10px' }}
+                          style={{ background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)', borderRadius: '10px' }}
                         />
                       </Form.Item>
                     )}
 
                     <Form.Item
-                      label={<span style={{ color: '#e2e8f0', fontSize: '13px' }}>Set Account Password</span>}
+                      label={<span style={{ color: 'var(--theme-secondary)', fontSize: '13px' }}>Set Account Password</span>}
                       name="password"
                       rules={[
                         { required: true, message: 'Please enter password' },
@@ -994,15 +994,15 @@ const Login = () => {
                       style={{ marginBottom: '16px' }}
                     >
                       <Input.Password
-                        prefix={<LockOutlined style={{ color: '#38bdf8' }} />}
+                        prefix={<LockOutlined style={{ color: 'var(--theme-link)' }} />}
                         placeholder="••••••••"
                         size="large"
-                        style={{ background: 'rgba(255, 255, 255, 0.05)', color: 'white', borderColor: 'rgba(255, 255, 255, 0.12)', borderRadius: '10px' }}
+                        style={{ background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)', borderRadius: '10px' }}
                       />
                     </Form.Item>
 
                     <Form.Item
-                      label={<span style={{ color: '#e2e8f0', fontSize: '13px' }}>Confirm Password</span>}
+                      label={<span style={{ color: 'var(--theme-secondary)', fontSize: '13px' }}>Confirm Password</span>}
                       name="confirmPassword"
                       rules={[
                         { required: true, message: 'Please confirm password' },
@@ -1018,10 +1018,10 @@ const Login = () => {
                       style={{ marginBottom: '24px' }}
                     >
                       <Input.Password
-                        prefix={<LockOutlined style={{ color: '#38bdf8' }} />}
+                        prefix={<LockOutlined style={{ color: 'var(--theme-link)' }} />}
                         placeholder="••••••••"
                         size="large"
-                        style={{ background: 'rgba(255, 255, 255, 0.05)', color: 'white', borderColor: 'rgba(255, 255, 255, 0.12)', borderRadius: '10px' }}
+                        style={{ background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)', borderRadius: '10px' }}
                       />
                     </Form.Item>
 
@@ -1036,8 +1036,8 @@ const Login = () => {
 
                     <div style={{ textAlign: 'center', marginTop: '12px', fontSize: '11px', color: '#64748b' }}>
                       By registering, you agree to our{' '}
-                      <Link to="/terms" style={{ color: '#38bdf8' }}>Terms</Link> and{' '}
-                      <Link to="/privacy" style={{ color: '#38bdf8' }}>Privacy Policy</Link>.
+                      <Link to="/terms" style={{ color: 'var(--theme-link)' }}>Terms</Link> and{' '}
+                      <Link to="/privacy" style={{ color: 'var(--theme-link)' }}>Privacy Policy</Link>.
                     </div>
                   </Form>
                 </motion.div>
@@ -1048,13 +1048,13 @@ const Login = () => {
           {/* Toggle Login/Register footer (Hidden when in Google onboarding) */}
           {!googleOnboardingUser && (
             <div style={{ textAlign: 'center', marginTop: '20px' }}>
-              <span style={{ color: '#9ca3af', fontSize: '14px' }}>
+              <span style={{ color: 'var(--theme-muted)', fontSize: '14px' }}>
                 {isLogin ? "Don't have an account? " : "Already have an account? "}
               </span>
               <button 
                 type="button" 
                 onClick={() => { setIsLogin(!isLogin); setErrorMessage(''); setRegisterStep(0); }}
-                style={{ background: 'none', border: 'none', color: '#38bdf8', fontWeight: 600, cursor: 'pointer', fontSize: '14px' }}
+                style={{ background: 'none', border: 'none', color: 'var(--theme-link)', fontWeight: 600, cursor: 'pointer', fontSize: '14px' }}
               >
                 {isLogin ? 'Sign Up' : 'Log In'}
               </button>
@@ -1069,8 +1069,8 @@ const Login = () => {
       {/* ------------------------------------------------------------- */}
       <Modal
         title={
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'white', fontSize: '17px', fontWeight: 700 }}>
-            <KeyOutlined style={{ color: '#38bdf8' }} /> Reset Your Password
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--theme-heading)', fontSize: '17px', fontWeight: 700 }}>
+            <KeyOutlined style={{ color: 'var(--theme-link)' }} /> Reset Your Password
           </div>
         }
         open={showForgotModal}
@@ -1080,10 +1080,10 @@ const Login = () => {
         centered
         styles={{
           mask: { backdropFilter: 'blur(8px)', background: 'rgba(0, 0, 0, 0.75)' },
-          content: { background: '#0f172a', border: '1px solid rgba(255, 255, 255, 0.12)', borderRadius: '20px', padding: '28px', color: 'white' }
+          content: { background: 'var(--theme-bg)', border: '1px solid rgba(var(--theme-contrast-rgb), 0.12)', borderRadius: '20px', padding: '28px', color: 'var(--theme-heading)' }
         }}
       >
-        <p style={{ color: '#94a3b8', fontSize: '13px', margin: '0 0 20px 0' }}>
+        <p style={{ color: 'var(--theme-subtle)', fontSize: '13px', margin: '0 0 20px 0' }}>
           {forgotStep === 0 && 'Enter your registered email address to receive a 6-digit password reset OTP via Nodemailer.'}
           {forgotStep === 1 && `Enter the 6-digit verification code sent to ${forgotEmail}.`}
           {forgotStep === 2 && 'Set a strong new password for your account.'}
@@ -1096,7 +1096,7 @@ const Login = () => {
             showIcon
             closable
             onClose={() => setForgotError('')}
-            style={{ marginBottom: '16px', borderRadius: '10px', background: 'rgba(239, 68, 68, 0.12)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#fca5a5' }}
+            style={{ marginBottom: '16px', borderRadius: '10px', background: 'rgba(239, 68, 68, 0.12)', border: '1px solid rgba(239, 68, 68, 0.3)', color: 'var(--theme-danger)' }}
           />
         )}
 
@@ -1104,17 +1104,17 @@ const Login = () => {
         {forgotStep === 0 && (
           <div>
             <div style={{ marginBottom: '16px' }}>
-              <label style={{ color: '#e2e8f0', fontSize: '13px', display: 'block', marginBottom: '8px' }}>
+              <label style={{ color: 'var(--theme-secondary)', fontSize: '13px', display: 'block', marginBottom: '8px' }}>
                 Account Email Address
               </label>
               <Input
-                prefix={<MailOutlined style={{ color: '#38bdf8' }} />}
+                prefix={<MailOutlined style={{ color: 'var(--theme-link)' }} />}
                 placeholder="name@example.com"
                 size="large"
                 value={forgotEmail}
                 onChange={(e) => setForgotEmail(e.target.value)}
                 onPressEnter={handleSendForgotOtp}
-                style={{ background: 'rgba(255, 255, 255, 0.05)', color: 'white', borderColor: 'rgba(255, 255, 255, 0.12)', borderRadius: '10px' }}
+                style={{ background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)', borderRadius: '10px' }}
               />
             </div>
 
@@ -1135,31 +1135,31 @@ const Login = () => {
           <div>
             <div style={{ marginBottom: '16px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                <label style={{ color: '#e2e8f0', fontSize: '13px' }}>
+                <label style={{ color: 'var(--theme-secondary)', fontSize: '13px' }}>
                   6-Digit OTP Code
                 </label>
                 <button
                   type="button"
                   onClick={() => setForgotStep(0)}
-                  style={{ background: 'none', border: 'none', color: '#38bdf8', fontSize: '12px', cursor: 'pointer' }}
+                  style={{ background: 'none', border: 'none', color: 'var(--theme-link)', fontSize: '12px', cursor: 'pointer' }}
                 >
                   Change Email
                 </button>
               </div>
 
               <Input
-                prefix={<KeyOutlined style={{ color: '#38bdf8' }} />}
+                prefix={<KeyOutlined style={{ color: 'var(--theme-link)' }} />}
                 placeholder="123456"
                 size="large"
                 maxLength={6}
                 value={forgotOtp}
                 onChange={(e) => setForgotOtp(e.target.value)}
                 onPressEnter={handleVerifyForgotOtp}
-                style={{ background: 'rgba(255, 255, 255, 0.05)', color: 'white', borderColor: 'rgba(255, 255, 255, 0.12)', borderRadius: '10px', letterSpacing: '4px', fontSize: '18px', textAlign: 'center' }}
+                style={{ background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)', borderRadius: '10px', letterSpacing: '4px', fontSize: '18px', textAlign: 'center' }}
               />
 
               {forgotDevOtp && (
-                <div style={{ marginTop: '8px', fontSize: '12px', color: '#38bdf8', background: 'rgba(56, 189, 248, 0.1)', padding: '6px 10px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ marginTop: '8px', fontSize: '12px', color: 'var(--theme-link)', background: 'rgba(56, 189, 248, 0.1)', padding: '6px 10px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <span>⚡ Development OTP: <strong>{forgotDevOtp}</strong></span>
                   <button 
                     type="button" 
@@ -1206,7 +1206,7 @@ const Login = () => {
             </div>
 
             <Form.Item
-              label={<span style={{ color: '#e2e8f0', fontSize: '13px' }}>New Password</span>}
+              label={<span style={{ color: 'var(--theme-secondary)', fontSize: '13px' }}>New Password</span>}
               name="newPassword"
               rules={[
                 { required: true, message: 'Please enter new password' },
@@ -1215,15 +1215,15 @@ const Login = () => {
               style={{ marginBottom: '16px' }}
             >
               <Input.Password
-                prefix={<LockOutlined style={{ color: '#38bdf8' }} />}
+                prefix={<LockOutlined style={{ color: 'var(--theme-link)' }} />}
                 placeholder="••••••••"
                 size="large"
-                style={{ background: 'rgba(255, 255, 255, 0.05)', color: 'white', borderColor: 'rgba(255, 255, 255, 0.12)', borderRadius: '10px' }}
+                style={{ background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)', borderRadius: '10px' }}
               />
             </Form.Item>
 
             <Form.Item
-              label={<span style={{ color: '#e2e8f0', fontSize: '13px' }}>Confirm New Password</span>}
+              label={<span style={{ color: 'var(--theme-secondary)', fontSize: '13px' }}>Confirm New Password</span>}
               name="confirmPassword"
               rules={[
                 { required: true, message: 'Please confirm new password' },
@@ -1239,10 +1239,10 @@ const Login = () => {
               style={{ marginBottom: '24px' }}
             >
               <Input.Password
-                prefix={<LockOutlined style={{ color: '#38bdf8' }} />}
+                prefix={<LockOutlined style={{ color: 'var(--theme-link)' }} />}
                 placeholder="••••••••"
                 size="large"
-                style={{ background: 'rgba(255, 255, 255, 0.05)', color: 'white', borderColor: 'rgba(255, 255, 255, 0.12)', borderRadius: '10px' }}
+                style={{ background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)', borderRadius: '10px' }}
               />
             </Form.Item>
 

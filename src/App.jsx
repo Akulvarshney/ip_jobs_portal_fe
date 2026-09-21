@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useEffect, useLayoutEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchCurrentUser, selectTheme } from './store/authSlice';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ConfigProvider, theme } from 'antd';
 import Navbar from './components/Navbar';
@@ -38,50 +40,40 @@ import AdminManageApplications from './pages/admin/ManageApplications';
 import AdminManageReports from './pages/admin/ManageReports';
 
 function App() {
+  const dispatch = useDispatch();
+  const mode = useSelector(selectTheme);
+  const token = useSelector((state) => state.auth.token);
+  const isDark = mode === 'dark';
+
+  useLayoutEffect(() => {
+    document.documentElement.dataset.theme = mode;
+    document.documentElement.style.colorScheme = mode;
+  }, [mode]);
+
+  useEffect(() => {
+    if (token) dispatch(fetchCurrentUser());
+  }, [dispatch, token]);
+
   return (
     <ConfigProvider
       theme={{
-        algorithm: theme.darkAlgorithm,
+        algorithm: isDark ? theme.darkAlgorithm : theme.defaultAlgorithm,
         token: {
-          colorPrimary: '#0ea5e9',
-          colorBgBase: '#0f172a',
-          colorBgContainer: '#1e293b',
-          colorBgElevated: '#1e293b',
-          colorText: '#f3f4f6',
-          colorTextSecondary: '#9ca3af',
-          colorBorder: 'rgba(255, 255, 255, 0.12)',
+          colorPrimary: isDark ? '#0ea5e9' : '#0284c7',
+          colorBgBase: isDark ? '#0f172a' : '#f8fafc',
+          colorBgContainer: isDark ? '#1e293b' : '#ffffff',
+          colorBgElevated: isDark ? '#1e293b' : '#ffffff',
+          colorText: isDark ? '#f3f4f6' : '#1e293b',
+          colorTextSecondary: isDark ? '#9ca3af' : '#475569',
+          colorBorder: isDark ? 'rgba(255, 255, 255, 0.12)' : '#cbd5e1',
           borderRadius: 12,
-        },
-        components: {
-          Modal: {
-            contentBg: '#1e293b',
-            headerBg: '#1e293b',
-            titleColor: '#ffffff',
-          },
-          Table: {
-            colorBgContainer: 'transparent',
-            headerBg: 'rgba(15, 23, 42, 0.6)',
-            headerColor: '#9ca3af',
-            borderColor: 'rgba(255, 255, 255, 0.08)',
-          },
-          Select: {
-            colorBgContainer: 'rgba(255, 255, 255, 0.05)',
-            colorBgElevated: '#1e293b',
-            colorText: '#ffffff',
-            colorBorder: 'rgba(255, 255, 255, 0.12)',
-          },
-          Input: {
-            colorBgContainer: 'rgba(255, 255, 255, 0.05)',
-            colorText: '#ffffff',
-            colorBorder: 'rgba(255, 255, 255, 0.12)',
-          },
         },
       }}
     >
       <BrowserRouter>
-        <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '100%', overflowX: 'hidden' }}>
           <Navbar />
-          <main style={{ flex: 1 }}>
+          <main style={{ flex: 1, width: '100%', minWidth: 0 }}>
             <Routes>
               {/* Public Routes */}
               <Route path="/" element={<Home />} />
@@ -103,7 +95,7 @@ function App() {
                 <Route path="/candidate/experience" element={<CandidateProfile />} />
                 <Route path="/candidate/skills" element={<CandidateProfile />} />
                 <Route path="/candidate/certifications" element={<CandidateProfile />} />
-                <Route path="/candidate/resume" element={<CandidateResume />} />
+                <Route path="/candidate/resume" element={<CandidateProfile />} />
                 <Route path="/candidate/jobs" element={<CandidateJobs />} />
                 <Route path="/candidate/applications" element={<CandidateApplications />} />
                 <Route path="/candidate/saved-jobs" element={<CandidateSavedJobs />} />

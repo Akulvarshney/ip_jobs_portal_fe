@@ -43,46 +43,46 @@ const AdminDashboard = () => {
     {
       title: 'Total Candidates',
       count: stats?.totalCandidates ?? 0,
-      icon: <UserOutlined style={{ fontSize: '22px', color: '#38bdf8' }} />,
+      icon: <UserOutlined style={{ fontSize: '22px', color: 'var(--theme-link)' }} />,
       subtitle: 'Registered IPs & Professionals',
-      color: 'rgba(30, 41, 59, 0.7)',
-      borderColor: 'rgba(255, 255, 255, 0.08)',
+      color: 'rgba(var(--theme-surface-rgb), 0.7)',
+      borderColor: 'rgba(var(--theme-contrast-rgb), 0.08)',
       link: '/admin/users?role=CANDIDATE',
     },
     {
       title: 'Total Employers',
       count: stats?.totalEmployers ?? 0,
-      icon: <BankOutlined style={{ fontSize: '22px', color: '#38bdf8' }} />,
+      icon: <BankOutlined style={{ fontSize: '22px', color: 'var(--theme-link)' }} />,
       subtitle: `${stats?.pendingEmployers ?? 0} pending approvals`,
-      color: 'rgba(30, 41, 59, 0.7)',
-      borderColor: 'rgba(255, 255, 255, 0.08)',
+      color: 'rgba(var(--theme-surface-rgb), 0.7)',
+      borderColor: 'rgba(var(--theme-contrast-rgb), 0.08)',
       link: '/admin/employers',
     },
     {
       title: 'Active Job Mandates',
       count: stats?.activeJobs ?? 0,
-      icon: <FileTextOutlined style={{ fontSize: '22px', color: '#38bdf8' }} />,
+      icon: <FileTextOutlined style={{ fontSize: '22px', color: 'var(--theme-link)' }} />,
       subtitle: `${(stats?.pausedJobs ?? 0) + (stats?.closedJobs ?? 0)} paused/closed`,
-      color: 'rgba(30, 41, 59, 0.7)',
-      borderColor: 'rgba(255, 255, 255, 0.08)',
+      color: 'rgba(var(--theme-surface-rgb), 0.7)',
+      borderColor: 'rgba(var(--theme-contrast-rgb), 0.08)',
       link: '/admin/jobs',
     },
     {
       title: 'Applications Logged',
       count: stats?.totalApplications ?? 0,
-      icon: <SolutionOutlined style={{ fontSize: '22px', color: '#38bdf8' }} />,
+      icon: <SolutionOutlined style={{ fontSize: '22px', color: 'var(--theme-link)' }} />,
       subtitle: 'Total candidate submissions',
-      color: 'rgba(30, 41, 59, 0.7)',
-      borderColor: 'rgba(255, 255, 255, 0.08)',
+      color: 'rgba(var(--theme-surface-rgb), 0.7)',
+      borderColor: 'rgba(var(--theme-contrast-rgb), 0.08)',
       link: '/admin/applications',
     },
     {
       title: 'Moderation Reports',
       count: stats?.totalReports ?? 0,
-      icon: <AlertOutlined style={{ fontSize: '22px', color: '#38bdf8' }} />,
+      icon: <AlertOutlined style={{ fontSize: '22px', color: 'var(--theme-link)' }} />,
       subtitle: `${stats?.openReports ?? 0} open investigation(s)`,
-      color: 'rgba(30, 41, 59, 0.7)',
-      borderColor: 'rgba(255, 255, 255, 0.08)',
+      color: 'rgba(var(--theme-surface-rgb), 0.7)',
+      borderColor: 'rgba(var(--theme-contrast-rgb), 0.08)',
       link: '/admin/reports',
     },
   ];
@@ -133,21 +133,21 @@ const AdminDashboard = () => {
               onClick={() => navigate(card.link)}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '14px' }}>
-                <span style={{ color: '#9ca3af', fontSize: '13px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                <span style={{ color: 'var(--theme-muted)', fontSize: '13px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                   {card.title}
                 </span>
-                <div style={{ padding: '8px', borderRadius: '10px', background: 'rgba(255, 255, 255, 0.06)' }}>
+                <div style={{ padding: '8px', borderRadius: '10px', background: 'rgba(var(--theme-contrast-rgb), 0.06)' }}>
                   {card.icon}
                 </div>
               </div>
 
               <div>
-                <div style={{ fontSize: '36px', fontWeight: 800, color: '#ffffff', lineHeight: 1 }}>
+                <div style={{ fontSize: '36px', fontWeight: 800, color: 'var(--theme-heading)', lineHeight: 1 }}>
                   {card.count}
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px' }}>
-                  <span style={{ fontSize: '12px', color: '#cbd5e1' }}>{card.subtitle}</span>
-                  <ArrowRightOutlined style={{ color: '#38bdf8', fontSize: '12px' }} />
+                  <span style={{ fontSize: '12px', color: 'var(--theme-detail)' }}>{card.subtitle}</span>
+                  <ArrowRightOutlined style={{ color: 'var(--theme-link)', fontSize: '12px' }} />
                 </div>
               </div>
             </motion.div>
@@ -161,15 +161,15 @@ const AdminDashboard = () => {
           <div className="portal-glass-card" style={{ padding: '24px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
               <div>
-                <h3 style={{ margin: 0, color: '#ffffff', fontSize: '18px', fontWeight: 700 }}>
+                <h3 style={{ margin: 0, color: 'var(--theme-heading)', fontSize: '18px', fontWeight: 700 }}>
                   Recent Organisations
                 </h3>
-                <span style={{ fontSize: '13px', color: '#9ca3af' }}>Entities and firms onboarding onto the platform</span>
+                <span style={{ fontSize: '13px', color: 'var(--theme-muted)' }}>Entities and firms onboarding onto the platform</span>
               </div>
               <Button 
                 type="link" 
                 onClick={() => navigate('/admin/employers')}
-                style={{ color: '#38bdf8', padding: 0 }}
+                style={{ color: 'var(--theme-link)', padding: 0 }}
               >
                 View All →
               </Button>
@@ -185,14 +185,14 @@ const AdminDashboard = () => {
                       justifyContent: 'space-between',
                       alignItems: 'center',
                       padding: '12px 14px',
-                      background: 'rgba(255, 255, 255, 0.03)',
+                      background: 'rgba(var(--theme-contrast-rgb), 0.03)',
                       borderRadius: '12px',
-                      border: '1px solid rgba(255, 255, 255, 0.06)'
+                      border: '1px solid rgba(var(--theme-contrast-rgb), 0.06)'
                     }}
                   >
                     <div>
-                      <div style={{ fontWeight: 600, color: '#ffffff', fontSize: '14px' }}>{emp.name}</div>
-                      <div style={{ fontSize: '12px', color: '#9ca3af', marginTop: '2px' }}>
+                      <div style={{ fontWeight: 600, color: 'var(--theme-heading)', fontSize: '14px' }}>{emp.name}</div>
+                      <div style={{ fontSize: '12px', color: 'var(--theme-muted)', marginTop: '2px' }}>
                         {emp.type || 'N/A'} • {emp.location || 'India'}
                       </div>
                     </div>
@@ -206,7 +206,7 @@ const AdminDashboard = () => {
                 ))}
               </div>
             ) : (
-              <p style={{ color: '#9ca3af', margin: 0 }}>No recent organisations found.</p>
+              <p style={{ color: 'var(--theme-muted)', margin: 0 }}>No recent organisations found.</p>
             )}
           </div>
 
@@ -214,15 +214,15 @@ const AdminDashboard = () => {
           <div className="portal-glass-card" style={{ padding: '24px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
               <div>
-                <h3 style={{ margin: 0, color: '#ffffff', fontSize: '18px', fontWeight: 700 }}>
+                <h3 style={{ margin: 0, color: 'var(--theme-heading)', fontSize: '18px', fontWeight: 700 }}>
                   Latest Mandates & Jobs
                 </h3>
-                <span style={{ fontSize: '13px', color: '#9ca3af' }}>CIRP, Liquidation, and Restructuring listings</span>
+                <span style={{ fontSize: '13px', color: 'var(--theme-muted)' }}>CIRP, Liquidation, and Restructuring listings</span>
               </div>
               <Button 
                 type="link" 
                 onClick={() => navigate('/admin/jobs')}
-                style={{ color: '#38bdf8', padding: 0 }}
+                style={{ color: 'var(--theme-link)', padding: 0 }}
               >
                 View All →
               </Button>
@@ -238,14 +238,14 @@ const AdminDashboard = () => {
                       justifyContent: 'space-between',
                       alignItems: 'center',
                       padding: '12px 14px',
-                      background: 'rgba(255, 255, 255, 0.03)',
+                      background: 'rgba(var(--theme-contrast-rgb), 0.03)',
                       borderRadius: '12px',
-                      border: '1px solid rgba(255, 255, 255, 0.06)'
+                      border: '1px solid rgba(var(--theme-contrast-rgb), 0.06)'
                     }}
                   >
                     <div>
-                      <div style={{ fontWeight: 600, color: '#ffffff', fontSize: '14px' }}>{job.title}</div>
-                      <div style={{ fontSize: '12px', color: '#9ca3af', marginTop: '2px' }}>
+                      <div style={{ fontWeight: 600, color: 'var(--theme-heading)', fontSize: '14px' }}>{job.title}</div>
+                      <div style={{ fontSize: '12px', color: 'var(--theme-muted)', marginTop: '2px' }}>
                         {job.employer?.name || 'Unknown Entity'}
                       </div>
                     </div>
@@ -259,7 +259,7 @@ const AdminDashboard = () => {
                 ))}
               </div>
             ) : (
-              <p style={{ color: '#9ca3af', margin: 0 }}>No recent jobs found.</p>
+              <p style={{ color: 'var(--theme-muted)', margin: 0 }}>No recent jobs found.</p>
             )}
           </div>
 
@@ -269,15 +269,15 @@ const AdminDashboard = () => {
         <div className="portal-glass-card" style={{ padding: '24px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
             <div>
-              <h3 style={{ margin: 0, color: '#ffffff', fontSize: '18px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <h3 style={{ margin: 0, color: 'var(--theme-heading)', fontSize: '18px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <WarningOutlined style={{ color: '#f59e0b' }} /> Active Safety & Moderation Feed
               </h3>
-              <span style={{ fontSize: '13px', color: '#9ca3af' }}>User reports regarding spam, duplicate mandates, and platform integrity</span>
+              <span style={{ fontSize: '13px', color: 'var(--theme-muted)' }}>User reports regarding spam, duplicate mandates, and platform integrity</span>
             </div>
             <Button 
               type="link" 
               onClick={() => navigate('/admin/reports')}
-              style={{ color: '#38bdf8', padding: 0 }}
+              style={{ color: 'var(--theme-link)', padding: 0 }}
             >
               Manage All Reports →
             </Button>
@@ -303,10 +303,10 @@ const AdminDashboard = () => {
                       {rep.status}
                     </Tag>
                   </div>
-                  <p style={{ color: '#f3f4f6', fontSize: '13px', margin: '8px 0', lineHeight: 1.4 }}>
+                  <p style={{ color: 'var(--theme-text)', fontSize: '13px', margin: '8px 0', lineHeight: 1.4 }}>
                     {rep.description}
                   </p>
-                  <div style={{ fontSize: '11px', color: '#9ca3af', display: 'flex', justifyContent: 'space-between' }}>
+                  <div style={{ fontSize: '11px', color: 'var(--theme-muted)', display: 'flex', justifyContent: 'space-between' }}>
                     <span>Report #{rep.id}</span>
                     <span>{new Date(rep.createdAt).toLocaleDateString()}</span>
                   </div>
@@ -314,7 +314,7 @@ const AdminDashboard = () => {
               ))}
             </div>
           ) : (
-            <div style={{ textAlign: 'center', padding: '24px', color: '#9ca3af' }}>
+            <div style={{ textAlign: 'center', padding: '24px', color: 'var(--theme-muted)' }}>
               <CheckCircleOutlined style={{ fontSize: '32px', color: '#10b981', marginBottom: '8px', display: 'block' }} />
               All moderation queues are clear! No pending issues.
             </div>

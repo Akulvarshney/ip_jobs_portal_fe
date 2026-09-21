@@ -16,6 +16,7 @@ import { motion } from 'framer-motion';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCandidateProfile, updateResume, deleteResume } from '../../store/candidateSlice';
 import api from '../../api';
+import { getFileUrl } from '../../utils/fileUrl';
 
 const CandidateResume = () => {
   const dispatch = useDispatch();
@@ -92,11 +93,11 @@ const CandidateResume = () => {
       const res = await api.post('/api/upload/resume', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
-      message.success(`Resume "${file.name}" uploaded to Cloudflare R2 successfully!`);
+      message.success(`Resume "${file.name}" uploaded successfully!`);
       loadProfile();
     } catch (error) {
-      console.error('R2 upload failed:', error);
-      const errorMsg = error?.response?.data?.message || error?.message || 'Failed to upload resume to Cloudflare R2';
+      console.error('Upload failed:', error);
+      const errorMsg = error?.response?.data?.message || error?.message || 'Failed to upload resume';
       message.error(errorMsg);
     } finally {
       setUploading(false);
@@ -115,12 +116,12 @@ const CandidateResume = () => {
           {/* Main Resume Card */}
           <div className="portal-glass-card" style={{ padding: '32px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-              <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(56, 189, 248, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#38bdf8', fontSize: '20px' }}>
+              <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(56, 189, 248, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--theme-link)', fontSize: '20px' }}>
                 <FileTextOutlined />
               </div>
               <div>
-                <h1 style={{ fontSize: '24px', fontWeight: 700, color: 'white', margin: 0 }}>Candidate Resume</h1>
-                <p style={{ color: '#9ca3af', fontSize: '13px', margin: '2px 0 0' }}>Manage your primary CV for applications</p>
+                <h1 style={{ fontSize: '24px', fontWeight: 700, color: 'var(--theme-heading)', margin: 0 }}>Candidate Resume</h1>
+                <p style={{ color: 'var(--theme-muted)', fontSize: '13px', margin: '2px 0 0' }}>Manage your primary CV for applications</p>
               </div>
             </div>
 
@@ -142,17 +143,17 @@ const CandidateResume = () => {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      color: 'white',
+                      color: 'var(--theme-on-primary)',
                       fontSize: '26px'
                     }}>
                       <FileTextOutlined />
                     </div>
                     <div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <span style={{ fontSize: '16px', fontWeight: 600, color: 'white' }}>Active Resume Document</span>
+                        <span style={{ fontSize: '16px', fontWeight: 600, color: 'var(--theme-heading)' }}>Active Resume Document</span>
                         <Tag color="cyan" icon={<CheckCircleOutlined />}>Current</Tag>
                       </div>
-                      <div style={{ color: '#94a3b8', fontSize: '13px', marginTop: '4px' }}>
+                      <div style={{ color: 'var(--theme-subtle)', fontSize: '13px', marginTop: '4px' }}>
                         Shared automatically with employers when applying
                       </div>
                     </div>
@@ -167,8 +168,8 @@ const CandidateResume = () => {
                     >
                       View
                     </Button>
-                    <a href={resumeUrl} target="_blank" rel="noopener noreferrer" download="Resume.pdf">
-                      <Button icon={<DownloadOutlined />} style={{ borderRadius: '8px', background: 'rgba(255, 255, 255, 0.06)', color: 'white', borderColor: 'rgba(255, 255, 255, 0.15)' }}>
+                    <a href={getFileUrl(resumeUrl)} target="_blank" rel="noopener noreferrer" download="Resume.pdf">
+                      <Button icon={<DownloadOutlined />} style={{ borderRadius: '8px', background: 'rgba(var(--theme-contrast-rgb), 0.06)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.15)' }}>
                         Download
                       </Button>
                     </a>
@@ -183,8 +184,8 @@ const CandidateResume = () => {
                   </div>
                 </div>
 
-                <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                  <div style={{ color: '#cbd5e1', fontSize: '13px', fontWeight: 500, marginBottom: '8px' }}>
+                <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px solid rgba(var(--theme-contrast-rgb), 0.08)' }}>
+                  <div style={{ color: 'var(--theme-detail)', fontSize: '13px', fontWeight: 500, marginBottom: '8px' }}>
                     Replace Existing Resume:
                   </div>
                   <label
@@ -193,17 +194,17 @@ const CandidateResume = () => {
                       alignItems: 'center',
                       gap: '8px',
                       padding: '10px 18px',
-                      background: 'rgba(255, 255, 255, 0.06)',
-                      border: '1px dashed rgba(255, 255, 255, 0.2)',
+                      background: 'rgba(var(--theme-contrast-rgb), 0.06)',
+                      border: '1px dashed rgba(var(--theme-contrast-rgb), 0.2)',
                       borderRadius: '8px',
-                      color: '#38bdf8',
+                      color: 'var(--theme-link)',
                       cursor: uploading ? 'not-allowed' : 'pointer',
                       fontSize: '13px',
                       fontWeight: 500,
                       opacity: uploading ? 0.6 : 1
                     }}
                   >
-                    <SyncOutlined spin={uploading} /> {uploading ? 'Uploading to Cloudflare R2...' : 'Replace File (PDF, DOCX)'}
+                    <SyncOutlined spin={uploading} /> {uploading ? 'Uploading...' : 'Replace File (PDF, DOCX)'}
                     <input
                       type="file"
                       accept=".pdf,.doc,.docx"
@@ -221,14 +222,14 @@ const CandidateResume = () => {
                 borderRadius: '16px',
                 padding: '40px 24px',
                 textAlign: 'center',
-                background: 'rgba(255, 255, 255, 0.02)'
+                background: 'rgba(var(--theme-contrast-rgb), 0.02)'
               }}>
-                <CloudUploadOutlined style={{ fontSize: '48px', color: '#38bdf8', marginBottom: '16px' }} />
-                <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'white', margin: 0 }}>
+                <CloudUploadOutlined style={{ fontSize: '48px', color: 'var(--theme-link)', marginBottom: '16px' }} />
+                <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--theme-heading)', margin: 0 }}>
                   Upload Your Latest Resume
                 </h3>
-                <p style={{ color: '#9ca3af', fontSize: '14px', margin: '6px 0 20px' }}>
-                  Securely stored on Cloudflare R2. Supports PDF, DOC, DOCX up to 3MB.
+                <p style={{ color: 'var(--theme-muted)', fontSize: '14px', margin: '6px 0 20px' }}>
+                  Supports PDF, DOC, DOCX up to 3MB.
                 </p>
 
                 <label
@@ -239,7 +240,7 @@ const CandidateResume = () => {
                     padding: '12px 24px',
                     background: '#0ea5e9',
                     borderRadius: '10px',
-                    color: 'white',
+                    color: 'var(--theme-on-primary)',
                     cursor: uploading ? 'not-allowed' : 'pointer',
                     fontSize: '14px',
                     fontWeight: 600,
@@ -247,7 +248,7 @@ const CandidateResume = () => {
                     opacity: uploading ? 0.6 : 1
                   }}
                 >
-                  <UploadOutlined spin={uploading} /> {uploading ? 'Uploading to Cloudflare R2...' : 'Select File to Upload'}
+                  <UploadOutlined spin={uploading} /> {uploading ? 'Uploading...' : 'Select File to Upload'}
                   <input
                     type="file"
                     accept=".pdf,.doc,.docx"
@@ -266,7 +267,7 @@ const CandidateResume = () => {
                     placeholder="https://drive.google.com/... or cloud document link"
                     value={inputUrl}
                     onChange={(e) => setInputUrl(e.target.value)}
-                    style={{ background: 'rgba(255, 255, 255, 0.05)', color: 'white', borderColor: 'rgba(255, 255, 255, 0.15)' }}
+                    style={{ background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.15)' }}
                   />
                   <Button
                     type="primary"
@@ -284,35 +285,35 @@ const CandidateResume = () => {
           {/* Right Column: Guidance & Best Practices */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             <div className="portal-glass-card" style={{ padding: '28px' }}>
-              <h2 style={{ fontSize: '18px', fontWeight: 600, color: 'white', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <SafetyCertificateOutlined style={{ color: '#38bdf8' }} />
+              <h2 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--theme-heading)', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <SafetyCertificateOutlined style={{ color: 'var(--theme-link)' }} />
                 IBC Resume Guidance
               </h2>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                <div style={{ background: 'rgba(255, 255, 255, 0.03)', padding: '14px', borderRadius: '10px', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
-                  <div style={{ fontWeight: 600, color: '#38bdf8', fontSize: '13px', marginBottom: '4px' }}>
+                <div style={{ background: 'rgba(var(--theme-contrast-rgb), 0.03)', padding: '14px', borderRadius: '10px', border: '1px solid rgba(var(--theme-contrast-rgb), 0.06)' }}>
+                  <div style={{ fontWeight: 600, color: 'var(--theme-link)', fontSize: '13px', marginBottom: '4px' }}>
                     1. Highlight Mandate Values & CIRP Stages
                   </div>
-                  <div style={{ color: '#94a3b8', fontSize: '12px', lineHeight: '1.5' }}>
+                  <div style={{ color: 'var(--theme-subtle)', fontSize: '12px', lineHeight: '1.5' }}>
                     Mention verified claim amounts, liquidation valuations, and NCLT bench jurisdictions (e.g. Principal Bench, Mumbai, NCLAT).
                   </div>
                 </div>
 
-                <div style={{ background: 'rgba(255, 255, 255, 0.03)', padding: '14px', borderRadius: '10px', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
-                  <div style={{ fontWeight: 600, color: '#38bdf8', fontSize: '13px', marginBottom: '4px' }}>
+                <div style={{ background: 'rgba(var(--theme-contrast-rgb), 0.03)', padding: '14px', borderRadius: '10px', border: '1px solid rgba(var(--theme-contrast-rgb), 0.06)' }}>
+                  <div style={{ fontWeight: 600, color: 'var(--theme-link)', fontSize: '13px', marginBottom: '4px' }}>
                     2. Section 29A Due Diligence & CoC Experience
                   </div>
-                  <div style={{ color: '#94a3b8', fontSize: '12px', lineHeight: '1.5' }}>
+                  <div style={{ color: 'var(--theme-subtle)', fontSize: '12px', lineHeight: '1.5' }}>
                     State experience in prospective resolution applicant vetting and drafting evaluation matrices.
                   </div>
                 </div>
 
-                <div style={{ background: 'rgba(255, 255, 255, 0.03)', padding: '14px', borderRadius: '10px', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
-                  <div style={{ fontWeight: 600, color: '#38bdf8', fontSize: '13px', marginBottom: '4px' }}>
+                <div style={{ background: 'rgba(var(--theme-contrast-rgb), 0.03)', padding: '14px', borderRadius: '10px', border: '1px solid rgba(var(--theme-contrast-rgb), 0.06)' }}>
+                  <div style={{ fontWeight: 600, color: 'var(--theme-link)', fontSize: '13px', marginBottom: '4px' }}>
                     3. Statutory Registrations
                   </div>
-                  <div style={{ color: '#94a3b8', fontSize: '12px', lineHeight: '1.5' }}>
+                  <div style={{ color: 'var(--theme-subtle)', fontSize: '12px', lineHeight: '1.5' }}>
                     Include IBBI registration number, ICAI/ICSI/Bar Council enrolment ID explicitly.
                   </div>
                 </div>
@@ -332,26 +333,26 @@ const CandidateResume = () => {
           <Button key="close" onClick={() => setPreviewVisible(false)}>
             Close
           </Button>,
-          <a key="dl" href={resumeUrl} target="_blank" rel="noopener noreferrer">
+          <a key="dl" href={getFileUrl(resumeUrl)} target="_blank" rel="noopener noreferrer">
             <Button type="primary" style={{ background: '#0ea5e9' }}>
               Open in New Window ↗
             </Button>
           </a>
         ]}
       >
-        <div style={{ height: '550px', background: '#0f172a', borderRadius: '8px', overflow: 'hidden' }}>
-          {resumeUrl?.startsWith('data:') || resumeUrl?.endsWith('.pdf') ? (
+        <div style={{ height: '550px', background: 'var(--theme-bg)', borderRadius: '8px', overflow: 'hidden' }}>
+          {resumeUrl?.startsWith('data:') || resumeUrl?.includes('.pdf') || resumeUrl?.includes('resumes/') ? (
             <iframe
-              src={resumeUrl}
+              src={getFileUrl(resumeUrl)}
               title="Resume Preview"
               style={{ width: '100%', height: '100%', border: 'none' }}
             />
           ) : (
-            <div style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>
-              <FileTextOutlined style={{ fontSize: '48px', color: '#38bdf8', marginBottom: '16px' }} />
-              <h3 style={{ color: 'white' }}>Document Link Preview</h3>
+            <div style={{ padding: '40px', textAlign: 'center', color: 'var(--theme-subtle)' }}>
+              <FileTextOutlined style={{ fontSize: '48px', color: 'var(--theme-link)', marginBottom: '16px' }} />
+              <h3 style={{ color: 'var(--theme-heading)' }}>Document Link Preview</h3>
               <p>{resumeUrl}</p>
-              <a href={resumeUrl} target="_blank" rel="noopener noreferrer">
+              <a href={getFileUrl(resumeUrl)} target="_blank" rel="noopener noreferrer">
                 <Button type="primary" style={{ marginTop: '12px' }}>Open External Document Link</Button>
               </a>
             </div>

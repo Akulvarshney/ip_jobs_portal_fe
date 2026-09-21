@@ -7,6 +7,7 @@ import {
   Select, 
   Tabs, 
   Modal, 
+  Drawer,
   message, 
   Row, 
   Col, 
@@ -33,11 +34,16 @@ import {
   FilterOutlined,
   PhoneOutlined,
   MailOutlined,
-  EnvironmentOutlined
+  EnvironmentOutlined,
+  ClearOutlined,
+  CloseOutlined,
+  AuditOutlined,
+  TagOutlined
 } from '@ant-design/icons';
 import { motion } from 'framer-motion';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { getFileUrl } from '../../utils/fileUrl';
 import { fetchEmployerApplications, fetchEmployerJobs, updateApplicationStatus, scheduleInterview } from '../../store/employerSlice';
 import dayjs from 'dayjs';
 
@@ -58,6 +64,7 @@ const ManageApplications = () => {
   const [activeTab, setActiveTab] = useState(initialStatus);
   const [selectedJobFilter, setSelectedJobFilter] = useState(initialJobId);
   const [searchQuery, setSearchQuery] = useState('');
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   // Modals state
   const [candidateModalVisible, setCandidateModalVisible] = useState(false);
@@ -187,12 +194,12 @@ const ManageApplications = () => {
             <Avatar 
               size={40} 
               icon={<UserOutlined />} 
-              src={profile?.profilePhoto}
+              src={getFileUrl(profile?.profilePhoto)}
               style={{ backgroundColor: '#a855f7' }}
             />
             <div>
               <div 
-                style={{ fontWeight: 600, color: '#38bdf8', cursor: 'pointer', fontSize: '15px' }}
+                style={{ fontWeight: 600, color: 'var(--theme-link)', cursor: 'pointer', fontSize: '15px' }}
                 onClick={() => {
                   setSelectedApp(record);
                   setCandidateModalVisible(true);
@@ -200,7 +207,7 @@ const ManageApplications = () => {
               >
                 {record.candidate?.name || 'Candidate'}
               </div>
-              <div style={{ color: '#94a3b8', fontSize: '12px' }}>
+              <div style={{ color: 'var(--theme-subtle)', fontSize: '12px' }}>
                 {profile?.professionalCategory || profile?.designation || record.candidate?.email}
               </div>
             </div>
@@ -214,8 +221,8 @@ const ManageApplications = () => {
       key: 'jobTitle',
       render: (title, record) => (
         <div>
-          <span style={{ fontWeight: 500, color: 'white', fontSize: '14px' }}>{title}</span>
-          <div style={{ color: '#94a3b8', fontSize: '12px', marginTop: '2px' }}>
+          <span style={{ fontWeight: 500, color: 'var(--theme-heading)', fontSize: '14px' }}>{title}</span>
+          <div style={{ color: 'var(--theme-subtle)', fontSize: '12px', marginTop: '2px' }}>
             Applied {new Date(record.createdAt).toLocaleDateString()}
           </div>
         </div>
@@ -229,11 +236,11 @@ const ManageApplications = () => {
         const topEdu = profile?.educations?.[0];
         return (
           <div>
-            <div style={{ color: '#cbd5e1', fontSize: '13px', fontWeight: 500 }}>
+            <div style={{ color: 'var(--theme-detail)', fontSize: '13px', fontWeight: 500 }}>
               {profile?.experience ? `${profile.experience} Yrs Experience` : 'Exp not specified'}
             </div>
             {topEdu && (
-              <div style={{ color: '#94a3b8', fontSize: '12px' }}>
+              <div style={{ color: 'var(--theme-subtle)', fontSize: '12px' }}>
                 {topEdu.qualification} • {topEdu.institution}
               </div>
             )}
@@ -259,7 +266,7 @@ const ManageApplications = () => {
               setSelectedApp(record);
               setCandidateModalVisible(true);
             }}
-            style={{ borderRadius: '6px', background: 'rgba(255, 255, 255, 0.06)', color: 'white', borderColor: 'rgba(255, 255, 255, 0.12)' }}
+            style={{ borderRadius: '6px', background: 'rgba(var(--theme-contrast-rgb), 0.06)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)' }}
           >
             Review Profile
           </Button>
@@ -329,63 +336,204 @@ const ManageApplications = () => {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px', flexWrap: 'wrap', gap: '16px' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-              <Link to="/employer" style={{ color: '#38bdf8', fontSize: '13px', fontWeight: 500 }}>
+              <Link to="/employer" style={{ color: 'var(--theme-link)', fontSize: '13px', fontWeight: 500 }}>
                 ← Back to Employer Dashboard
               </Link>
             </div>
-            <h1 style={{ fontSize: '28px', fontWeight: 700, color: 'white', margin: 0 }}>
+            <h1 style={{ fontSize: '28px', fontWeight: 700, color: 'var(--theme-heading)', margin: 0 }}>
               Candidate Applications Manager
             </h1>
-            <p style={{ color: '#9ca3af', fontSize: '14px', margin: '4px 0 0' }}>
+            <p style={{ color: 'var(--theme-muted)', fontSize: '14px', margin: '4px 0 0' }}>
               Review applicant resumes, verify IBC credentials, shortlist candidates, and schedule interviews.
             </p>
           </div>
 
           <Link to="/employer/jobs">
-            <Button style={{ borderRadius: '8px', background: 'rgba(255, 255, 255, 0.06)', color: 'white', borderColor: 'rgba(255, 255, 255, 0.12)' }}>
+            <Button style={{ borderRadius: '8px', background: 'rgba(var(--theme-contrast-rgb), 0.06)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)' }}>
               Manage Mandates
             </Button>
           </Link>
         </div>
 
-        {/* Filters Toolbar */}
+        {/* Clean Search & Filter Toolbar */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           className="portal-glass-card"
-          style={{ padding: '24px', marginBottom: '24px' }}
+          style={{ padding: '16px 20px', marginBottom: '24px' }}
         >
-          <Row gutter={[16, 16]} align="middle">
-            <Col xs={24} sm={12} md={10}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+            <div style={{ flex: '1 1 300px' }}>
               <Input
-                prefix={<SearchOutlined style={{ color: '#38bdf8' }} />}
-                placeholder="Search candidate name, email, or role..."
+                prefix={<SearchOutlined style={{ color: 'var(--theme-link)' }} />}
+                placeholder="Search candidate name, email, qualifications, or skills..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                style={{ background: 'rgba(255, 255, 255, 0.05)', color: 'white', borderColor: 'rgba(255, 255, 255, 0.12)', height: '42px', borderRadius: '10px' }}
+                allowClear
+                style={{ 
+                  background: 'rgba(var(--theme-contrast-rgb), 0.05)', 
+                  color: 'var(--theme-heading)', 
+                  borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)', 
+                  height: '44px', 
+                  borderRadius: '10px' 
+                }}
               />
-            </Col>
+            </div>
 
-            <Col xs={24} sm={12} md={8}>
-              <Select
-                value={selectedJobFilter}
-                onChange={setSelectedJobFilter}
-                style={{ width: '100%', height: '42px' }}
-              >
-                <Option value="ALL">All Active Mandates ({jobs.length})</Option>
-                {jobs.map(j => (
-                  <Option key={j.id} value={j.id}>{j.title}</Option>
-                ))}
-              </Select>
-            </Col>
+            <button 
+              type="button"
+              className={`portal-filter-trigger-btn ${selectedJobFilter !== 'ALL' || activeTab !== 'ALL' ? 'active' : ''}`}
+              onClick={() => setDrawerOpen(true)}
+            >
+              <FilterOutlined style={{ color: (selectedJobFilter !== 'ALL' || activeTab !== 'ALL') ? '#38bdf8' : 'inherit' }} />
+              <span>Filters</span>
+              {(selectedJobFilter !== 'ALL' || activeTab !== 'ALL') && (
+                <span style={{
+                  background: '#0ea5e9',
+                  color: 'var(--theme-on-primary)',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  borderRadius: '10px',
+                  padding: '1px 7px',
+                  marginLeft: '2px'
+                }}>
+                  {[selectedJobFilter !== 'ALL', activeTab !== 'ALL'].filter(Boolean).length}
+                </span>
+              )}
+            </button>
 
-            <Col xs={24} sm={24} md={6} style={{ textAlign: 'right' }}>
-              <span style={{ color: '#94a3b8', fontSize: '14px' }}>
-                Showing <strong>{filteredApplications.length}</strong> candidate profiles
-              </span>
-            </Col>
-          </Row>
+            {(selectedJobFilter !== 'ALL' || activeTab !== 'ALL' || searchQuery) && (
+              <Tooltip title="Reset all filters">
+                <Button 
+                  icon={<ClearOutlined />} 
+                  onClick={() => {
+                    setSelectedJobFilter('ALL');
+                    setActiveTab('ALL');
+                    setSearchQuery('');
+                    setSearchParams({});
+                  }}
+                  style={{ 
+                    height: '44px', 
+                    width: '44px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: '10px', 
+                    background: 'rgba(var(--theme-contrast-rgb), 0.06)', 
+                    color: 'var(--theme-muted)', 
+                    borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)' 
+                  }}
+                />
+              </Tooltip>
+            )}
+
+            <div style={{ marginLeft: 'auto', color: 'var(--theme-subtle)', fontSize: '14px' }}>
+              Showing <strong>{filteredApplications.length}</strong> candidate profiles
+            </div>
+          </div>
+
+          {/* Active Filter Chips */}
+          {(selectedJobFilter !== 'ALL' || activeTab !== 'ALL') && (
+            <div className="portal-active-filters-bar">
+              <span className="portal-active-filters-label">Active Filters:</span>
+              
+              {selectedJobFilter !== 'ALL' && (
+                <span className="portal-filter-tag">
+                  <AuditOutlined /> Mandate: {jobs.find(j => j.id === selectedJobFilter)?.title || selectedJobFilter}
+                  <CloseOutlined onClick={() => { setSelectedJobFilter('ALL'); setSearchParams(activeTab !== 'ALL' ? { status: activeTab } : {}); }} />
+                </span>
+              )}
+
+              {activeTab !== 'ALL' && (
+                <span className="portal-filter-tag">
+                  <TagOutlined /> Stage: {activeTab}
+                  <CloseOutlined onClick={() => { setActiveTab('ALL'); setSearchParams(selectedJobFilter !== 'ALL' ? { jobId: selectedJobFilter } : {}); }} />
+                </span>
+              )}
+            </div>
+          )}
         </motion.div>
+
+        {/* Filter Drawer */}
+        <Drawer
+          title={
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <FilterOutlined style={{ color: 'var(--theme-link)' }} />
+              <span>Filter Candidate Applications</span>
+            </div>
+          }
+          placement="right"
+          width={380}
+          open={drawerOpen}
+          onClose={() => setDrawerOpen(false)}
+          footer={
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Button 
+                onClick={() => {
+                  setSelectedJobFilter('ALL');
+                  setActiveTab('ALL');
+                  setSearchQuery('');
+                  setSearchParams({});
+                }}
+                disabled={selectedJobFilter === 'ALL' && activeTab === 'ALL' && !searchQuery}
+                style={{ borderRadius: '8px', background: 'transparent', color: 'var(--theme-subtle)', border: '1px solid rgba(var(--theme-contrast-rgb),0.15)' }}
+              >
+                Reset All
+              </Button>
+              <Button 
+                type="primary" 
+                onClick={() => setDrawerOpen(false)}
+                style={{ borderRadius: '8px', background: '#0ea5e9', borderColor: '#0ea5e9', fontWeight: 600 }}
+              >
+                Apply & View ({filteredApplications.length})
+              </Button>
+            </div>
+          }
+        >
+          <div className="portal-filter-section">
+            <div className="portal-filter-section-title">
+              <AuditOutlined /> Listed Mandate / Role
+            </div>
+            <Select
+              value={selectedJobFilter}
+              onChange={(val) => {
+                setSelectedJobFilter(val);
+                setSearchParams(val !== 'ALL' ? { jobId: val } : {});
+              }}
+              style={{ width: '100%' }}
+              size="large"
+            >
+              <Option value="ALL">All Active Mandates ({jobs.length})</Option>
+              {jobs.map(j => (
+                <Option key={j.id} value={j.id}>{j.title}</Option>
+              ))}
+            </Select>
+          </div>
+
+          <Divider style={{ borderColor: 'rgba(var(--theme-contrast-rgb),0.08)', margin: '18px 0' }} />
+
+          <div className="portal-filter-section">
+            <div className="portal-filter-section-title">
+              <TagOutlined /> Application Pipeline Stage
+            </div>
+            <Select
+              value={activeTab}
+              onChange={(val) => {
+                setActiveTab(val);
+                setSearchParams(val !== 'ALL' ? { status: val } : {});
+              }}
+              style={{ width: '100%' }}
+              size="large"
+            >
+              <Option value="ALL">All Application Stages ({applications.length})</Option>
+              <Option value="APPLIED">Under Review / Applied</Option>
+              <Option value="SHORTLISTED">Shortlisted Candidates</Option>
+              <Option value="INTERVIEW">Interview Scheduled</Option>
+              <Option value="SELECTED">Selected / Hired</Option>
+              <Option value="REJECTED">Not Selected / Rejected</Option>
+            </Select>
+          </div>
+        </Drawer>
 
         {/* Main Applications Table */}
         <motion.div
@@ -409,8 +557,8 @@ const ManageApplications = () => {
             pagination={{ pageSize: 8, showTotal: (total) => `Total ${total} candidates` }}
             locale={{
               emptyText: (
-                <div style={{ padding: '40px', textAlign: 'center', color: '#9ca3af' }}>
-                  <UserOutlined style={{ fontSize: '36px', color: '#38bdf8', marginBottom: '12px', opacity: 0.5 }} />
+                <div style={{ padding: '40px', textAlign: 'center', color: 'var(--theme-muted)' }}>
+                  <UserOutlined style={{ fontSize: '36px', color: 'var(--theme-link)', marginBottom: '12px', opacity: 0.5 }} />
                   <p>No candidate applications match the selected criteria.</p>
                 </div>
               )
@@ -458,20 +606,20 @@ const ManageApplications = () => {
               <Avatar
                 size={64}
                 icon={<UserOutlined />}
-                src={selectedApp.candidate?.candidateProfile?.profilePhoto}
+                src={getFileUrl(selectedApp.candidate?.candidateProfile?.profilePhoto)}
                 style={{ backgroundColor: '#a855f7' }}
               />
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <h3 style={{ fontSize: '20px', fontWeight: 700, color: 'white', margin: 0 }}>
+                  <h3 style={{ fontSize: '20px', fontWeight: 700, color: 'var(--theme-heading)', margin: 0 }}>
                     {selectedApp.candidate?.name}
                   </h3>
                   <div>{getStatusTag(selectedApp.status)}</div>
                 </div>
-                <div style={{ color: '#38bdf8', fontSize: '14px', fontWeight: 500, marginTop: '2px' }}>
+                <div style={{ color: 'var(--theme-link)', fontSize: '14px', fontWeight: 500, marginTop: '2px' }}>
                   {selectedApp.candidate?.candidateProfile?.professionalCategory || 'Insolvency Professional'}
                 </div>
-                <div style={{ display: 'flex', gap: '14px', fontSize: '13px', color: '#94a3b8', marginTop: '4px' }}>
+                <div style={{ display: 'flex', gap: '14px', fontSize: '13px', color: 'var(--theme-subtle)', marginTop: '4px' }}>
                   <span><MailOutlined /> {selectedApp.candidate?.email}</span>
                   {selectedApp.candidate?.candidateProfile?.phone && (
                     <span><PhoneOutlined /> {selectedApp.candidate.candidateProfile.phone}</span>
@@ -488,33 +636,33 @@ const ManageApplications = () => {
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
               gap: '12px',
-              background: 'rgba(255, 255, 255, 0.03)',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
+              background: 'rgba(var(--theme-contrast-rgb), 0.03)',
+              border: '1px solid rgba(var(--theme-contrast-rgb), 0.08)',
               borderRadius: '12px',
               padding: '14px 16px',
               marginBottom: '20px'
             }}>
               <div>
-                <div style={{ color: '#94a3b8', fontSize: '12px' }}>Total Experience</div>
-                <div style={{ color: 'white', fontWeight: 600, fontSize: '14px' }}>
+                <div style={{ color: 'var(--theme-subtle)', fontSize: '12px' }}>Total Experience</div>
+                <div style={{ color: 'var(--theme-heading)', fontWeight: 600, fontSize: '14px' }}>
                   {selectedApp.candidate?.candidateProfile?.experience ? `${selectedApp.candidate.candidateProfile.experience} Yrs` : 'N/A'}
                 </div>
               </div>
               <div>
-                <div style={{ color: '#94a3b8', fontSize: '12px' }}>Current CTC</div>
-                <div style={{ color: 'white', fontWeight: 600, fontSize: '14px' }}>
+                <div style={{ color: 'var(--theme-subtle)', fontSize: '12px' }}>Current CTC</div>
+                <div style={{ color: 'var(--theme-heading)', fontWeight: 600, fontSize: '14px' }}>
                   {selectedApp.candidate?.candidateProfile?.currentSalary ? `₹ ${selectedApp.candidate.candidateProfile.currentSalary} LPA` : 'Confidential'}
                 </div>
               </div>
               <div>
-                <div style={{ color: '#94a3b8', fontSize: '12px' }}>Expected CTC</div>
-                <div style={{ color: '#38bdf8', fontWeight: 600, fontSize: '14px' }}>
+                <div style={{ color: 'var(--theme-subtle)', fontSize: '12px' }}>Expected CTC</div>
+                <div style={{ color: 'var(--theme-link)', fontWeight: 600, fontSize: '14px' }}>
                   {selectedApp.candidate?.candidateProfile?.expectedSalary ? `₹ ${selectedApp.candidate.candidateProfile.expectedSalary} LPA` : 'Negotiable'}
                 </div>
               </div>
               <div>
-                <div style={{ color: '#94a3b8', fontSize: '12px' }}>Notice Period</div>
-                <div style={{ color: 'white', fontWeight: 600, fontSize: '14px' }}>
+                <div style={{ color: 'var(--theme-subtle)', fontSize: '12px' }}>Notice Period</div>
+                <div style={{ color: 'var(--theme-heading)', fontWeight: 600, fontSize: '14px' }}>
                   {selectedApp.candidate?.candidateProfile?.noticePeriod || 'Immediate'}
                 </div>
               </div>
@@ -523,10 +671,10 @@ const ManageApplications = () => {
             {/* Cover Note */}
             {selectedApp.coverNote && (
               <div style={{ marginBottom: '20px' }}>
-                <div style={{ fontSize: '13px', color: '#38bdf8', fontWeight: 600, marginBottom: '6px' }}>
+                <div style={{ fontSize: '13px', color: 'var(--theme-link)', fontWeight: 600, marginBottom: '6px' }}>
                   Candidate Cover Note & Experience Highlight:
                 </div>
-                <div style={{ background: 'rgba(56, 189, 248, 0.05)', border: '1px solid rgba(56, 189, 248, 0.2)', padding: '12px 16px', borderRadius: '10px', color: '#e2e8f0', fontSize: '13px', lineHeight: '1.6' }}>
+                <div style={{ background: 'rgba(56, 189, 248, 0.05)', border: '1px solid rgba(56, 189, 248, 0.2)', padding: '12px 16px', borderRadius: '10px', color: 'var(--theme-secondary)', fontSize: '13px', lineHeight: '1.6' }}>
                   {selectedApp.coverNote}
                 </div>
               </div>
@@ -535,8 +683,8 @@ const ManageApplications = () => {
             {/* Resume Document Link */}
             {selectedApp.candidate?.candidateProfile?.resumeUrl && (
               <div style={{
-                background: 'rgba(255, 255, 255, 0.04)',
-                border: '1px solid rgba(255, 255, 255, 0.08)',
+                background: 'rgba(var(--theme-contrast-rgb), 0.04)',
+                border: '1px solid rgba(var(--theme-contrast-rgb), 0.08)',
                 padding: '14px 18px',
                 borderRadius: '10px',
                 display: 'flex',
@@ -545,13 +693,13 @@ const ManageApplications = () => {
                 marginBottom: '20px'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <FileTextOutlined style={{ color: '#38bdf8', fontSize: '20px' }} />
+                  <FileTextOutlined style={{ color: 'var(--theme-link)', fontSize: '20px' }} />
                   <div>
-                    <div style={{ fontWeight: 600, color: 'white', fontSize: '14px' }}>Candidate Resume Document</div>
-                    <div style={{ color: '#94a3b8', fontSize: '12px' }}>PDF / DOCX uploaded by applicant</div>
+                    <div style={{ fontWeight: 600, color: 'var(--theme-heading)', fontSize: '14px' }}>Candidate Resume Document</div>
+                    <div style={{ color: 'var(--theme-subtle)', fontSize: '12px' }}>PDF / DOCX uploaded by applicant</div>
                   </div>
                 </div>
-                <a href={selectedApp.candidate.candidateProfile.resumeUrl} target="_blank" rel="noopener noreferrer" download>
+                <a href={getFileUrl(selectedApp.candidate.candidateProfile.resumeUrl)} target="_blank" rel="noopener noreferrer" download>
                   <Button type="primary" size="small" style={{ background: '#0ea5e9' }}>
                     Download / View ↗
                   </Button>
@@ -562,7 +710,7 @@ const ManageApplications = () => {
             {/* Skills */}
             {selectedApp.candidate?.candidateProfile?.skills?.length > 0 && (
               <div style={{ marginBottom: '20px' }}>
-                <div style={{ fontSize: '13px', color: '#94a3b8', fontWeight: 600, marginBottom: '8px' }}>
+                <div style={{ fontSize: '13px', color: 'var(--theme-subtle)', fontWeight: 600, marginBottom: '8px' }}>
                   IBC & Professional Skills:
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
@@ -578,11 +726,11 @@ const ManageApplications = () => {
             {/* Certifications */}
             {selectedApp.candidate?.candidateProfile?.certifications?.length > 0 && (
               <div style={{ marginBottom: '20px' }}>
-                <div style={{ fontSize: '13px', color: '#94a3b8', fontWeight: 600, marginBottom: '8px' }}>
+                <div style={{ fontSize: '13px', color: 'var(--theme-subtle)', fontWeight: 600, marginBottom: '8px' }}>
                   Statutory Registrations & Certifications:
                 </div>
                 {selectedApp.candidate.candidateProfile.certifications.map((cert) => (
-                  <div key={cert.id} style={{ background: 'rgba(255, 255, 255, 0.02)', padding: '8px 12px', borderRadius: '8px', marginBottom: '6px', fontSize: '13px', color: '#cbd5e1' }}>
+                  <div key={cert.id} style={{ background: 'rgba(var(--theme-contrast-rgb), 0.02)', padding: '8px 12px', borderRadius: '8px', marginBottom: '6px', fontSize: '13px', color: 'var(--theme-detail)' }}>
                     <SafetyCertificateOutlined style={{ color: '#a855f7', marginRight: '6px' }} />
                     <strong>{cert.name}</strong> ({cert.issuingOrg}) {cert.regNumber && `• Reg No: ${cert.regNumber}`}
                   </div>
@@ -604,7 +752,7 @@ const ManageApplications = () => {
       >
         <Form form={interviewForm} layout="vertical" style={{ marginTop: '16px' }}>
           <Form.Item
-            label={<span style={{ color: '#e2e8f0' }}>Interview Date</span>}
+            label={<span style={{ color: 'var(--theme-secondary)' }}>Interview Date</span>}
             name="interviewDate"
             rules={[{ required: true, message: 'Please select date' }]}
           >
@@ -614,7 +762,7 @@ const ManageApplications = () => {
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
-                label={<span style={{ color: '#e2e8f0' }}>Time Slot</span>}
+                label={<span style={{ color: 'var(--theme-secondary)' }}>Time Slot</span>}
                 name="interviewTime"
                 rules={[{ required: true, message: 'Please enter time' }]}
               >
@@ -623,7 +771,7 @@ const ManageApplications = () => {
             </Col>
             <Col span={12}>
               <Form.Item
-                label={<span style={{ color: '#e2e8f0' }}>Interview Format</span>}
+                label={<span style={{ color: 'var(--theme-secondary)' }}>Interview Format</span>}
                 name="interviewType"
                 rules={[{ required: true }]}
               >
@@ -637,7 +785,7 @@ const ManageApplications = () => {
           </Row>
 
           <Form.Item
-            label={<span style={{ color: '#e2e8f0' }}>Meeting Video Link / Address</span>}
+            label={<span style={{ color: 'var(--theme-secondary)' }}>Meeting Video Link / Address</span>}
             name="meetingLink"
             rules={[{ required: true, message: 'Please provide meeting link or location' }]}
           >
@@ -645,14 +793,14 @@ const ManageApplications = () => {
           </Form.Item>
 
           <Form.Item
-            label={<span style={{ color: '#e2e8f0' }}>Interviewer / Hiring Panel</span>}
+            label={<span style={{ color: 'var(--theme-secondary)' }}>Interviewer / Hiring Panel</span>}
             name="interviewer"
           >
             <Input placeholder="e.g. Rahul Verma (Insolvency Partner)" />
           </Form.Item>
 
           <Form.Item
-            label={<span style={{ color: '#e2e8f0' }}>Instructions / Discussion Agenda (Optional)</span>}
+            label={<span style={{ color: 'var(--theme-secondary)' }}>Instructions / Discussion Agenda (Optional)</span>}
             name="notes"
           >
             <TextArea rows={3} placeholder="Discussion regarding CIRP assignment handling and valuation experience..." />

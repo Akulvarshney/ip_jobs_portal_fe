@@ -60,20 +60,20 @@ const CandidateInterviews = () => {
         padding: '24px',
         marginBottom: '20px',
         border: '1px solid rgba(234, 179, 8, 0.25)',
-        background: 'linear-gradient(135deg, rgba(234, 179, 8, 0.04) 0%, rgba(30, 41, 59, 0.7) 100%)'
+        background: 'linear-gradient(135deg, rgba(234, 179, 8, 0.04) 0%, rgba(var(--theme-surface-rgb), 0.7) 100%)'
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
-            <span style={{ fontSize: '18px', fontWeight: 700, color: 'white' }}>
+            <span style={{ fontSize: '18px', fontWeight: 700, color: 'var(--theme-heading)' }}>
               {interview.job?.title || 'Mandate Discussion'}
             </span>
             <Tag color="gold" icon={getInterviewTypeIcon(interview.interviewType)} style={{ borderRadius: '6px' }}>
               {interview.interviewType}
             </Tag>
           </div>
-          <div style={{ color: '#38bdf8', fontSize: '14px', fontWeight: 500 }}>
+          <div style={{ color: 'var(--theme-link)', fontSize: '14px', fontWeight: 500 }}>
             {interview.employer?.name || 'Insolvency Entity'}
           </div>
         </div>
@@ -103,26 +103,26 @@ const CandidateInterviews = () => {
         </div>
       </div>
 
-      <Divider style={{ borderColor: 'rgba(255, 255, 255, 0.08)', margin: '16px 0' }} />
+      <Divider style={{ borderColor: 'rgba(var(--theme-contrast-rgb), 0.08)', margin: '16px 0' }} />
 
       <Row gutter={[20, 12]}>
         <Col xs={24} sm={8}>
-          <div style={{ color: '#94a3b8', fontSize: '12px' }}>Date & Schedule</div>
-          <div style={{ color: 'white', fontSize: '14px', fontWeight: 500, marginTop: '2px' }}>
+          <div style={{ color: 'var(--theme-subtle)', fontSize: '12px' }}>Date & Schedule</div>
+          <div style={{ color: 'var(--theme-heading)', fontSize: '14px', fontWeight: 500, marginTop: '2px' }}>
             📅 {new Date(interview.interviewDate).toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}
           </div>
         </Col>
 
         <Col xs={24} sm={8}>
-          <div style={{ color: '#94a3b8', fontSize: '12px' }}>Time Slot</div>
-          <div style={{ color: 'white', fontSize: '14px', fontWeight: 500, marginTop: '2px' }}>
+          <div style={{ color: 'var(--theme-subtle)', fontSize: '12px' }}>Time Slot</div>
+          <div style={{ color: 'var(--theme-heading)', fontSize: '14px', fontWeight: 500, marginTop: '2px' }}>
             ⏰ {interview.interviewTime || 'As per meeting link'}
           </div>
         </Col>
 
         <Col xs={24} sm={8}>
-          <div style={{ color: '#94a3b8', fontSize: '12px' }}>Interviewer / Panel</div>
-          <div style={{ color: 'white', fontSize: '14px', fontWeight: 500, marginTop: '2px' }}>
+          <div style={{ color: 'var(--theme-subtle)', fontSize: '12px' }}>Interviewer / Panel</div>
+          <div style={{ color: 'var(--theme-heading)', fontSize: '14px', fontWeight: 500, marginTop: '2px' }}>
             👤 {interview.interviewer || 'Hiring Manager / Partner'}
           </div>
         </Col>
@@ -131,11 +131,11 @@ const CandidateInterviews = () => {
       {interview.notes && (
         <div style={{
           marginTop: '16px',
-          background: 'rgba(255, 255, 255, 0.03)',
-          border: '1px solid rgba(255, 255, 255, 0.06)',
+          background: 'rgba(var(--theme-contrast-rgb), 0.03)',
+          border: '1px solid rgba(var(--theme-contrast-rgb), 0.06)',
           padding: '12px 16px',
           borderRadius: '8px',
-          color: '#cbd5e1',
+          color: 'var(--theme-detail)',
           fontSize: '13px',
           lineHeight: '1.5'
         }}>
@@ -155,8 +155,8 @@ const CandidateInterviews = () => {
           {upcomingInterviews.length === 0 && !loading && (
             <div className="portal-glass-card" style={{ padding: '60px', textAlign: 'center' }}>
               <CalendarOutlined style={{ fontSize: '48px', color: '#eab308', marginBottom: '16px', opacity: 0.6 }} />
-              <h3 style={{ color: 'white', fontSize: '20px', margin: 0 }}>No upcoming interviews scheduled</h3>
-              <p style={{ color: '#9ca3af', marginTop: '8px' }}>
+              <h3 style={{ color: 'var(--theme-heading)', fontSize: '20px', margin: 0 }}>No upcoming interviews scheduled</h3>
+              <p style={{ color: 'var(--theme-muted)', marginTop: '8px' }}>
                 When employers shortlist your profile and invite you for an interview, the meeting details will appear here.
               </p>
             </div>
@@ -173,8 +173,8 @@ const CandidateInterviews = () => {
           {pastInterviews.length === 0 && !loading && (
             <div className="portal-glass-card" style={{ padding: '60px', textAlign: 'center' }}>
               <CheckCircleOutlined style={{ fontSize: '48px', color: '#10b981', marginBottom: '16px', opacity: 0.6 }} />
-              <h3 style={{ color: 'white', fontSize: '20px', margin: 0 }}>No past interview history</h3>
-              <p style={{ color: '#9ca3af', marginTop: '8px' }}>Your completed interview records will be archived here.</p>
+              <h3 style={{ color: 'var(--theme-heading)', fontSize: '20px', margin: 0 }}>No past interview history</h3>
+              <p style={{ color: 'var(--theme-muted)', marginTop: '8px' }}>Your completed interview records will be archived here.</p>
             </div>
           )}
         </div>
@@ -185,8 +185,8 @@ const CandidateInterviews = () => {
   return (
     <div>
       <div style={{ marginBottom: '28px' }}>
-        <h1 style={{ fontSize: '28px', fontWeight: 700, color: 'white', margin: 0 }}>Interview Schedule</h1>
-        <p style={{ color: '#9ca3af', fontSize: '14px', margin: '4px 0 0' }}>
+        <h1 style={{ fontSize: '28px', fontWeight: 700, color: 'var(--theme-heading)', margin: 0 }}>Interview Schedule</h1>
+        <p style={{ color: 'var(--theme-muted)', fontSize: '14px', margin: '4px 0 0' }}>
           Direct access to scheduled video meetings, discussion agendas, and interviewer instructions.
         </p>
       </div>

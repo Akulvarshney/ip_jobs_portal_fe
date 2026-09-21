@@ -13,9 +13,13 @@ import {
   EyeOutlined, 
   ReloadOutlined, 
   BankOutlined, 
-  SolutionOutlined 
+  SolutionOutlined,
+  FilterOutlined,
+  ClearOutlined,
+  CloseOutlined,
+  TagOutlined
 } from '@ant-design/icons';
-import { Table, Input, Select, Tag, Button, Modal, message, Space, Popconfirm, Tooltip } from 'antd';
+import { Table, Input, Select, Tag, Button, Modal, Drawer, Divider, message, Space, Popconfirm, Tooltip } from 'antd';
 import { motion } from 'framer-motion';
 
 const { Option } = Select;
@@ -28,6 +32,7 @@ const ManageJobs = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedJob, setSelectedJob] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [actionLoadingId, setActionLoadingId] = useState(null);
@@ -48,6 +53,19 @@ const ManageJobs = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    fetchJobs();
+  }, [statusFilter]);
+
+  const activeFiltersCount = [
+    statusFilter !== 'ALL' ? statusFilter : null
+  ].filter(Boolean).length;
+
+  const handleResetFilters = () => {
+    setSearch('');
+    setStatusFilter('ALL');
   };
 
   useEffect(() => {
@@ -99,8 +117,8 @@ const ManageJobs = () => {
       key: 'title',
       render: (_, record) => (
         <div>
-          <div style={{ fontWeight: 600, color: '#ffffff', fontSize: '15px' }}>{record.title}</div>
-          <div style={{ fontSize: '12px', color: '#9ca3af', display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
+          <div style={{ fontWeight: 600, color: 'var(--theme-heading)', fontSize: '15px' }}>{record.title}</div>
+          <div style={{ fontSize: '12px', color: 'var(--theme-muted)', display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
             <BankOutlined /> {record.employer?.name || 'Unknown Entity'}
             {record.employer?.type && <Tag color="purple" style={{ fontSize: '10px', padding: '0 4px', margin: 0 }}>{record.employer.type}</Tag>}
           </div>
@@ -133,7 +151,7 @@ const ManageJobs = () => {
       dataIndex: 'createdAt',
       key: 'createdAt',
       render: (date) => (
-        <span style={{ color: '#cbd5e1', fontSize: '13px' }}>
+        <span style={{ color: 'var(--theme-detail)', fontSize: '13px' }}>
           {new Date(date).toLocaleDateString()}
         </span>
       ),
@@ -148,8 +166,8 @@ const ManageJobs = () => {
             icon={<EyeOutlined />}
             onClick={() => openJobModal(record)}
             style={{ 
-              background: 'rgba(255, 255, 255, 0.08)', 
-              borderColor: 'rgba(255, 255, 255, 0.15)', 
+              background: 'rgba(var(--theme-contrast-rgb), 0.08)', 
+              borderColor: 'rgba(var(--theme-contrast-rgb), 0.15)', 
               color: '#e0f2fe',
               borderRadius: '6px'
             }}
@@ -188,7 +206,7 @@ const ManageJobs = () => {
               loading={actionLoadingId === record.id}
               icon={<CloseCircleOutlined />}
               onClick={() => handleUpdateStatus(record.id, 'CLOSED')}
-              style={{ background: 'rgba(255, 255, 255, 0.05)', borderColor: 'rgba(255, 255, 255, 0.15)', color: '#9ca3af', borderRadius: '6px' }}
+              style={{ background: 'rgba(var(--theme-contrast-rgb), 0.05)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.15)', color: 'var(--theme-muted)', borderRadius: '6px' }}
             >
               Close
             </Button>
@@ -234,53 +252,156 @@ const ManageJobs = () => {
           }
         />
 
-        {/* Filter and Search */}
+        {/* Clean Search & Filter Bar */}
         <div 
           className="portal-glass-card" 
           style={{ 
             padding: '16px 20px', 
-            marginBottom: '24px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '16px',
-            flexWrap: 'wrap'
+            marginBottom: '24px'
           }}
         >
-          <div style={{ flex: '1 1 280px', display: 'flex', gap: '8px' }}>
-            <Input 
-              prefix={<SearchOutlined style={{ color: '#9ca3af' }} />}
-              placeholder="Search mandate title, employer, requirements..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onPressEnter={fetchJobs}
-              style={{
-                background: 'rgba(255, 255, 255, 0.05)',
-                borderColor: 'rgba(255, 255, 255, 0.12)',
-                color: 'white',
-                borderRadius: '10px'
-              }}
-              allowClear
-            />
-            <Button type="primary" onClick={fetchJobs} style={{ background: '#0ea5e9', borderColor: '#0ea5e9', borderRadius: '10px' }}>
-              Search
-            </Button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+            <div style={{ flex: '1 1 300px', display: 'flex', gap: '8px' }}>
+              <Input 
+                prefix={<SearchOutlined style={{ color: 'var(--theme-muted)' }} />}
+                placeholder="Search mandate title, employer, requirements..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onPressEnter={fetchJobs}
+                style={{
+                  background: 'rgba(var(--theme-contrast-rgb), 0.05)',
+                  borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)',
+                  color: 'var(--theme-heading)',
+                  borderRadius: '10px',
+                  height: '44px'
+                }}
+                allowClear
+              />
+              <Button 
+                type="primary" 
+                onClick={fetchJobs} 
+                style={{ background: '#0ea5e9', borderColor: '#0ea5e9', borderRadius: '10px', height: '44px', fontWeight: 600 }}
+              >
+                Search
+              </Button>
+            </div>
+
+            <button 
+              type="button"
+              className={`portal-filter-trigger-btn ${activeFiltersCount > 0 ? 'active' : ''}`}
+              onClick={() => setDrawerOpen(true)}
+            >
+              <FilterOutlined style={{ color: activeFiltersCount > 0 ? '#38bdf8' : 'inherit' }} />
+              <span>Filters</span>
+              {activeFiltersCount > 0 && (
+                <span style={{
+                  background: '#0ea5e9',
+                  color: 'var(--theme-on-primary)',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  borderRadius: '10px',
+                  padding: '1px 7px',
+                  marginLeft: '2px'
+                }}>
+                  {activeFiltersCount}
+                </span>
+              )}
+            </button>
+
+            {(activeFiltersCount > 0 || search) && (
+              <Tooltip title="Reset all filters">
+                <Button 
+                  icon={<ClearOutlined />} 
+                  onClick={() => {
+                    handleResetFilters();
+                    fetchJobs();
+                  }}
+                  style={{ 
+                    height: '44px', 
+                    width: '44px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: '10px', 
+                    background: 'rgba(var(--theme-contrast-rgb), 0.06)', 
+                    color: 'var(--theme-muted)', 
+                    borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)' 
+                  }}
+                />
+              </Tooltip>
+            )}
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ color: '#9ca3af', fontSize: '13px' }}>Status:</span>
+          {/* Active Filter Chips */}
+          {(activeFiltersCount > 0) && (
+            <div className="portal-active-filters-bar">
+              <span className="portal-active-filters-label">Active Filters:</span>
+              
+              {statusFilter !== 'ALL' && (
+                <span className="portal-filter-tag">
+                  <TagOutlined /> Status: {statusFilter}
+                  <CloseOutlined onClick={() => setStatusFilter('ALL')} />
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Filter Drawer */}
+        <Drawer
+          title={
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <FilterOutlined style={{ color: 'var(--theme-link)' }} />
+              <span>Filter Mandates & Jobs</span>
+            </div>
+          }
+          placement="right"
+          width={380}
+          open={drawerOpen}
+          onClose={() => setDrawerOpen(false)}
+          footer={
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Button 
+                onClick={() => {
+                  handleResetFilters();
+                  setDrawerOpen(false);
+                }}
+                disabled={activeFiltersCount === 0 && !search}
+                style={{ borderRadius: '8px', background: 'transparent', color: 'var(--theme-subtle)', border: '1px solid rgba(var(--theme-contrast-rgb),0.15)' }}
+              >
+                Reset All
+              </Button>
+              <Button 
+                type="primary" 
+                onClick={() => {
+                  setDrawerOpen(false);
+                  fetchJobs();
+                }}
+                style={{ borderRadius: '8px', background: '#0ea5e9', borderColor: '#0ea5e9', fontWeight: 600 }}
+              >
+                Apply & View ({jobs.length})
+              </Button>
+            </div>
+          }
+        >
+          <div className="portal-filter-section">
+            <div className="portal-filter-section-title">
+              <TagOutlined /> Listing Status
+            </div>
             <Select 
               value={statusFilter} 
               onChange={setStatusFilter}
-              style={{ width: 160 }}
+              style={{ width: '100%' }}
+              size="large"
             >
               <Option value="ALL">All Statuses</Option>
-              <Option value="ACTIVE">Active</Option>
-              <Option value="PAUSED">Paused</Option>
-              <Option value="CLOSED">Closed</Option>
-              <Option value="SUSPENDED">Suspended</Option>
+              <Option value="ACTIVE">Active Mandates</Option>
+              <Option value="PAUSED">Paused Listings</Option>
+              <Option value="CLOSED">Closed Mandates</Option>
+              <Option value="SUSPENDED">Suspended Listings</Option>
             </Select>
           </div>
-        </div>
+        </Drawer>
 
         {/* Table */}
         <motion.div 
@@ -302,8 +423,8 @@ const ManageJobs = () => {
         {/* Job Details Modal */}
         <Modal
           title={
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'white', fontSize: '18px', fontWeight: 700 }}>
-              <FileTextOutlined style={{ color: '#38bdf8' }} /> Mandate Review Dossier #{selectedJob?.id}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--theme-heading)', fontSize: '18px', fontWeight: 700 }}>
+              <FileTextOutlined style={{ color: 'var(--theme-link)' }} /> Mandate Review Dossier #{selectedJob?.id}
             </div>
           }
           open={modalOpen}
@@ -311,24 +432,24 @@ const ManageJobs = () => {
           footer={null}
           width={760}
           styles={{
-            content: { background: '#1e293b', border: '1px solid rgba(255, 255, 255, 0.12)', borderRadius: '20px' },
-            header: { background: '#1e293b' },
+            content: { background: 'var(--theme-surface)', border: '1px solid rgba(var(--theme-contrast-rgb), 0.12)', borderRadius: '20px' },
+            header: { background: 'var(--theme-surface)' },
           }}
         >
           {selectedJob && (
-            <div style={{ color: '#e2e8f0', marginTop: '16px' }}>
+            <div style={{ color: 'var(--theme-secondary)', marginTop: '16px' }}>
               <div 
                 style={{
                   padding: '18px',
-                  background: 'rgba(255, 255, 255, 0.04)',
+                  background: 'rgba(var(--theme-contrast-rgb), 0.04)',
                   borderRadius: '14px',
                   marginBottom: '20px'
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div>
-                    <h3 style={{ margin: 0, color: '#ffffff', fontSize: '22px' }}>{selectedJob.title}</h3>
-                    <p style={{ margin: '4px 0 0', color: '#38bdf8', fontSize: '14px', fontWeight: 600 }}>
+                    <h3 style={{ margin: 0, color: 'var(--theme-heading)', fontSize: '22px' }}>{selectedJob.title}</h3>
+                    <p style={{ margin: '4px 0 0', color: 'var(--theme-link)', fontSize: '14px', fontWeight: 600 }}>
                       🏢 {selectedJob.employer?.name || 'Unknown Entity'}
                     </p>
                   </div>
@@ -340,26 +461,26 @@ const ManageJobs = () => {
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
                 <div>
-                  <h4 style={{ color: '#bae6fd', fontSize: '13px', textTransform: 'uppercase', marginBottom: '6px' }}>
+                  <h4 style={{ color: 'var(--theme-link-soft)', fontSize: '13px', textTransform: 'uppercase', marginBottom: '6px' }}>
                     Mandate Scope & Description
                   </h4>
-                  <div style={{ color: '#cbd5e1', lineHeight: 1.6, whiteSpace: 'pre-line', background: 'rgba(255,255,255,0.02)', padding: '14px', borderRadius: '10px' }}>
+                  <div style={{ color: 'var(--theme-detail)', lineHeight: 1.6, whiteSpace: 'pre-line', background: 'rgba(var(--theme-contrast-rgb),0.02)', padding: '14px', borderRadius: '10px' }}>
                     {selectedJob.description}
                   </div>
                 </div>
 
                 <div>
-                  <h4 style={{ color: '#bae6fd', fontSize: '13px', textTransform: 'uppercase', marginBottom: '6px' }}>
+                  <h4 style={{ color: 'var(--theme-link-soft)', fontSize: '13px', textTransform: 'uppercase', marginBottom: '6px' }}>
                     Eligibility & Statutory Requirements
                   </h4>
-                  <div style={{ color: '#cbd5e1', lineHeight: 1.6, whiteSpace: 'pre-line', background: 'rgba(255,255,255,0.02)', padding: '14px', borderRadius: '10px' }}>
+                  <div style={{ color: 'var(--theme-detail)', lineHeight: 1.6, whiteSpace: 'pre-line', background: 'rgba(var(--theme-contrast-rgb),0.02)', padding: '14px', borderRadius: '10px' }}>
                     {selectedJob.requirements}
                   </div>
                 </div>
 
                 {selectedJob.skills?.length > 0 && (
                   <div>
-                    <h4 style={{ color: '#bae6fd', fontSize: '13px', textTransform: 'uppercase', marginBottom: '8px' }}>
+                    <h4 style={{ color: 'var(--theme-link-soft)', fontSize: '13px', textTransform: 'uppercase', marginBottom: '8px' }}>
                       Required Specialisations & Skills
                     </h4>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>

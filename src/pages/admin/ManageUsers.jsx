@@ -12,9 +12,13 @@ import {
   ReloadOutlined,
   SafetyCertificateOutlined,
   BankOutlined,
-  SolutionOutlined
+  SolutionOutlined,
+  FilterOutlined,
+  ClearOutlined,
+  CloseOutlined,
+  TagOutlined
 } from '@ant-design/icons';
-import { Table, Input, Select, Tag, Button, Modal, message, Badge, Descriptions, Space } from 'antd';
+import { Table, Input, Select, Tag, Button, Modal, Drawer, Divider, message, Badge, Descriptions, Space } from 'antd';
 import { motion } from 'framer-motion';
 
 const { Option } = Select;
@@ -29,6 +33,7 @@ const ManageUsers = () => {
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState(searchParams.get('role') || 'ALL');
   const [statusFilter, setStatusFilter] = useState('ALL');
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [actionLoadingId, setActionLoadingId] = useState(null);
@@ -50,6 +55,22 @@ const ManageUsers = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, [roleFilter, statusFilter]);
+
+  const activeFiltersCount = [
+    roleFilter !== 'ALL' ? roleFilter : null,
+    statusFilter !== 'ALL' ? statusFilter : null
+  ].filter(Boolean).length;
+
+  const handleResetFilters = () => {
+    setSearch('');
+    setRoleFilter('ALL');
+    setStatusFilter('ALL');
+    setSearchParams({});
   };
 
   useEffect(() => {
@@ -100,7 +121,7 @@ const ManageUsers = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#38bdf8',
+              color: 'var(--theme-link)',
               fontWeight: 700,
               fontSize: '15px'
             }}
@@ -108,8 +129,8 @@ const ManageUsers = () => {
             {record.name?.charAt(0) || 'U'}
           </div>
           <div>
-            <div style={{ fontWeight: 600, color: '#ffffff', fontSize: '14px' }}>{record.name}</div>
-            <div style={{ fontSize: '12px', color: '#9ca3af' }}>{record.email}</div>
+            <div style={{ fontWeight: 600, color: 'var(--theme-heading)', fontSize: '14px' }}>{record.name}</div>
+            <div style={{ fontSize: '12px', color: 'var(--theme-muted)' }}>{record.email}</div>
           </div>
         </div>
       ),
@@ -131,24 +152,24 @@ const ManageUsers = () => {
       render: (_, record) => {
         if (record.role === 'EMPLOYER') {
           return (
-            <span style={{ color: '#cbd5e1', fontSize: '13px' }}>
+            <span style={{ color: 'var(--theme-detail)', fontSize: '13px' }}>
               {record.employerMember?.employer?.name ? (
                 <span>🏢 {record.employerMember.employer.name}</span>
               ) : (
-                <span style={{ color: '#9ca3af' }}>No entity attached</span>
+                <span style={{ color: 'var(--theme-muted)' }}>No entity attached</span>
               )}
             </span>
           );
         }
         if (record.role === 'CANDIDATE') {
           return (
-            <span style={{ color: '#cbd5e1', fontSize: '13px' }}>
+            <span style={{ color: 'var(--theme-detail)', fontSize: '13px' }}>
               {record.candidateProfile?.designation || `${record.candidateProfile?.experience || 0} yrs exp`}
               {record.candidateProfile?.city && ` • ${record.candidateProfile.city}`}
             </span>
           );
         }
-        return <span style={{ color: '#9ca3af' }}>System Administrator</span>;
+        return <span style={{ color: 'var(--theme-muted)' }}>System Administrator</span>;
       },
     },
     {
@@ -174,8 +195,8 @@ const ManageUsers = () => {
             icon={<EyeOutlined />}
             onClick={() => openUserDetails(record)}
             style={{ 
-              background: 'rgba(255, 255, 255, 0.08)', 
-              borderColor: 'rgba(255, 255, 255, 0.15)', 
+              background: 'rgba(var(--theme-contrast-rgb), 0.08)', 
+              borderColor: 'rgba(var(--theme-contrast-rgb), 0.15)', 
               color: '#e0f2fe',
               borderRadius: '6px'
             }}
@@ -222,62 +243,182 @@ const ManageUsers = () => {
           }
         />
 
-        {/* Filter & Search Bar */}
+        {/* Clean Search & Filter Bar */}
         <div 
           className="portal-glass-card" 
           style={{ 
             padding: '16px 20px', 
-            marginBottom: '24px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '16px',
-            flexWrap: 'wrap'
+            marginBottom: '24px'
           }}
         >
-          <form onSubmit={handleSearchSubmit} style={{ flex: '1 1 280px', display: 'flex', gap: '8px' }}>
-            <Input 
-              prefix={<SearchOutlined style={{ color: '#9ca3af' }} />}
-              placeholder="Search by name, email..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              style={{
-                background: 'rgba(255, 255, 255, 0.05)',
-                borderColor: 'rgba(255, 255, 255, 0.12)',
-                color: 'white',
-                borderRadius: '10px'
-              }}
-              allowClear
-            />
-            <Button type="primary" onClick={fetchUsers} style={{ background: '#0ea5e9', borderColor: '#0ea5e9', borderRadius: '10px' }}>
-              Search
-            </Button>
-          </form>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+            <form onSubmit={handleSearchSubmit} style={{ flex: '1 1 300px', display: 'flex', gap: '8px' }}>
+              <Input 
+                prefix={<SearchOutlined style={{ color: 'var(--theme-muted)' }} />}
+                placeholder="Search candidate or employer by name, email..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                style={{
+                  background: 'rgba(var(--theme-contrast-rgb), 0.05)',
+                  borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)',
+                  color: 'var(--theme-heading)',
+                  borderRadius: '10px',
+                  height: '44px'
+                }}
+                allowClear
+              />
+              <Button 
+                type="primary" 
+                onClick={fetchUsers} 
+                style={{ background: '#0ea5e9', borderColor: '#0ea5e9', borderRadius: '10px', height: '44px', fontWeight: 600 }}
+              >
+                Search
+              </Button>
+            </form>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-            <span style={{ color: '#9ca3af', fontSize: '13px' }}>Role:</span>
+            <button 
+              type="button"
+              className={`portal-filter-trigger-btn ${activeFiltersCount > 0 ? 'active' : ''}`}
+              onClick={() => setDrawerOpen(true)}
+            >
+              <FilterOutlined style={{ color: activeFiltersCount > 0 ? '#38bdf8' : 'inherit' }} />
+              <span>Filters</span>
+              {activeFiltersCount > 0 && (
+                <span style={{
+                  background: '#0ea5e9',
+                  color: 'var(--theme-on-primary)',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  borderRadius: '10px',
+                  padding: '1px 7px',
+                  marginLeft: '2px'
+                }}>
+                  {activeFiltersCount}
+                </span>
+              )}
+            </button>
+
+            {(activeFiltersCount > 0 || search) && (
+              <Tooltip title="Reset all filters">
+                <Button 
+                  icon={<ClearOutlined />} 
+                  onClick={() => {
+                    handleResetFilters();
+                    fetchUsers();
+                  }}
+                  style={{ 
+                    height: '44px', 
+                    width: '44px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: '10px', 
+                    background: 'rgba(var(--theme-contrast-rgb), 0.06)', 
+                    color: 'var(--theme-muted)', 
+                    borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)' 
+                  }}
+                />
+              </Tooltip>
+            )}
+          </div>
+
+          {/* Active Filter Chips */}
+          {(activeFiltersCount > 0) && (
+            <div className="portal-active-filters-bar">
+              <span className="portal-active-filters-label">Active Filters:</span>
+              
+              {roleFilter !== 'ALL' && (
+                <span className="portal-filter-tag">
+                  <UserOutlined /> Role: {roleFilter}
+                  <CloseOutlined onClick={() => { setRoleFilter('ALL'); setSearchParams({}); }} />
+                </span>
+              )}
+
+              {statusFilter !== 'ALL' && (
+                <span className="portal-filter-tag">
+                  <TagOutlined /> Status: {statusFilter}
+                  <CloseOutlined onClick={() => setStatusFilter('ALL')} />
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Filter Drawer */}
+        <Drawer
+          title={
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <FilterOutlined style={{ color: 'var(--theme-link)' }} />
+              <span>Filter User Accounts</span>
+            </div>
+          }
+          placement="right"
+          width={380}
+          open={drawerOpen}
+          onClose={() => setDrawerOpen(false)}
+          footer={
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Button 
+                onClick={() => {
+                  handleResetFilters();
+                  setDrawerOpen(false);
+                }}
+                disabled={activeFiltersCount === 0 && !search}
+                style={{ borderRadius: '8px', background: 'transparent', color: 'var(--theme-subtle)', border: '1px solid rgba(var(--theme-contrast-rgb),0.15)' }}
+              >
+                Reset All
+              </Button>
+              <Button 
+                type="primary" 
+                onClick={() => {
+                  setDrawerOpen(false);
+                  fetchUsers();
+                }}
+                style={{ borderRadius: '8px', background: '#0ea5e9', borderColor: '#0ea5e9', fontWeight: 600 }}
+              >
+                Apply & View ({users.length})
+              </Button>
+            </div>
+          }
+        >
+          <div className="portal-filter-section">
+            <div className="portal-filter-section-title">
+              <UserOutlined /> User Role
+            </div>
             <Select 
               value={roleFilter} 
-              onChange={(val) => { setRoleFilter(val); setSearchParams(val !== 'ALL' ? { role: val } : {}); }}
-              style={{ width: 140 }}
+              onChange={(val) => { 
+                setRoleFilter(val); 
+                setSearchParams(val !== 'ALL' ? { role: val } : {}); 
+              }}
+              style={{ width: '100%' }}
+              size="large"
             >
               <Option value="ALL">All Roles</Option>
-              <Option value="CANDIDATE">Candidate</Option>
-              <Option value="EMPLOYER">Employer</Option>
-              <Option value="ADMIN">Admin</Option>
+              <Option value="CANDIDATE">Candidate Accounts</Option>
+              <Option value="EMPLOYER">Employer Accounts</Option>
+              <Option value="ADMIN">Administrative Accounts</Option>
             </Select>
+          </div>
 
-            <span style={{ color: '#9ca3af', fontSize: '13px' }}>Status:</span>
+          <Divider style={{ borderColor: 'rgba(var(--theme-contrast-rgb),0.08)', margin: '18px 0' }} />
+
+          <div className="portal-filter-section">
+            <div className="portal-filter-section-title">
+              <TagOutlined /> Account Status
+            </div>
             <Select 
               value={statusFilter} 
               onChange={setStatusFilter}
-              style={{ width: 140 }}
+              style={{ width: '100%' }}
+              size="large"
             >
               <Option value="ALL">All Statuses</Option>
-              <Option value="ACTIVE">Active</Option>
-              <Option value="SUSPENDED">Suspended</Option>
+              <Option value="ACTIVE">Active Users</Option>
+              <Option value="SUSPENDED">Suspended Users</Option>
             </Select>
           </div>
-        </div>
+        </Drawer>
 
         {/* Users Table */}
         <motion.div 
@@ -299,7 +440,7 @@ const ManageUsers = () => {
         {/* User Dossier Modal */}
         <Modal
           title={
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'white', fontSize: '18px', fontWeight: 700 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--theme-heading)', fontSize: '18px', fontWeight: 700 }}>
               <UserOutlined /> User Profile Dossier #{selectedUser?.id}
             </div>
           }
@@ -308,26 +449,26 @@ const ManageUsers = () => {
           footer={null}
           width={720}
           styles={{
-            content: { background: '#1e293b', border: '1px solid rgba(255, 255, 255, 0.12)', borderRadius: '20px' },
-            header: { background: '#1e293b' },
+            content: { background: 'var(--theme-surface)', border: '1px solid rgba(var(--theme-contrast-rgb), 0.12)', borderRadius: '20px' },
+            header: { background: 'var(--theme-surface)' },
           }}
         >
           {selectedUser && (
-            <div style={{ color: '#e2e8f0', marginTop: '16px' }}>
+            <div style={{ color: 'var(--theme-secondary)', marginTop: '16px' }}>
               <div 
                 style={{
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
                   padding: '16px',
-                  background: 'rgba(255, 255, 255, 0.04)',
+                  background: 'rgba(var(--theme-contrast-rgb), 0.04)',
                   borderRadius: '12px',
                   marginBottom: '20px'
                 }}
               >
                 <div>
-                  <h3 style={{ margin: 0, color: '#ffffff', fontSize: '20px' }}>{selectedUser.name}</h3>
-                  <p style={{ margin: '4px 0 0', color: '#9ca3af', fontSize: '14px' }}>{selectedUser.email}</p>
+                  <h3 style={{ margin: 0, color: 'var(--theme-heading)', fontSize: '20px' }}>{selectedUser.name}</h3>
+                  <p style={{ margin: '4px 0 0', color: 'var(--theme-muted)', fontSize: '14px' }}>{selectedUser.email}</p>
                 </div>
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <Tag color={selectedUser.role === 'ADMIN' ? 'gold' : (selectedUser.role === 'EMPLOYER' ? 'purple' : 'cyan')}>
@@ -342,27 +483,27 @@ const ManageUsers = () => {
               {selectedUser.role === 'CANDIDATE' && selectedUser.candidateProfile && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                    <div style={{ padding: '12px', background: 'rgba(255,255,255,0.02)', borderRadius: '8px' }}>
-                      <span style={{ color: '#9ca3af', fontSize: '12px' }}>Designation</span>
-                      <div style={{ fontWeight: 600, color: '#fff' }}>{selectedUser.candidateProfile.designation || 'N/A'}</div>
+                    <div style={{ padding: '12px', background: 'rgba(var(--theme-contrast-rgb),0.02)', borderRadius: '8px' }}>
+                      <span style={{ color: 'var(--theme-muted)', fontSize: '12px' }}>Designation</span>
+                      <div style={{ fontWeight: 600, color: 'var(--theme-heading)' }}>{selectedUser.candidateProfile.designation || 'N/A'}</div>
                     </div>
-                    <div style={{ padding: '12px', background: 'rgba(255,255,255,0.02)', borderRadius: '8px' }}>
-                      <span style={{ color: '#9ca3af', fontSize: '12px' }}>Experience</span>
-                      <div style={{ fontWeight: 600, color: '#fff' }}>{selectedUser.candidateProfile.experience ? `${selectedUser.candidateProfile.experience} Years` : 'N/A'}</div>
+                    <div style={{ padding: '12px', background: 'rgba(var(--theme-contrast-rgb),0.02)', borderRadius: '8px' }}>
+                      <span style={{ color: 'var(--theme-muted)', fontSize: '12px' }}>Experience</span>
+                      <div style={{ fontWeight: 600, color: 'var(--theme-heading)' }}>{selectedUser.candidateProfile.experience ? `${selectedUser.candidateProfile.experience} Years` : 'N/A'}</div>
                     </div>
-                    <div style={{ padding: '12px', background: 'rgba(255,255,255,0.02)', borderRadius: '8px' }}>
-                      <span style={{ color: '#9ca3af', fontSize: '12px' }}>City / Location</span>
-                      <div style={{ fontWeight: 600, color: '#fff' }}>{selectedUser.candidateProfile.city || 'N/A'}</div>
+                    <div style={{ padding: '12px', background: 'rgba(var(--theme-contrast-rgb),0.02)', borderRadius: '8px' }}>
+                      <span style={{ color: 'var(--theme-muted)', fontSize: '12px' }}>City / Location</span>
+                      <div style={{ fontWeight: 600, color: 'var(--theme-heading)' }}>{selectedUser.candidateProfile.city || 'N/A'}</div>
                     </div>
-                    <div style={{ padding: '12px', background: 'rgba(255,255,255,0.02)', borderRadius: '8px' }}>
-                      <span style={{ color: '#9ca3af', fontSize: '12px' }}>Notice Period</span>
-                      <div style={{ fontWeight: 600, color: '#fff' }}>{selectedUser.candidateProfile.noticePeriod || 'N/A'}</div>
+                    <div style={{ padding: '12px', background: 'rgba(var(--theme-contrast-rgb),0.02)', borderRadius: '8px' }}>
+                      <span style={{ color: 'var(--theme-muted)', fontSize: '12px' }}>Notice Period</span>
+                      <div style={{ fontWeight: 600, color: 'var(--theme-heading)' }}>{selectedUser.candidateProfile.noticePeriod || 'N/A'}</div>
                     </div>
                   </div>
 
                   {selectedUser.candidateProfile.skills?.length > 0 && (
                     <div>
-                      <h4 style={{ color: '#bae6fd', fontSize: '14px', marginBottom: '8px' }}>Skills & Expertise</h4>
+                      <h4 style={{ color: 'var(--theme-link-soft)', fontSize: '14px', marginBottom: '8px' }}>Skills & Expertise</h4>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                         {selectedUser.candidateProfile.skills.map((s) => (
                           <Tag key={s.skill.id} color="blue">{s.skill.name}</Tag>
@@ -373,9 +514,9 @@ const ManageUsers = () => {
 
                   {selectedUser.candidateProfile.educations?.length > 0 && (
                     <div>
-                      <h4 style={{ color: '#bae6fd', fontSize: '14px', marginBottom: '8px' }}>Education & Qualifications</h4>
+                      <h4 style={{ color: 'var(--theme-link-soft)', fontSize: '14px', marginBottom: '8px' }}>Education & Qualifications</h4>
                       {selectedUser.candidateProfile.educations.map((edu) => (
-                        <div key={edu.id} style={{ fontSize: '13px', color: '#cbd5e1', marginBottom: '4px' }}>
+                        <div key={edu.id} style={{ fontSize: '13px', color: 'var(--theme-detail)', marginBottom: '4px' }}>
                           • <strong>{edu.qualification}</strong> ({edu.degree}) — {edu.institution}
                         </div>
                       ))}
@@ -385,8 +526,8 @@ const ManageUsers = () => {
               )}
 
               {selectedUser.role === 'EMPLOYER' && selectedUser.employerMember && (
-                <div style={{ padding: '16px', background: 'rgba(255,255,255,0.03)', borderRadius: '12px' }}>
-                  <h4 style={{ color: '#bae6fd', fontSize: '14px', marginBottom: '8px' }}>Organisation Membership</h4>
+                <div style={{ padding: '16px', background: 'rgba(var(--theme-contrast-rgb),0.03)', borderRadius: '12px' }}>
+                  <h4 style={{ color: 'var(--theme-link-soft)', fontSize: '14px', marginBottom: '8px' }}>Organisation Membership</h4>
                   <p style={{ margin: '4px 0' }}><strong>Organisation:</strong> {selectedUser.employerMember.employer?.name}</p>
                   <p style={{ margin: '4px 0' }}><strong>Type:</strong> {selectedUser.employerMember.employer?.type}</p>
                   <p style={{ margin: '4px 0' }}><strong>Status:</strong> {selectedUser.employerMember.employer?.status}</p>

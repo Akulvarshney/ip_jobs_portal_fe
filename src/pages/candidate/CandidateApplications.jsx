@@ -94,8 +94,8 @@ const CandidateApplications = () => {
       key: 'jobTitle',
       render: (text, record) => (
         <div>
-          <div style={{ fontWeight: 600, color: 'white', fontSize: '15px' }}>{text}</div>
-          <div style={{ color: '#94a3b8', fontSize: '13px', marginTop: '2px' }}>
+          <div style={{ fontWeight: 600, color: 'var(--theme-heading)', fontSize: '15px' }}>{text}</div>
+          <div style={{ color: 'var(--theme-subtle)', fontSize: '13px', marginTop: '2px' }}>
             {record.job?.employer?.name || 'Insolvency Entity'}
           </div>
         </div>
@@ -116,7 +116,7 @@ const CandidateApplications = () => {
       dataIndex: 'createdAt',
       key: 'createdAt',
       render: (date) => (
-        <span style={{ color: '#cbd5e1', fontSize: '13px' }}>
+        <span style={{ color: 'var(--theme-detail)', fontSize: '13px' }}>
           {new Date(date).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
         </span>
       ),
@@ -156,7 +156,7 @@ const CandidateApplications = () => {
               setSelectedAppModal(record);
               setDetailsModalVisible(true);
             }}
-            style={{ borderRadius: '6px', background: 'rgba(255, 255, 255, 0.05)', color: '#cbd5e1', borderColor: 'rgba(255, 255, 255, 0.1)' }}
+            style={{ borderRadius: '6px', background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-detail)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.1)' }}
           >
             Review Details
           </Button>
@@ -169,7 +169,7 @@ const CandidateApplications = () => {
       render: (_, record) => (
         <div style={{ display: 'flex', gap: '8px' }}>
           <Link to={`/jobs/${record.jobId}`}>
-            <Button size="small" type="link" style={{ color: '#38bdf8', padding: 0 }}>
+            <Button size="small" type="link" style={{ color: 'var(--theme-link)', padding: 0 }}>
               Job Details
             </Button>
           </Link>
@@ -211,19 +211,19 @@ const CandidateApplications = () => {
       >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
             <div>
-              <h1 style={{ fontSize: '28px', fontWeight: 700, color: 'white', margin: 0 }}>Application Tracker</h1>
-              <p style={{ color: '#9ca3af', fontSize: '14px', margin: '4px 0 0' }}>
+              <h1 style={{ fontSize: '28px', fontWeight: 700, color: 'var(--theme-heading)', margin: 0 }}>Application Tracker</h1>
+              <p style={{ color: 'var(--theme-muted)', fontSize: '14px', margin: '4px 0 0' }}>
                 Monitor the status of your submitted IBC and restructuring applications.
               </p>
             </div>
 
             <div style={{ width: '280px' }}>
               <Input
-                prefix={<SearchOutlined style={{ color: '#38bdf8' }} />}
+                prefix={<SearchOutlined style={{ color: 'var(--theme-link)' }} />}
                 placeholder="Search role or employer..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                style={{ background: 'rgba(255, 255, 255, 0.05)', color: 'white', borderColor: 'rgba(255, 255, 255, 0.12)', borderRadius: '10px' }}
+                style={{ background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)', borderRadius: '10px' }}
               />
             </div>
           </div>
@@ -246,8 +246,8 @@ const CandidateApplications = () => {
             pagination={{ pageSize: 8, showTotal: (total) => `Total ${total} applications` }}
             locale={{
               emptyText: (
-                <div style={{ padding: '40px', textAlign: 'center', color: '#9ca3af' }}>
-                  <SendOutlined style={{ fontSize: '36px', color: '#38bdf8', marginBottom: '12px', opacity: 0.5 }} />
+                <div style={{ padding: '40px', textAlign: 'center', color: 'var(--theme-muted)' }}>
+                  <SendOutlined style={{ fontSize: '36px', color: 'var(--theme-link)', marginBottom: '12px', opacity: 0.5 }} />
                   <p>No applications match the selected criteria.</p>
                 </div>
               )
@@ -271,15 +271,15 @@ const CandidateApplications = () => {
           <div style={{ marginTop: '16px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <div>
-                <h3 style={{ color: 'white', margin: 0, fontSize: '18px' }}>{selectedAppModal.job?.title}</h3>
-                <div style={{ color: '#38bdf8', fontSize: '14px', marginTop: '2px' }}>
+                <h3 style={{ color: 'var(--theme-heading)', margin: 0, fontSize: '18px' }}>{selectedAppModal.job?.title}</h3>
+                <div style={{ color: 'var(--theme-link)', fontSize: '14px', marginTop: '2px' }}>
                   {selectedAppModal.job?.employer?.name}
                 </div>
               </div>
               <div>{getStatusTag(selectedAppModal.status)}</div>
             </div>
 
-            <Divider style={{ borderColor: 'rgba(255, 255, 255, 0.08)' }} />
+            <Divider style={{ borderColor: 'rgba(var(--theme-contrast-rgb), 0.08)' }} />
 
             {/* Scheduled Interview Section if available */}
             {selectedAppModal.interviews?.length > 0 && (
@@ -295,19 +295,19 @@ const CandidateApplications = () => {
                 </div>
                 {selectedAppModal.interviews.map((interview) => (
                   <div key={interview.id} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <div style={{ color: '#cbd5e1', fontSize: '13px' }}>
+                    <div style={{ color: 'var(--theme-detail)', fontSize: '13px' }}>
                       <strong>Date & Time:</strong> {new Date(interview.interviewDate).toLocaleDateString()} at {interview.interviewTime || 'Scheduled Time'}
                     </div>
-                    <div style={{ color: '#cbd5e1', fontSize: '13px' }}>
+                    <div style={{ color: 'var(--theme-detail)', fontSize: '13px' }}>
                       <strong>Type:</strong> {interview.interviewType}
                     </div>
                     {interview.interviewer && (
-                      <div style={{ color: '#cbd5e1', fontSize: '13px' }}>
+                      <div style={{ color: 'var(--theme-detail)', fontSize: '13px' }}>
                         <strong>Interviewer:</strong> {interview.interviewer}
                       </div>
                     )}
                     {interview.notes && (
-                      <div style={{ color: '#cbd5e1', fontSize: '13px' }}>
+                      <div style={{ color: 'var(--theme-detail)', fontSize: '13px' }}>
                         <strong>Instructions:</strong> {interview.notes}
                       </div>
                     )}
@@ -342,10 +342,10 @@ const CandidateApplications = () => {
             {/* Application Cover Note if provided */}
             {selectedAppModal.coverNote && (
               <div style={{ marginBottom: '16px' }}>
-                <div style={{ fontSize: '13px', color: '#94a3b8', fontWeight: 600, marginBottom: '6px' }}>
+                <div style={{ fontSize: '13px', color: 'var(--theme-subtle)', fontWeight: 600, marginBottom: '6px' }}>
                   Your Submitted Cover Note:
                 </div>
-                <div style={{ background: 'rgba(255, 255, 255, 0.03)', padding: '12px 16px', borderRadius: '8px', color: '#cbd5e1', fontSize: '13px', lineHeight: '1.6' }}>
+                <div style={{ background: 'rgba(var(--theme-contrast-rgb), 0.03)', padding: '12px 16px', borderRadius: '8px', color: 'var(--theme-detail)', fontSize: '13px', lineHeight: '1.6' }}>
                   {selectedAppModal.coverNote}
                 </div>
               </div>

@@ -20,10 +20,12 @@ import {
   PauseCircleOutlined, 
   PlayCircleOutlined, 
   MailOutlined, 
-  PhoneOutlined 
+  PhoneOutlined,
+  DollarOutlined 
 } from '@ant-design/icons';
 import { Table, Button, Tag, Modal, Select, message, Space, Tooltip, Divider, Badge } from 'antd';
 import { motion } from 'framer-motion';
+import { getJobTypeLabel, getJobTypeColor, getSalaryRangeLabel, getExperienceLevelLabel } from '../../utils/jobType';
 
 const { Option } = Select;
 
@@ -151,7 +153,7 @@ const EmployerJobDetails = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#38bdf8',
+                color: 'var(--theme-link)',
                 fontWeight: 700,
                 fontSize: '16px'
               }}
@@ -159,10 +161,10 @@ const EmployerJobDetails = () => {
               {c?.name?.charAt(0) || 'C'}
             </div>
             <div>
-              <div style={{ fontWeight: 600, color: '#ffffff', fontSize: '15px' }}>
+              <div style={{ fontWeight: 600, color: 'var(--theme-heading)', fontSize: '15px' }}>
                 {c?.name || 'Candidate'}
               </div>
-              <div style={{ fontSize: '13px', color: '#9ca3af', marginTop: '2px' }}>
+              <div style={{ fontSize: '13px', color: 'var(--theme-muted)', marginTop: '2px' }}>
                 {profile?.designation || 'Insolvency Professional'}
                 {profile?.experience ? ` • ${profile.experience} Yrs Exp` : ''}
                 {profile?.city ? ` • ${profile.city}` : ''}
@@ -185,11 +187,11 @@ const EmployerJobDetails = () => {
               </Tag>
             ))}
             {skills.length > 3 && (
-              <Tag style={{ fontSize: '11px', background: 'rgba(255,255,255,0.05)', color: '#9ca3af', border: 'none' }}>
+              <Tag style={{ fontSize: '11px', background: 'rgba(var(--theme-contrast-rgb),0.05)', color: 'var(--theme-muted)', border: 'none' }}>
                 +{skills.length - 3} more
               </Tag>
             )}
-            {skills.length === 0 && <span style={{ color: '#6b7280', fontSize: '12px' }}>Standard IP Profile</span>}
+            {skills.length === 0 && <span style={{ color: 'var(--theme-placeholder)', fontSize: '12px' }}>Standard IP Profile</span>}
           </div>
         );
       }
@@ -199,7 +201,7 @@ const EmployerJobDetails = () => {
       dataIndex: 'createdAt',
       key: 'createdAt',
       render: (date) => (
-        <span style={{ color: '#cbd5e1', fontSize: '13px' }}>
+        <span style={{ color: 'var(--theme-detail)', fontSize: '13px' }}>
           {new Date(date).toLocaleDateString()}
         </span>
       )
@@ -216,12 +218,12 @@ const EmployerJobDetails = () => {
         <Space size="small" wrap>
           <Button 
             size="small"
-            icon={<FileTextOutlined style={{ color: '#38bdf8' }} />}
+            icon={<FileTextOutlined style={{ color: 'var(--theme-link)' }} />}
             onClick={() => openCVModal(record)}
             style={{
               background: 'rgba(14, 165, 233, 0.1)',
               borderColor: 'rgba(14, 165, 233, 0.3)',
-              color: '#bae6fd',
+              color: 'var(--theme-link-soft)',
               borderRadius: '6px',
               fontWeight: 500
             }}
@@ -234,9 +236,9 @@ const EmployerJobDetails = () => {
             icon={<EyeOutlined />}
             onClick={() => openCandidateDossier(record)}
             style={{
-              background: 'rgba(255, 255, 255, 0.08)',
-              borderColor: 'rgba(255, 255, 255, 0.15)',
-              color: '#ffffff',
+              background: 'rgba(var(--theme-contrast-rgb), 0.08)',
+              borderColor: 'rgba(var(--theme-contrast-rgb), 0.15)',
+              color: 'var(--theme-heading)',
               borderRadius: '6px'
             }}
           >
@@ -264,7 +266,7 @@ const EmployerJobDetails = () => {
   if (loading && !job) {
     return (
       <div style={{ padding: '60px 24px', textAlign: 'center' }}>
-        <p style={{ color: '#9ca3af', fontSize: '16px' }}>Loading mandate details & candidates...</p>
+        <p style={{ color: 'var(--theme-muted)', fontSize: '16px' }}>Loading mandate details & candidates...</p>
       </div>
     );
   }
@@ -296,24 +298,33 @@ const EmployerJobDetails = () => {
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px', marginBottom: '20px' }}>
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px', flexWrap: 'wrap' }}>
                 <Tag color={job?.status === 'ACTIVE' ? 'green' : (job?.status === 'PAUSED' ? 'gold' : 'default')} style={{ fontSize: '13px', padding: '3px 10px', fontWeight: 600 }}>
                   {job?.status}
                 </Tag>
-                <span style={{ color: '#9ca3af', fontSize: '13px' }}>
+                <Tag color={getJobTypeColor(job?.jobType)} style={{ fontSize: '13px', padding: '3px 10px', fontWeight: 600, borderRadius: '6px' }}>
+                  {getJobTypeLabel(job?.jobType)}
+                </Tag>
+                <Tag color="geekblue" style={{ fontSize: '13px', padding: '3px 10px', fontWeight: 600, borderRadius: '6px' }}>
+                  {getExperienceLevelLabel(job?.experienceLevel)}
+                </Tag>
+                <span style={{ color: 'var(--theme-muted)', fontSize: '13px' }}>
                   Listed on {new Date(job?.createdAt).toLocaleDateString()}
                 </span>
               </div>
               <h1 className="portal-section-title" style={{ fontSize: '30px', margin: 0 }}>
                 {job?.title}
               </h1>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#38bdf8', fontSize: '15px', marginTop: '6px', fontWeight: 500 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--theme-link)', fontSize: '15px', marginTop: '6px', fontWeight: 500, flexWrap: 'wrap' }}>
                 <BankOutlined /> {job?.employer?.name}
                 {job?.employer?.location && (
-                  <span style={{ color: '#9ca3af', marginLeft: '10px' }}>
+                  <span style={{ color: 'var(--theme-muted)', marginLeft: '10px' }}>
                     <EnvironmentOutlined /> {job.employer.location}
                   </span>
                 )}
+                <span style={{ color: 'var(--theme-success)', marginLeft: '10px', fontWeight: 600 }}>
+                  <DollarOutlined /> {getSalaryRangeLabel(job?.salaryRange)}
+                </span>
               </div>
             </div>
 
@@ -347,45 +358,45 @@ const EmployerJobDetails = () => {
               gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
               gap: '14px',
               padding: '16px',
-              background: 'rgba(255, 255, 255, 0.03)',
-              border: '1px solid rgba(255, 255, 255, 0.06)',
+              background: 'rgba(var(--theme-contrast-rgb), 0.03)',
+              border: '1px solid rgba(var(--theme-contrast-rgb), 0.06)',
               borderRadius: '14px',
               marginBottom: '24px'
             }}
           >
             <div>
-              <span style={{ color: '#9ca3af', fontSize: '12px' }}>Total Applications</span>
-              <div style={{ fontSize: '24px', fontWeight: 700, color: '#38bdf8' }}>{applicationsList.length}</div>
+              <span style={{ color: 'var(--theme-muted)', fontSize: '12px' }}>Total Applications</span>
+              <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--theme-link)' }}>{applicationsList.length}</div>
             </div>
             <div>
-              <span style={{ color: '#9ca3af', fontSize: '12px' }}>Shortlisted</span>
+              <span style={{ color: 'var(--theme-muted)', fontSize: '12px' }}>Shortlisted</span>
               <div style={{ fontSize: '24px', fontWeight: 700, color: '#fde047' }}>{shortlistedCount}</div>
             </div>
             <div>
-              <span style={{ color: '#9ca3af', fontSize: '12px' }}>Interviews Active</span>
+              <span style={{ color: 'var(--theme-muted)', fontSize: '12px' }}>Interviews Active</span>
               <div style={{ fontSize: '24px', fontWeight: 700, color: '#c084fc' }}>{interviewCount}</div>
             </div>
             <div>
-              <span style={{ color: '#9ca3af', fontSize: '12px' }}>Hired / Selected</span>
-              <div style={{ fontSize: '24px', fontWeight: 700, color: '#34d399' }}>{selectedCount}</div>
+              <span style={{ color: 'var(--theme-muted)', fontSize: '12px' }}>Hired / Selected</span>
+              <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--theme-success)' }}>{selectedCount}</div>
             </div>
           </div>
 
           {/* Mandate Description & Requirements */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
             <div>
-              <h4 style={{ color: '#38bdf8', fontSize: '13px', textTransform: 'uppercase', marginBottom: '8px', fontWeight: 700, letterSpacing: '0.5px' }}>
+              <h4 style={{ color: 'var(--theme-link)', fontSize: '13px', textTransform: 'uppercase', marginBottom: '8px', fontWeight: 700, letterSpacing: '0.5px' }}>
                 Mandate Scope & Description
               </h4>
-              <div style={{ color: '#cbd5e1', lineHeight: 1.6, background: 'rgba(255,255,255,0.02)', padding: '14px', borderRadius: '10px', fontSize: '14px', whiteSpace: 'pre-line' }}>
+              <div style={{ color: 'var(--theme-detail)', lineHeight: 1.6, background: 'rgba(var(--theme-contrast-rgb),0.02)', padding: '14px', borderRadius: '10px', fontSize: '14px', whiteSpace: 'pre-line' }}>
                 {job?.description}
               </div>
             </div>
             <div>
-              <h4 style={{ color: '#38bdf8', fontSize: '13px', textTransform: 'uppercase', marginBottom: '8px', fontWeight: 700, letterSpacing: '0.5px' }}>
+              <h4 style={{ color: 'var(--theme-link)', fontSize: '13px', textTransform: 'uppercase', marginBottom: '8px', fontWeight: 700, letterSpacing: '0.5px' }}>
                 Compliance & Statutory Requirements
               </h4>
-              <div style={{ color: '#cbd5e1', lineHeight: 1.6, background: 'rgba(255,255,255,0.02)', padding: '14px', borderRadius: '10px', fontSize: '14px', whiteSpace: 'pre-line' }}>
+              <div style={{ color: 'var(--theme-detail)', lineHeight: 1.6, background: 'rgba(var(--theme-contrast-rgb),0.02)', padding: '14px', borderRadius: '10px', fontSize: '14px', whiteSpace: 'pre-line' }}>
                 {job?.requirements}
               </div>
             </div>
@@ -393,7 +404,7 @@ const EmployerJobDetails = () => {
 
           {job?.skills?.length > 0 && (
             <div style={{ marginTop: '20px' }}>
-              <h4 style={{ color: '#38bdf8', fontSize: '13px', textTransform: 'uppercase', marginBottom: '8px', fontWeight: 700, letterSpacing: '0.5px' }}>
+              <h4 style={{ color: 'var(--theme-link)', fontSize: '13px', textTransform: 'uppercase', marginBottom: '8px', fontWeight: 700, letterSpacing: '0.5px' }}>
                 Mandate Specialisations & Skills
               </h4>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
@@ -432,7 +443,7 @@ const EmployerJobDetails = () => {
             pagination={{ pageSize: 8 }}
             className="portal-table"
             locale={{
-              emptyText: <div style={{ padding: '30px', color: '#9ca3af' }}>No candidates have applied to this mandate yet.</div>
+              emptyText: <div style={{ padding: '30px', color: 'var(--theme-muted)' }}>No candidates have applied to this mandate yet.</div>
             }}
           />
         </motion.div>
@@ -440,8 +451,8 @@ const EmployerJobDetails = () => {
         {/* Candidate CV / Resume Preview Modal */}
         <Modal
           title={
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'white', fontSize: '18px', fontWeight: 700 }}>
-              <FileTextOutlined style={{ color: '#38bdf8' }} /> Candidate Curriculum Vitae — {selectedCandidate?.name}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--theme-heading)', fontSize: '18px', fontWeight: 700 }}>
+              <FileTextOutlined style={{ color: 'var(--theme-link)' }} /> Candidate Curriculum Vitae — {selectedCandidate?.name}
             </div>
           }
           open={cvModalOpen}
@@ -449,18 +460,18 @@ const EmployerJobDetails = () => {
           footer={null}
           width={800}
           styles={{
-            content: { background: '#1e293b', border: '1px solid rgba(255, 255, 255, 0.12)', borderRadius: '20px' },
-            header: { background: '#1e293b' },
+            content: { background: 'var(--theme-surface)', border: '1px solid rgba(var(--theme-contrast-rgb), 0.12)', borderRadius: '20px' },
+            header: { background: 'var(--theme-surface)' },
           }}
         >
           {selectedCandidate && (
-            <div style={{ color: '#e2e8f0', marginTop: '16px' }}>
+            <div style={{ color: 'var(--theme-secondary)', marginTop: '16px' }}>
               
               {/* CV Header Banner */}
               <div 
                 style={{
                   padding: '20px',
-                  background: 'linear-gradient(135deg, rgba(14, 165, 233, 0.15) 0%, rgba(30, 41, 59, 0.6) 100%)',
+                  background: 'linear-gradient(135deg, rgba(14, 165, 233, 0.15) 0%, rgba(var(--theme-surface-rgb), 0.6) 100%)',
                   border: '1px solid rgba(14, 165, 233, 0.3)',
                   borderRadius: '14px',
                   marginBottom: '20px'
@@ -468,13 +479,13 @@ const EmployerJobDetails = () => {
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
                   <div>
-                    <h3 style={{ margin: 0, color: '#ffffff', fontSize: '24px', fontWeight: 800 }}>
+                    <h3 style={{ margin: 0, color: 'var(--theme-heading)', fontSize: '24px', fontWeight: 800 }}>
                       {selectedCandidate.name}
                     </h3>
-                    <p style={{ margin: '4px 0 0', color: '#38bdf8', fontSize: '15px', fontWeight: 600 }}>
+                    <p style={{ margin: '4px 0 0', color: 'var(--theme-link)', fontSize: '15px', fontWeight: 600 }}>
                       {selectedCandidate.candidateProfile?.designation || 'Insolvency & Restructuring Professional'}
                     </p>
-                    <div style={{ display: 'flex', gap: '16px', marginTop: '8px', color: '#cbd5e1', fontSize: '13px', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', gap: '16px', marginTop: '8px', color: 'var(--theme-detail)', fontSize: '13px', flexWrap: 'wrap' }}>
                       <span><MailOutlined /> {selectedCandidate.email}</span>
                       {selectedCandidate.candidateProfile?.phone && (
                         <span><PhoneOutlined /> {selectedCandidate.candidateProfile.phone}</span>
@@ -487,7 +498,7 @@ const EmployerJobDetails = () => {
 
                   <div style={{ textAlign: 'right' }}>
                     {getStatusTag(selectedCandidate.status)}
-                    <div style={{ color: '#9ca3af', fontSize: '12px', marginTop: '6px' }}>
+                    <div style={{ color: 'var(--theme-muted)', fontSize: '12px', marginTop: '6px' }}>
                       Applied {new Date(selectedCandidate.appliedAt).toLocaleDateString()}
                     </div>
                   </div>
@@ -498,21 +509,21 @@ const EmployerJobDetails = () => {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 
                 {/* Professional Experience Section */}
-                <div style={{ padding: '18px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px' }}>
-                  <h4 style={{ color: '#38bdf8', fontSize: '14px', textTransform: 'uppercase', marginBottom: '14px', fontWeight: 700, letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ padding: '18px', background: 'rgba(var(--theme-contrast-rgb),0.02)', border: '1px solid rgba(var(--theme-contrast-rgb),0.06)', borderRadius: '12px' }}>
+                  <h4 style={{ color: 'var(--theme-link)', fontSize: '14px', textTransform: 'uppercase', marginBottom: '14px', fontWeight: 700, letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <SolutionOutlined /> Professional Insolvency & Restructuring Experience
                   </h4>
                   {selectedCandidate.candidateProfile?.experiences?.length > 0 ? (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                       {selectedCandidate.candidateProfile.experiences.map((exp) => (
                         <div key={exp.id} style={{ borderLeft: '2px solid #0ea5e9', paddingLeft: '14px' }}>
-                          <div style={{ fontWeight: 700, color: '#ffffff', fontSize: '15px' }}>{exp.designation}</div>
-                          <div style={{ color: '#38bdf8', fontSize: '13px', fontWeight: 500 }}>{exp.organisation}</div>
-                          <div style={{ color: '#9ca3af', fontSize: '12px', marginTop: '2px' }}>
+                          <div style={{ fontWeight: 700, color: 'var(--theme-heading)', fontSize: '15px' }}>{exp.designation}</div>
+                          <div style={{ color: 'var(--theme-link)', fontSize: '13px', fontWeight: 500 }}>{exp.organisation}</div>
+                          <div style={{ color: 'var(--theme-muted)', fontSize: '12px', marginTop: '2px' }}>
                             {exp.isCurrent ? 'Present' : 'Past Engagement'}
                           </div>
                           {exp.description && (
-                            <p style={{ color: '#cbd5e1', fontSize: '13px', margin: '6px 0 0', lineHeight: 1.5 }}>
+                            <p style={{ color: 'var(--theme-detail)', fontSize: '13px', margin: '6px 0 0', lineHeight: 1.5 }}>
                               {exp.description}
                             </p>
                           )}
@@ -520,38 +531,38 @@ const EmployerJobDetails = () => {
                       ))}
                     </div>
                   ) : (
-                    <p style={{ color: '#9ca3af', margin: 0, fontSize: '13px' }}>
+                    <p style={{ color: 'var(--theme-muted)', margin: 0, fontSize: '13px' }}>
                       Total Experience: {selectedCandidate.candidateProfile?.experience || 0} years in corporate restructuring and insolvency processes.
                     </p>
                   )}
                 </div>
 
                 {/* Education & IBBI Certifications */}
-                <div style={{ padding: '18px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px' }}>
-                  <h4 style={{ color: '#38bdf8', fontSize: '14px', textTransform: 'uppercase', marginBottom: '14px', fontWeight: 700, letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ padding: '18px', background: 'rgba(var(--theme-contrast-rgb),0.02)', border: '1px solid rgba(var(--theme-contrast-rgb),0.06)', borderRadius: '12px' }}>
+                  <h4 style={{ color: 'var(--theme-link)', fontSize: '14px', textTransform: 'uppercase', marginBottom: '14px', fontWeight: 700, letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <BankOutlined /> Qualifications & Certifications
                   </h4>
                   {selectedCandidate.candidateProfile?.educations?.length > 0 ? (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                       {selectedCandidate.candidateProfile.educations.map((edu) => (
-                        <div key={edu.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px', color: '#e2e8f0' }}>
+                        <div key={edu.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px', color: 'var(--theme-secondary)' }}>
                           <div>
-                            <strong style={{ color: '#ffffff', fontSize: '14px' }}>{edu.qualification}</strong> ({edu.degree})
-                            <div style={{ color: '#9ca3af', fontSize: '12px' }}>{edu.institution}</div>
+                            <strong style={{ color: 'var(--theme-heading)', fontSize: '14px' }}>{edu.qualification}</strong> ({edu.degree})
+                            <div style={{ color: 'var(--theme-muted)', fontSize: '12px' }}>{edu.institution}</div>
                           </div>
                           {edu.completionYear && <Tag color="blue">{edu.completionYear}</Tag>}
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <p style={{ color: '#9ca3af', margin: 0, fontSize: '13px' }}>Verified Professional Credentials recorded on portal.</p>
+                    <p style={{ color: 'var(--theme-muted)', margin: 0, fontSize: '13px' }}>Verified Professional Credentials recorded on portal.</p>
                   )}
                 </div>
 
                 {/* Skills Portfolio */}
                 {selectedCandidate.candidateProfile?.skills?.length > 0 && (
-                  <div style={{ padding: '18px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px' }}>
-                    <h4 style={{ color: '#38bdf8', fontSize: '14px', textTransform: 'uppercase', marginBottom: '12px', fontWeight: 700, letterSpacing: '0.5px' }}>
+                  <div style={{ padding: '18px', background: 'rgba(var(--theme-contrast-rgb),0.02)', border: '1px solid rgba(var(--theme-contrast-rgb),0.06)', borderRadius: '12px' }}>
+                    <h4 style={{ color: 'var(--theme-link)', fontSize: '14px', textTransform: 'uppercase', marginBottom: '12px', fontWeight: 700, letterSpacing: '0.5px' }}>
                       Competency & Domain Skills
                     </h4>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
@@ -570,9 +581,9 @@ const EmployerJobDetails = () => {
                 <Button 
                   onClick={() => setCvModalOpen(false)}
                   style={{
-                    background: 'rgba(255, 255, 255, 0.08)',
-                    border: '1px solid rgba(255, 255, 255, 0.15)',
-                    color: '#ffffff',
+                    background: 'rgba(var(--theme-contrast-rgb), 0.08)',
+                    border: '1px solid rgba(var(--theme-contrast-rgb), 0.15)',
+                    color: 'var(--theme-heading)',
                     borderRadius: '8px'
                   }}
                 >
@@ -606,7 +617,7 @@ const EmployerJobDetails = () => {
                       icon={<CheckCircleOutlined />}
                       loading={actionLoadingId === selectedCandidate.appId}
                       onClick={() => handleUpdateAppStatus(selectedCandidate.appId, 'SELECTED')}
-                      style={{ background: '#10b981', borderColor: '#10b981', color: '#ffffff', borderRadius: '8px' }}
+                      style={{ background: '#10b981', borderColor: '#10b981', color: 'var(--theme-on-primary)', borderRadius: '8px' }}
                     >
                       Select / Hire
                     </Button>
@@ -621,8 +632,8 @@ const EmployerJobDetails = () => {
         {/* Candidate Profile Dossier Modal */}
         <Modal
           title={
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'white', fontSize: '18px', fontWeight: 700 }}>
-              <UserOutlined style={{ color: '#38bdf8' }} /> Candidate Profile Dossier
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--theme-heading)', fontSize: '18px', fontWeight: 700 }}>
+              <UserOutlined style={{ color: 'var(--theme-link)' }} /> Candidate Profile Dossier
             </div>
           }
           open={candidateModalOpen}
@@ -630,17 +641,17 @@ const EmployerJobDetails = () => {
           footer={null}
           width={720}
           styles={{
-            content: { background: '#1e293b', border: '1px solid rgba(255, 255, 255, 0.12)', borderRadius: '20px' },
-            header: { background: '#1e293b' },
+            content: { background: 'var(--theme-surface)', border: '1px solid rgba(var(--theme-contrast-rgb), 0.12)', borderRadius: '20px' },
+            header: { background: 'var(--theme-surface)' },
           }}
         >
           {selectedCandidate && (
-            <div style={{ color: '#e2e8f0', marginTop: '16px' }}>
+            <div style={{ color: 'var(--theme-secondary)', marginTop: '16px' }}>
               <div 
                 style={{
                   padding: '16px',
-                  background: 'rgba(255, 255, 255, 0.04)',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  background: 'rgba(var(--theme-contrast-rgb), 0.04)',
+                  border: '1px solid rgba(var(--theme-contrast-rgb), 0.08)',
                   borderRadius: '12px',
                   marginBottom: '20px',
                   display: 'flex',
@@ -649,28 +660,28 @@ const EmployerJobDetails = () => {
                 }}
               >
                 <div>
-                  <h3 style={{ margin: 0, color: '#ffffff', fontSize: '20px' }}>{selectedCandidate.name}</h3>
-                  <p style={{ margin: '4px 0 0', color: '#9ca3af', fontSize: '14px' }}>{selectedCandidate.email}</p>
+                  <h3 style={{ margin: 0, color: 'var(--theme-heading)', fontSize: '20px' }}>{selectedCandidate.name}</h3>
+                  <p style={{ margin: '4px 0 0', color: 'var(--theme-muted)', fontSize: '14px' }}>{selectedCandidate.email}</p>
                 </div>
                 {getStatusTag(selectedCandidate.status)}
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '14px', marginBottom: '16px' }}>
-                <div style={{ padding: '12px', background: 'rgba(255,255,255,0.02)', borderRadius: '8px' }}>
-                  <span style={{ color: '#9ca3af', fontSize: '12px' }}>Current Designation</span>
-                  <div style={{ fontWeight: 600, color: '#fff' }}>{selectedCandidate.candidateProfile?.designation || 'N/A'}</div>
+                <div style={{ padding: '12px', background: 'rgba(var(--theme-contrast-rgb),0.02)', borderRadius: '8px' }}>
+                  <span style={{ color: 'var(--theme-muted)', fontSize: '12px' }}>Current Designation</span>
+                  <div style={{ fontWeight: 600, color: 'var(--theme-heading)' }}>{selectedCandidate.candidateProfile?.designation || 'N/A'}</div>
                 </div>
-                <div style={{ padding: '12px', background: 'rgba(255,255,255,0.02)', borderRadius: '8px' }}>
-                  <span style={{ color: '#9ca3af', fontSize: '12px' }}>Total Experience</span>
-                  <div style={{ fontWeight: 600, color: '#fff' }}>{selectedCandidate.candidateProfile?.experience ? `${selectedCandidate.candidateProfile.experience} Years` : 'N/A'}</div>
+                <div style={{ padding: '12px', background: 'rgba(var(--theme-contrast-rgb),0.02)', borderRadius: '8px' }}>
+                  <span style={{ color: 'var(--theme-muted)', fontSize: '12px' }}>Total Experience</span>
+                  <div style={{ fontWeight: 600, color: 'var(--theme-heading)' }}>{selectedCandidate.candidateProfile?.experience ? `${selectedCandidate.candidateProfile.experience} Years` : 'N/A'}</div>
                 </div>
-                <div style={{ padding: '12px', background: 'rgba(255,255,255,0.02)', borderRadius: '8px' }}>
-                  <span style={{ color: '#9ca3af', fontSize: '12px' }}>City / Location</span>
-                  <div style={{ fontWeight: 600, color: '#fff' }}>{selectedCandidate.candidateProfile?.city || 'N/A'}</div>
+                <div style={{ padding: '12px', background: 'rgba(var(--theme-contrast-rgb),0.02)', borderRadius: '8px' }}>
+                  <span style={{ color: 'var(--theme-muted)', fontSize: '12px' }}>City / Location</span>
+                  <div style={{ fontWeight: 600, color: 'var(--theme-heading)' }}>{selectedCandidate.candidateProfile?.city || 'N/A'}</div>
                 </div>
-                <div style={{ padding: '12px', background: 'rgba(255,255,255,0.02)', borderRadius: '8px' }}>
-                  <span style={{ color: '#9ca3af', fontSize: '12px' }}>Notice Period</span>
-                  <div style={{ fontWeight: 600, color: '#fff' }}>{selectedCandidate.candidateProfile?.noticePeriod || 'N/A'}</div>
+                <div style={{ padding: '12px', background: 'rgba(var(--theme-contrast-rgb),0.02)', borderRadius: '8px' }}>
+                  <span style={{ color: 'var(--theme-muted)', fontSize: '12px' }}>Notice Period</span>
+                  <div style={{ fontWeight: 600, color: 'var(--theme-heading)' }}>{selectedCandidate.candidateProfile?.noticePeriod || 'N/A'}</div>
                 </div>
               </div>
 
@@ -678,9 +689,9 @@ const EmployerJobDetails = () => {
                 <Button 
                   onClick={() => setCandidateModalOpen(false)}
                   style={{
-                    background: 'rgba(255, 255, 255, 0.08)',
-                    border: '1px solid rgba(255, 255, 255, 0.15)',
-                    color: '#ffffff',
+                    background: 'rgba(var(--theme-contrast-rgb), 0.08)',
+                    border: '1px solid rgba(var(--theme-contrast-rgb), 0.15)',
+                    color: 'var(--theme-heading)',
                     borderRadius: '8px'
                   }}
                 >

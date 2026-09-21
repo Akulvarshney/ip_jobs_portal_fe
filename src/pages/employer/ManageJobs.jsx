@@ -3,8 +3,14 @@ import { Table, Button, Tag, Badge, message } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchEmployerJobs } from '../../store/employerSlice';
-import { PlusOutlined, FileTextOutlined, ArrowRightOutlined } from '@ant-design/icons';
+import { PlusOutlined, FileTextOutlined, ArrowRightOutlined, DollarOutlined } from '@ant-design/icons';
 import { motion } from 'framer-motion';
+import { 
+  getJobTypeLabel, 
+  getJobTypeColor, 
+  getSalaryRangeLabel, 
+  getExperienceLevelShortLabel 
+} from '../../utils/jobEnums';
 
 const ManageJobs = () => {
   const { jobs } = useSelector((state) => state.employer);
@@ -34,14 +40,25 @@ const ManageJobs = () => {
       key: 'title',
       render: (text, record) => (
         <div>
-          <span 
-            style={{ fontWeight: 600, color: '#38bdf8', cursor: 'pointer', fontSize: '15px' }}
-            onClick={() => navigate(`/employer/jobs/${record.id}`)}
-          >
-            {text}
-          </span>
-          <div style={{ fontSize: '12px', color: '#9ca3af', marginTop: '2px' }}>
-            Listed on {new Date(record.createdAt).toLocaleDateString()}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+            <span 
+              style={{ fontWeight: 600, color: 'var(--theme-link)', cursor: 'pointer', fontSize: '15px' }}
+              onClick={() => navigate(`/employer/jobs/${record.id}`)}
+            >
+              {text}
+            </span>
+            <Tag color={getJobTypeColor(record.jobType)} style={{ borderRadius: '6px', fontSize: '11px', margin: 0 }}>
+              {getJobTypeLabel(record.jobType)}
+            </Tag>
+            <Tag color="geekblue" style={{ borderRadius: '6px', fontSize: '11px', margin: 0 }}>
+              {getExperienceLevelShortLabel(record.experienceLevel)}
+            </Tag>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '12px', color: 'var(--theme-muted)', marginTop: '4px' }}>
+            <span>Listed on {new Date(record.createdAt).toLocaleDateString()}</span>
+            <span style={{ color: 'var(--theme-success)', fontWeight: 500 }}>
+              <DollarOutlined /> {getSalaryRangeLabel(record.salaryRange)}
+            </span>
           </div>
         </div>
       )

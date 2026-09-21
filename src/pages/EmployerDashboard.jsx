@@ -1,19 +1,31 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Button, Modal, Form, Input, Typography, message, Tag, Badge } from 'antd';
+import { Table, Button, Modal, Form, Input, Select, Typography, message, Tag, Badge } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchEmployerJobs, createJob, inviteCandidate, fetchJobApplicants } from '../store/employerSlice';
-import { PlusOutlined, UserOutlined, MailOutlined, SendOutlined, CheckCircleOutlined, BankOutlined } from '@ant-design/icons';
+import { PlusOutlined, UserOutlined, MailOutlined, SendOutlined, CheckCircleOutlined, BankOutlined, DollarOutlined, SolutionOutlined } from '@ant-design/icons';
 import { motion } from 'framer-motion';
+import { 
+  JOB_TYPES, 
+  SALARY_RANGES, 
+  EXPERIENCE_LEVELS, 
+  getJobTypeLabel, 
+  getJobTypeColor, 
+  getSalaryRangeLabel, 
+  getExperienceLevelLabel, 
+  getExperienceLevelShortLabel 
+} from '../utils/jobEnums';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
+const { Option } = Select;
 
 const EmployerDashboard = () => {
   const { jobs } = useSelector((state) => state.employer);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [applicantsModalVisible, setApplicantsModalVisible] = useState(false);
   const [selectedJob, setSelectedJob] = useState(null);
+  const [form] = Form.useForm();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -37,6 +49,7 @@ const EmployerDashboard = () => {
       await dispatch(createJob(values)).unwrap();
       message.success('Job posted successfully');
       setIsModalVisible(false);
+      form.resetFields();
       fetchJobs();
     } catch (error) {
       message.error(typeof error === 'string' ? error : 'Failed to post job');
@@ -70,19 +83,32 @@ const EmployerDashboard = () => {
       dataIndex: 'title', 
       key: 'title',
       render: (text, record) => (
-        <span 
-          style={{ fontWeight: 600, color: '#38bdf8', cursor: 'pointer' }}
-          onClick={() => navigate(`/employer/jobs/${record.id}`)}
-        >
-          {text}
-        </span>
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
+            <span 
+              style={{ fontWeight: 600, color: 'var(--theme-link)', cursor: 'pointer', fontSize: '15px' }}
+              onClick={() => navigate(`/employer/jobs/${record.id}`)}
+            >
+              {text}
+            </span>
+            <Tag color={getJobTypeColor(record.jobType)} style={{ borderRadius: '6px', fontSize: '11px', margin: 0 }}>
+              {getJobTypeLabel(record.jobType)}
+            </Tag>
+            <Tag color="geekblue" style={{ borderRadius: '6px', fontSize: '11px', margin: 0 }}>
+              {getExperienceLevelShortLabel(record.experienceLevel)}
+            </Tag>
+          </div>
+          <div style={{ fontSize: '12px', color: 'var(--theme-success)', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
+            <DollarOutlined /> {getSalaryRangeLabel(record.salaryRange)}
+          </div>
+        </div>
       )
     },
     { 
       title: 'Listed Date', 
       dataIndex: 'createdAt', 
       key: 'createdAt', 
-      render: (date) => <span style={{ color: '#9ca3af' }}>{new Date(date).toLocaleDateString()}</span>
+      render: (date) => <span style={{ color: 'var(--theme-muted)' }}>{new Date(date).toLocaleDateString()}</span>
     },
     { 
       title: 'Candidates Matched', 
@@ -142,16 +168,57 @@ const EmployerDashboard = () => {
 
         {/* Post Job Modal */}
         <Modal 
-          title={<span style={{ color: 'white', fontSize: '20px', fontWeight: 700 }}>List a New Mandate/Role</span>} 
+          title={<span style={{ color: 'var(--theme-heading)', fontSize: '20px', fontWeight: 700 }}>List a New Mandate/Role</span>} 
           open={isModalVisible} 
-          onCancel={() => setIsModalVisible(false)} 
+          onCancel={() => {
+            setIsModalVisible(false);
+            form.resetFields();
+          }} 
           footer={null}
-          style={{ top: 40 }}
+          width={640}
+          style={{ top: 30 }}
         >
-          <Form layout="vertical" onFinish={handlePostJob} style={{ marginTop: '16px' }}>
+          <Form 
+            form={form} 
+            layout="vertical" 
+            onFinish={handlePostJob} 
+            initialValues={{ 
+              jobType: 'FULL_TIME',
+              salaryRange: 'NEGOTIABLE',
+              experienceLevel: 'MID_LEVEL'
+            }} 
+            style={{ marginTop: '16px' }}
+          >
             <Form.Item label="Role Title" name="title" rules={[{ required: true, message: 'Please enter job title' }]}>
               <Input placeholder="e.g. Resolution Professional for MSME" size="large" />
             </Form.Item>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
+              <Form.Item label="Job Type" name="jobType" rules={[{ required: true, message: 'Required' }]}>
+                <Select size="large" placeholder="Job type">
+                  {JOB_TYPES.map(jt => (
+                    <Option key={jt.value} value={jt.value}>{jt.label}</Option>
+                  ))}
+                </Select>
+              </Form.Item>
+
+              <Form.Item label="Salary Bracket" name="salaryRange" rules={[{ required: true, message: 'Required' }]}>
+                <Select size="large" placeholder="Salary bracket">
+                  {SALARY_RANGES.map(sr => (
+                    <Option key={sr.value} value={sr.value}>{sr.label}</Option>
+                  ))}
+                </Select>
+              </Form.Item>
+
+              <Form.Item label="Experience Level" name="experienceLevel" rules={[{ required: true, message: 'Required' }]}>
+                <Select size="large" placeholder="Experience">
+                  {EXPERIENCE_LEVELS.map(el => (
+                    <Option key={el.value} value={el.value}>{el.label}</Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </div>
+
             <Form.Item label="Mandate Description" name="description" rules={[{ required: true, message: 'Please enter description' }]}>
               <TextArea rows={4} placeholder="Describe the CIRP/Liquidation scope, ticket size, and expectations..." />
             </Form.Item>
@@ -168,7 +235,7 @@ const EmployerDashboard = () => {
 
         {/* Applicants Modal */}
         <Modal 
-          title={<span style={{ color: 'white', fontSize: '20px', fontWeight: 700 }}>Candidates for "{selectedJob?.title}"</span>} 
+          title={<span style={{ color: 'var(--theme-heading)', fontSize: '20px', fontWeight: 700 }}>Candidates for "{selectedJob?.title}"</span>} 
           open={applicantsModalVisible} 
           onCancel={() => setApplicantsModalVisible(false)} 
           footer={null} 
@@ -200,7 +267,7 @@ const EmployerDashboard = () => {
                       Send Interview Invite
                     </Button>
                   ) : (
-                    <span style={{ color: '#34d399', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                    <span style={{ color: 'var(--theme-success)', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                       <CheckCircleOutlined /> Invited
                     </span>
                   )

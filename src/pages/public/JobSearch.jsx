@@ -1,35 +1,54 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Input, 
-  Select, 
-  Button, 
-  Tag, 
-  Row, 
-  Col, 
-  Modal, 
-  message, 
-  Spin, 
-  Tooltip 
+import {
+  Input,
+  Select,
+  Button,
+  Tag,
+  Row,
+  Col,
+  Modal,
+  Drawer,
+  Badge,
+  message,
+  Spin,
+  Tooltip,
+  Divider
 } from 'antd';
-import { 
-  SearchOutlined, 
-  EnvironmentOutlined, 
-  DollarOutlined, 
-  CalendarOutlined, 
-  CheckCircleOutlined, 
-  HeartOutlined, 
-  HeartFilled, 
-  EyeOutlined, 
+import {
+  SearchOutlined,
+  EnvironmentOutlined,
+  DollarOutlined,
+  CalendarOutlined,
+  CheckCircleOutlined,
+  HeartOutlined,
+  HeartFilled,
+  EyeOutlined,
   ClearOutlined,
   BankOutlined,
   RocketOutlined,
-  FilterOutlined
+  FilterOutlined,
+  CloseOutlined,
+  CompassOutlined,
+  AppstoreOutlined,
+  ClockCircleOutlined,
+  UserOutlined,
+  AuditOutlined
 } from '@ant-design/icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchAllJobs } from '../../store/jobsSlice';
 import { fetchSavedJobs, fetchCandidateApplications, toggleSaveJob, applyToJob } from '../../store/candidateSlice';
+import { 
+  JOB_TYPES, 
+  SALARY_RANGES, 
+  EXPERIENCE_LEVELS, 
+  getJobTypeLabel, 
+  getJobTypeColor, 
+  getSalaryRangeLabel, 
+  getExperienceLevelLabel, 
+  getExperienceLevelShortLabel 
+} from '../../utils/jobEnums';
 
 const { Option } = Select;
 
@@ -62,8 +81,12 @@ const JobSearch = () => {
   // Filter states
   const [searchKeyword, setSearchKeyword] = useState(initialKeyword);
   const [selectedLocation, setSelectedLocation] = useState(initialLocation);
+  const [selectedJobType, setSelectedJobType] = useState(searchParams.get('jobType') || undefined);
+  const [selectedSalaryRange, setSelectedSalaryRange] = useState(searchParams.get('salaryRange') || undefined);
+  const [selectedExpLevel, setSelectedExpLevel] = useState(searchParams.get('experienceLevel') || undefined);
   const [selectedCategory, setSelectedCategory] = useState(undefined);
   const [selectedOrgType, setSelectedOrgType] = useState(undefined);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   // Apply Modal state
   const [applyModalOpen, setApplyModalOpen] = useState(false);
@@ -156,20 +179,41 @@ const JobSearch = () => {
   const handleResetFilters = () => {
     setSearchKeyword('');
     setSelectedLocation(undefined);
+    setSelectedJobType(undefined);
+    setSelectedSalaryRange(undefined);
+    setSelectedExpLevel(undefined);
     setSelectedCategory(undefined);
     setSelectedOrgType(undefined);
     setSearchParams({});
   };
 
+  const activeFiltersCount = [
+    selectedLocation,
+    selectedJobType,
+    selectedSalaryRange,
+    selectedExpLevel,
+    selectedCategory,
+    selectedOrgType
+  ].filter(Boolean).length;
+
   const filteredJobs = jobs.filter(job => {
-    const matchesKeyword = !searchKeyword || 
+    const matchesKeyword = !searchKeyword ||
       job.title.toLowerCase().includes(searchKeyword.toLowerCase()) ||
       job.description?.toLowerCase().includes(searchKeyword.toLowerCase()) ||
       job.requirements?.toLowerCase().includes(searchKeyword.toLowerCase()) ||
       (job.employer?.name && job.employer.name.toLowerCase().includes(searchKeyword.toLowerCase()));
 
-    const matchesLocation = !selectedLocation || 
+    const matchesLocation = !selectedLocation ||
       (job.employer?.location && job.employer.location.toLowerCase().includes(selectedLocation.toLowerCase()));
+
+    const matchesJobType = !selectedJobType ||
+      (job.jobType && job.jobType.toLowerCase() === selectedJobType.toLowerCase());
+
+    const matchesSalary = !selectedSalaryRange ||
+      (job.salaryRange && job.salaryRange.toLowerCase() === selectedSalaryRange.toLowerCase());
+
+    const matchesExp = !selectedExpLevel ||
+      (job.experienceLevel && job.experienceLevel.toLowerCase() === selectedExpLevel.toLowerCase());
 
     const matchesCategory = !selectedCategory ||
       job.title.toLowerCase().includes(selectedCategory.toLowerCase()) ||
@@ -178,7 +222,7 @@ const JobSearch = () => {
     const matchesOrgType = !selectedOrgType ||
       job.employer?.type === selectedOrgType;
 
-    return matchesKeyword && matchesLocation && matchesCategory && matchesOrgType;
+    return matchesKeyword && matchesLocation && matchesJobType && matchesSalary && matchesExp && matchesCategory && matchesOrgType;
   });
 
   return (
@@ -186,107 +230,302 @@ const JobSearch = () => {
       <div className="portal-bg-glow">
         <div className="portal-bg-blob-1"></div>
         <div className="portal-bg-blob-2"></div>
+        <div className="portal-bg-blob-3"></div>
       </div>
 
       <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '40px 24px 80px', position: 'relative', zIndex: 1 }}>
-        
+
         {/* Header Hero */}
         <div style={{ textAlign: 'center', maxWidth: '800px', margin: '0 auto 36px' }}>
-          <Tag color="cyan" style={{ borderRadius: '12px', padding: '2px 12px', fontSize: '12px', fontWeight: 600, marginBottom: '12px' }}>
+          {/* <Tag color="cyan" style={{ borderRadius: '12px', padding: '2px 12px', fontSize: '12px', fontWeight: 600, marginBottom: '12px' }}>
             National Insolvency Mandates Directory
-          </Tag>
-          <h1 style={{ fontSize: '36px', fontWeight: 800, color: 'white', margin: '0 0 12px' }}>
+          </Tag> */}
+          <h1 style={{ fontSize: '36px', fontWeight: 800, color: 'var(--theme-heading)', margin: '0 0 12px' }}>
             Explore Verified Insolvency & Restructuring Roles
           </h1>
-          <p style={{ color: '#94a3b8', fontSize: '16px', lineHeight: '1.6', margin: 0 }}>
-            Find full-time opportunities and advisory mandates posted by top Banks, ARCs, Law Firms, and Insolvency Professional Entities across India.
-          </p>
+
         </div>
 
-        {/* Filter Toolbar */}
+        {/* Clean Search & Filter Bar */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           className="portal-glass-card"
-          style={{ padding: '24px', marginBottom: '32px' }}
+          style={{ padding: '16px 20px', marginBottom: '24px' }}
         >
-          <Row gutter={[16, 16]} align="middle">
-            <Col xs={24} sm={12} md={8}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+            <div style={{ flex: '1 1 300px' }}>
               <Input
-                prefix={<SearchOutlined style={{ color: '#38bdf8' }} />}
-                placeholder="Search keywords, CIRP, IBC, role..."
+                prefix={<SearchOutlined style={{ color: 'var(--theme-link)' }} />}
+                placeholder="Search keywords, CIRP, IBC, role, or entity name..."
                 value={searchKeyword}
                 onChange={(e) => setSearchKeyword(e.target.value)}
-                style={{ background: 'rgba(255, 255, 255, 0.05)', color: 'white', borderColor: 'rgba(255, 255, 255, 0.12)', height: '42px', borderRadius: '10px' }}
+                allowClear
+                style={{
+                  background: 'rgba(var(--theme-contrast-rgb), 0.05)',
+                  color: 'var(--theme-heading)',
+                  borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)',
+                  height: '44px',
+                  borderRadius: '10px'
+                }}
               />
-            </Col>
+            </div>
 
-            <Col xs={24} sm={12} md={5}>
-              <Select
-                placeholder="Location / Bench"
-                allowClear
-                value={selectedLocation}
-                onChange={setSelectedLocation}
-                style={{ width: '100%', height: '42px' }}
-              >
-                <Option value="Delhi NCR">Delhi NCR / Principal Bench</Option>
-                <Option value="Mumbai">Mumbai Bench</Option>
-                <Option value="Bengaluru">Bengaluru Bench</Option>
-                <Option value="Chennai">Chennai Bench</Option>
-                <Option value="Kolkata">Kolkata Bench</Option>
-                <Option value="Hyderabad">Hyderabad Bench</Option>
-                <Option value="Ahmedabad">Ahmedabad Bench</Option>
-              </Select>
-            </Col>
+            <button
+              type="button"
+              className={`portal-filter-trigger-btn ${activeFiltersCount > 0 ? 'active' : ''}`}
+              onClick={() => setDrawerOpen(true)}
+            >
+              <FilterOutlined style={{ color: activeFiltersCount > 0 ? '#38bdf8' : 'inherit' }} />
+              <span>Filters</span>
+              {activeFiltersCount > 0 && (
+                <span style={{
+                  background: '#0ea5e9',
+                  color: 'var(--theme-on-primary)',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  borderRadius: '10px',
+                  padding: '1px 7px',
+                  marginLeft: '2px'
+                }}>
+                  {activeFiltersCount}
+                </span>
+              )}
+            </button>
 
-            <Col xs={24} sm={12} md={5}>
-              <Select
-                placeholder="Role / Qualification"
-                allowClear
-                value={selectedCategory}
-                onChange={setSelectedCategory}
-                style={{ width: '100%', height: '42px' }}
-              >
-                {professionalCategories.map(cat => (
-                  <Option key={cat} value={cat}>{cat}</Option>
-                ))}
-              </Select>
-            </Col>
+            {(activeFiltersCount > 0 || searchKeyword) && (
+              <Tooltip title="Reset all filters">
+                <Button
+                  icon={<ClearOutlined />}
+                  onClick={handleResetFilters}
+                  style={{
+                    height: '44px',
+                    width: '44px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: '10px',
+                    background: 'rgba(var(--theme-contrast-rgb), 0.06)',
+                    color: 'var(--theme-muted)',
+                    borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)'
+                  }}
+                />
+              </Tooltip>
+            )}
+          </div>
 
-            <Col xs={24} sm={12} md={4}>
-              <Select
-                placeholder="Organisation Type"
-                allowClear
-                value={selectedOrgType}
-                onChange={setSelectedOrgType}
-                style={{ width: '100%', height: '42px' }}
-              >
-                <Option value="BANK">Bank</Option>
-                <Option value="ARC">ARC</Option>
-                <Option value="IPE">IPE (Insolvency Entity)</Option>
-                <Option value="CONSULTING_FIRM">Consulting Firm</Option>
-                <Option value="LAW_FIRM">Law Firm</Option>
-                <Option value="CA_FIRM">CA Firm</Option>
-                <Option value="CORPORATE">Corporate</Option>
-              </Select>
-            </Col>
+          {/* Active Filter Chips */}
+          {(activeFiltersCount > 0 || selectedLocation || selectedJobType || selectedSalaryRange || selectedExpLevel || selectedCategory || selectedOrgType) && (
+            <div className="portal-active-filters-bar">
+              <span className="portal-active-filters-label">Active Filters:</span>
 
-            <Col xs={24} sm={24} md={2} style={{ textAlign: 'right' }}>
-              <Button 
-                icon={<ClearOutlined />} 
-                onClick={handleResetFilters}
-                style={{ height: '42px', borderRadius: '10px', background: 'rgba(255, 255, 255, 0.06)', color: '#9ca3af', borderColor: 'rgba(255, 255, 255, 0.12)' }}
-              >
-                Reset
-              </Button>
-            </Col>
-          </Row>
+              {selectedLocation && (
+                <span className="portal-filter-tag">
+                  <EnvironmentOutlined /> {selectedLocation}
+                  <CloseOutlined onClick={() => setSelectedLocation(undefined)} />
+                </span>
+              )}
+
+              {selectedJobType && (
+                <span className="portal-filter-tag">
+                  <ClockCircleOutlined /> {getJobTypeLabel(selectedJobType)}
+                  <CloseOutlined onClick={() => setSelectedJobType(undefined)} />
+                </span>
+              )}
+
+              {selectedSalaryRange && (
+                <span className="portal-filter-tag">
+                  <DollarOutlined /> {getSalaryRangeLabel(selectedSalaryRange)}
+                  <CloseOutlined onClick={() => setSelectedSalaryRange(undefined)} />
+                </span>
+              )}
+
+              {selectedExpLevel && (
+                <span className="portal-filter-tag">
+                  <UserOutlined /> {getExperienceLevelShortLabel(selectedExpLevel)}
+                  <CloseOutlined onClick={() => setSelectedExpLevel(undefined)} />
+                </span>
+              )}
+
+              {selectedCategory && (
+                <span className="portal-filter-tag">
+                  <AuditOutlined /> {selectedCategory}
+                  <CloseOutlined onClick={() => setSelectedCategory(undefined)} />
+                </span>
+              )}
+
+              {selectedOrgType && (
+                <span className="portal-filter-tag">
+                  <BankOutlined /> {selectedOrgType}
+                  <CloseOutlined onClick={() => setSelectedOrgType(undefined)} />
+                </span>
+              )}
+            </div>
+          )}
         </motion.div>
 
         {/* Counter */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', color: '#94a3b8', fontSize: '14px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', color: 'var(--theme-subtle)', fontSize: '14px' }}>
           <span>Showing <strong>{filteredJobs.length}</strong> available positions</span>
         </div>
+
+        {/* Filter Drawer */}
+        <Drawer
+          title={
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <FilterOutlined style={{ color: 'var(--theme-link)' }} />
+              <span>Filter Opportunities</span>
+            </div>
+          }
+          placement="right"
+          width={380}
+          open={drawerOpen}
+          onClose={() => setDrawerOpen(false)}
+          footer={
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Button
+                onClick={handleResetFilters}
+                disabled={activeFiltersCount === 0 && !searchKeyword}
+                style={{ borderRadius: '8px', background: 'transparent', color: 'var(--theme-subtle)', border: '1px solid rgba(var(--theme-contrast-rgb),0.15)' }}
+              >
+                Reset All
+              </Button>
+              <Button
+                type="primary"
+                onClick={() => setDrawerOpen(false)}
+                style={{ borderRadius: '8px', background: '#0ea5e9', borderColor: '#0ea5e9', fontWeight: 600 }}
+              >
+                Apply & View ({filteredJobs.length})
+              </Button>
+            </div>
+          }
+        >
+          <div className="portal-filter-section">
+            <div className="portal-filter-section-title">
+              <ClockCircleOutlined /> Job / Mandate Type
+            </div>
+            <Select
+              placeholder="All Job Types (Full-time, Contract, Internship...)"
+              allowClear
+              value={selectedJobType}
+              onChange={setSelectedJobType}
+              style={{ width: '100%' }}
+              size="large"
+            >
+              {JOB_TYPES.map(jt => (
+                <Option key={jt.value} value={jt.value}>{jt.label}</Option>
+              ))}
+            </Select>
+          </div>
+
+          <Divider style={{ borderColor: 'rgba(var(--theme-contrast-rgb),0.08)', margin: '18px 0' }} />
+
+          <div className="portal-filter-section">
+            <div className="portal-filter-section-title">
+              <UserOutlined /> Experience Level
+            </div>
+            <Select
+              placeholder="All Experience Levels"
+              allowClear
+              value={selectedExpLevel}
+              onChange={setSelectedExpLevel}
+              style={{ width: '100%' }}
+              size="large"
+            >
+              {EXPERIENCE_LEVELS.map(el => (
+                <Option key={el.value} value={el.value}>{el.label}</Option>
+              ))}
+            </Select>
+          </div>
+
+          <Divider style={{ borderColor: 'rgba(var(--theme-contrast-rgb),0.08)', margin: '18px 0' }} />
+
+          <div className="portal-filter-section">
+            <div className="portal-filter-section-title">
+              <DollarOutlined /> Salary / Compensation Bracket
+            </div>
+            <Select
+              placeholder="All Salary Ranges"
+              allowClear
+              value={selectedSalaryRange}
+              onChange={setSelectedSalaryRange}
+              style={{ width: '100%' }}
+              size="large"
+            >
+              {SALARY_RANGES.map(sr => (
+                <Option key={sr.value} value={sr.value}>{sr.label}</Option>
+              ))}
+            </Select>
+          </div>
+
+          <Divider style={{ borderColor: 'rgba(var(--theme-contrast-rgb),0.08)', margin: '18px 0' }} />
+
+          <div className="portal-filter-section">
+            <div className="portal-filter-section-title">
+              <CompassOutlined /> NCLT Bench / Location
+            </div>
+            <Select
+              placeholder="All Locations & Benches"
+              allowClear
+              value={selectedLocation}
+              onChange={setSelectedLocation}
+              style={{ width: '100%' }}
+              size="large"
+            >
+              <Option value="Delhi NCR">Delhi NCR / Principal Bench</Option>
+              <Option value="Mumbai">Mumbai Bench</Option>
+              <Option value="Bengaluru">Bengaluru Bench</Option>
+              <Option value="Chennai">Chennai Bench</Option>
+              <Option value="Kolkata">Kolkata Bench</Option>
+              <Option value="Hyderabad">Hyderabad Bench</Option>
+              <Option value="Ahmedabad">Ahmedabad Bench</Option>
+            </Select>
+          </div>
+
+          <Divider style={{ borderColor: 'rgba(var(--theme-contrast-rgb),0.08)', margin: '18px 0' }} />
+
+          <div className="portal-filter-section">
+            <div className="portal-filter-section-title">
+              <AuditOutlined /> Role / Professional Category
+            </div>
+            <Select
+              placeholder="All Roles & Qualifications"
+              allowClear
+              value={selectedCategory}
+              onChange={setSelectedCategory}
+              style={{ width: '100%' }}
+              size="large"
+            >
+              {professionalCategories.map(cat => (
+                <Option key={cat} value={cat}>{cat}</Option>
+              ))}
+            </Select>
+          </div>
+
+          <Divider style={{ borderColor: 'rgba(var(--theme-contrast-rgb),0.08)', margin: '18px 0' }} />
+
+          <div className="portal-filter-section">
+            <div className="portal-filter-section-title">
+              <BankOutlined /> Organisation / Entity Type
+            </div>
+            <Select
+              placeholder="All Entity Types"
+              allowClear
+              value={selectedOrgType}
+              onChange={setSelectedOrgType}
+              style={{ width: '100%' }}
+              size="large"
+            >
+              <Option value="BANK">Bank</Option>
+              <Option value="ARC">ARC (Asset Reconstruction)</Option>
+              <Option value="IPE">IPE (Insolvency Entity)</Option>
+              <Option value="CONSULTING_FIRM">Consulting Firm</Option>
+              <Option value="LAW_FIRM">Law Firm</Option>
+              <Option value="CA_FIRM">CA Firm</Option>
+              <Option value="CORPORATE">Corporate</Option>
+            </Select>
+          </div>
+        </Drawer>
 
         {/* Jobs Grid */}
         {loading ? (
@@ -314,7 +553,7 @@ const JobSearch = () => {
                       display: 'flex',
                       flexDirection: 'column',
                       justifyContent: 'space-between',
-                      border: '1px solid rgba(255, 255, 255, 0.1)'
+                      border: '1px solid rgba(var(--theme-contrast-rgb), 0.1)'
                     }}
                   >
                     <div>
@@ -329,16 +568,21 @@ const JobSearch = () => {
                             alignItems: 'center',
                             justifyContent: 'center',
                             fontWeight: 700,
-                            color: '#38bdf8',
+                            color: 'var(--theme-link)',
                             fontSize: '16px'
                           }}>
                             {job.employer?.name ? job.employer.name.substring(0, 2).toUpperCase() : 'CO'}
                           </div>
                           <div>
-                            <div style={{ fontSize: '12px', color: '#38bdf8', fontWeight: 600 }}>
-                              {job.employer?.type || 'VERIFIED ORG'}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
+                              <span style={{ fontSize: '11px', color: 'var(--theme-link)', fontWeight: 600 }}>
+                                {job.employer?.type || 'VERIFIED ORG'}
+                              </span>
+                              <Tag color={getJobTypeColor(job.jobType)} style={{ borderRadius: '6px', fontSize: '10px', padding: '0 6px', margin: 0, lineHeight: '18px' }}>
+                                {getJobTypeLabel(job.jobType)}
+                              </Tag>
                             </div>
-                            <Link to={`/companies/${job.employer?.id}`} style={{ fontSize: '14px', color: '#cbd5e1', fontWeight: 500 }}>
+                            <Link to={`/companies/${job.employer?.id}`} style={{ fontSize: '14px', color: 'var(--theme-detail)', fontWeight: 500 }}>
                               {job.employer?.name || 'Insolvency Entity'}
                             </Link>
                           </div>
@@ -347,8 +591,8 @@ const JobSearch = () => {
                         <button
                           onClick={() => handleToggleSave(job.id)}
                           style={{
-                            background: 'rgba(255, 255, 255, 0.05)',
-                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                            background: 'rgba(var(--theme-contrast-rgb), 0.05)',
+                            border: '1px solid rgba(var(--theme-contrast-rgb), 0.1)',
                             width: '36px',
                             height: '36px',
                             borderRadius: '8px',
@@ -356,7 +600,7 @@ const JobSearch = () => {
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            color: isSaved ? '#ef4444' : '#9ca3af',
+                            color: isSaved ? '#ef4444' : 'var(--theme-muted)',
                             fontSize: '16px'
                           }}
                         >
@@ -364,12 +608,28 @@ const JobSearch = () => {
                         </button>
                       </div>
 
-                      <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'white', margin: '0 0 10px' }}>
+                      <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--theme-heading)', margin: '0 0 6px' }}>
                         {job.title}
                       </h3>
 
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                          <span style={{ color: 'var(--theme-success)', fontSize: '13px', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                            <DollarOutlined /> {getSalaryRangeLabel(job.salaryRange)}
+                          </span>
+                          <Tag color="geekblue" style={{ borderRadius: '6px', fontSize: '11px', margin: 0 }}>
+                            {getExperienceLevelShortLabel(job.experienceLevel)}
+                          </Tag>
+                        </div>
+                        {job.employer?.location && (
+                          <span style={{ color: 'var(--theme-subtle)', fontSize: '12px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                            <EnvironmentOutlined /> {job.employer.location}
+                          </span>
+                        )}
+                      </div>
+
                       <p style={{
-                        color: '#94a3b8',
+                        color: 'var(--theme-subtle)',
                         fontSize: '13px',
                         lineHeight: '1.5',
                         marginBottom: '16px',
@@ -383,12 +643,12 @@ const JobSearch = () => {
 
                       {job.requirements && (
                         <div style={{
-                          background: 'rgba(255, 255, 255, 0.03)',
-                          border: '1px solid rgba(255, 255, 255, 0.06)',
+                          background: 'rgba(var(--theme-contrast-rgb), 0.03)',
+                          border: '1px solid rgba(var(--theme-contrast-rgb), 0.06)',
                           padding: '10px 12px',
                           borderRadius: '8px',
                           fontSize: '12px',
-                          color: '#cbd5e1',
+                          color: 'var(--theme-detail)',
                           marginBottom: '16px'
                         }}>
                           <strong>Requirements:</strong> {job.requirements}
@@ -396,14 +656,14 @@ const JobSearch = () => {
                       )}
                     </div>
 
-                    <div style={{ paddingTop: '16px', borderTop: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <Link to={`/jobs/${job.id}`} style={{ fontSize: '13px', color: '#38bdf8', fontWeight: 500 }}>
+                    <div style={{ paddingTop: '16px', borderTop: '1px solid rgba(var(--theme-contrast-rgb), 0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Link to={`/jobs/${job.id}`} style={{ fontSize: '13px', color: 'var(--theme-link)', fontWeight: 500 }}>
                         View Mandate ↗
                       </Link>
 
                       {applicationStatus ? (
-                        <Tag 
-                          color={applicationStatus === 'SHORTLISTED' ? 'purple' : 'cyan'} 
+                        <Tag
+                          color={applicationStatus === 'SHORTLISTED' ? 'purple' : 'cyan'}
                           icon={<CheckCircleOutlined />}
                           style={{ padding: '4px 10px', borderRadius: '8px', fontSize: '12px' }}
                         >
@@ -428,9 +688,9 @@ const JobSearch = () => {
 
         {filteredJobs.length === 0 && !loading && (
           <div className="portal-glass-card" style={{ padding: '60px', textAlign: 'center', marginTop: '20px' }}>
-            <SearchOutlined style={{ fontSize: '48px', color: '#38bdf8', marginBottom: '16px', opacity: 0.6 }} />
-            <h3 style={{ color: 'white', fontSize: '20px', margin: 0 }}>No matching mandates found</h3>
-            <p style={{ color: '#9ca3af', marginTop: '8px' }}>Try adjusting your filters or search keywords.</p>
+            <SearchOutlined style={{ fontSize: '48px', color: 'var(--theme-link)', marginBottom: '16px', opacity: 0.6 }} />
+            <h3 style={{ color: 'var(--theme-heading)', fontSize: '20px', margin: 0 }}>No matching mandates found</h3>
+            <p style={{ color: 'var(--theme-muted)', marginTop: '8px' }}>Try adjusting your filters or search keywords.</p>
             <Button type="primary" onClick={handleResetFilters} style={{ marginTop: '12px', borderRadius: '8px' }}>
               Clear All Filters
             </Button>
@@ -448,10 +708,10 @@ const JobSearch = () => {
           <Button key="back" onClick={() => setApplyModalOpen(false)}>
             Cancel
           </Button>,
-          <Button 
-            key="submit" 
-            type="primary" 
-            loading={submittingApply} 
+          <Button
+            key="submit"
+            type="primary"
+            loading={submittingApply}
             onClick={handleConfirmApply}
             style={{ background: '#0ea5e9' }}
           >
@@ -460,11 +720,11 @@ const JobSearch = () => {
         ]}
       >
         <div style={{ padding: '8px 0' }}>
-          <p style={{ color: '#cbd5e1', fontSize: '14px' }}>
+          <p style={{ color: 'var(--theme-detail)', fontSize: '14px' }}>
             Organisation: <strong>{selectedJobForApply?.employer?.name}</strong>
           </p>
           <div style={{ marginTop: '16px', marginBottom: '8px' }}>
-            <label style={{ display: 'block', fontSize: '13px', color: '#94a3b8', marginBottom: '6px' }}>
+            <label style={{ display: 'block', fontSize: '13px', color: 'var(--theme-subtle)', marginBottom: '6px' }}>
               Cover Note & Insolvency Experience Summary (Optional):
             </label>
             <Input.TextArea
@@ -472,10 +732,10 @@ const JobSearch = () => {
               value={coverNote}
               onChange={(e) => setCoverNote(e.target.value)}
               placeholder="Highlight relevant CIRP, liquidation, resolution plan, or forensic assignments..."
-              style={{ borderRadius: '8px', background: 'rgba(255, 255, 255, 0.05)', color: 'white', borderColor: 'rgba(255, 255, 255, 0.15)' }}
+              style={{ borderRadius: '8px', background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.15)' }}
             />
           </div>
-          <div style={{ fontSize: '12px', color: '#94a3b8', background: 'rgba(56, 189, 248, 0.08)', padding: '10px 12px', borderRadius: '8px', marginTop: '12px' }}>
+          <div style={{ fontSize: '12px', color: 'var(--theme-subtle)', background: 'rgba(56, 189, 248, 0.08)', padding: '10px 12px', borderRadius: '8px', marginTop: '12px' }}>
             ℹ️ Your profile details and active resume will be submitted to the recruiter.
           </div>
         </div>

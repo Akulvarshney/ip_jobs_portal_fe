@@ -11,9 +11,14 @@ import {
   CloseCircleOutlined,
   SyncOutlined,
   PlusOutlined,
-  WarningOutlined
+  WarningOutlined,
+  FilterOutlined,
+  ClearOutlined,
+  CloseOutlined,
+  TagOutlined,
+  FlagOutlined
 } from '@ant-design/icons';
-import { Table, Input, Select, Tag, Button, Modal, Form, message, Space, Tooltip } from 'antd';
+import { Table, Input, Select, Tag, Button, Modal, Drawer, Divider, Form, message, Space, Tooltip } from 'antd';
 import { motion } from 'framer-motion';
 
 const { Option } = Select;
@@ -28,6 +33,7 @@ const ManageReports = () => {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [typeFilter, setTypeFilter] = useState('ALL');
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -51,6 +57,21 @@ const ManageReports = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    fetchReports();
+  }, [statusFilter, typeFilter]);
+
+  const activeFiltersCount = [
+    statusFilter !== 'ALL' ? statusFilter : null,
+    typeFilter !== 'ALL' ? typeFilter : null
+  ].filter(Boolean).length;
+
+  const handleResetFilters = () => {
+    setSearch('');
+    setStatusFilter('ALL');
+    setTypeFilter('ALL');
   };
 
   useEffect(() => {
@@ -121,7 +142,7 @@ const ManageReports = () => {
           <Tag color={getTypeTagColor(record.type)} style={{ fontWeight: 600 }}>
             {record.type}
           </Tag>
-          <span style={{ fontSize: '12px', color: '#9ca3af', marginLeft: '6px' }}>#{record.id}</span>
+          <span style={{ fontSize: '12px', color: 'var(--theme-muted)', marginLeft: '6px' }}>#{record.id}</span>
         </div>
       ),
     },
@@ -130,7 +151,7 @@ const ManageReports = () => {
       dataIndex: 'description',
       key: 'description',
       render: (text) => (
-        <span style={{ color: '#e2e8f0', fontSize: '14px', maxWidth: '380px', display: 'inline-block' }}>
+        <span style={{ color: 'var(--theme-secondary)', fontSize: '14px', maxWidth: '380px', display: 'inline-block' }}>
           {text}
         </span>
       ),
@@ -140,7 +161,7 @@ const ManageReports = () => {
       dataIndex: 'createdAt',
       key: 'createdAt',
       render: (date) => (
-        <span style={{ color: '#cbd5e1', fontSize: '13px' }}>
+        <span style={{ color: 'var(--theme-detail)', fontSize: '13px' }}>
           {new Date(date).toLocaleDateString()}
         </span>
       ),
@@ -165,8 +186,8 @@ const ManageReports = () => {
             icon={<EyeOutlined />}
             onClick={() => openReportModal(record)}
             style={{ 
-              background: 'rgba(255, 255, 255, 0.08)', 
-              borderColor: 'rgba(255, 255, 255, 0.15)', 
+              background: 'rgba(var(--theme-contrast-rgb), 0.08)', 
+              borderColor: 'rgba(var(--theme-contrast-rgb), 0.15)', 
               color: '#e0f2fe',
               borderRadius: '6px'
             }}
@@ -205,7 +226,7 @@ const ManageReports = () => {
               icon={<CloseCircleOutlined />}
               loading={actionLoadingId === record.id}
               onClick={() => handleUpdateStatus(record.id, 'REJECTED')}
-              style={{ background: 'rgba(255, 255, 255, 0.05)', borderColor: 'rgba(255, 255, 255, 0.15)', color: '#9ca3af', borderRadius: '6px' }}
+              style={{ background: 'rgba(var(--theme-contrast-rgb), 0.05)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.15)', color: 'var(--theme-muted)', borderRadius: '6px' }}
             >
               Reject
             </Button>
@@ -241,67 +262,184 @@ const ManageReports = () => {
           }
         />
 
-        {/* Search and Filters */}
+        {/* Clean Search & Filter Bar */}
         <div 
           className="portal-glass-card" 
           style={{ 
             padding: '16px 20px', 
-            marginBottom: '24px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '16px',
-            flexWrap: 'wrap'
+            marginBottom: '24px'
           }}
         >
-          <div style={{ flex: '1 1 280px', display: 'flex', gap: '8px' }}>
-            <Input 
-              prefix={<SearchOutlined style={{ color: '#9ca3af' }} />}
-              placeholder="Search by report description, reason..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onPressEnter={fetchReports}
-              style={{
-                background: 'rgba(255, 255, 255, 0.05)',
-                borderColor: 'rgba(255, 255, 255, 0.12)',
-                color: 'white',
-                borderRadius: '10px'
-              }}
-              allowClear
-            />
-            <Button type="primary" onClick={fetchReports} style={{ background: '#0ea5e9', borderColor: '#0ea5e9', borderRadius: '10px' }}>
-              Search
-            </Button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+            <div style={{ flex: '1 1 300px', display: 'flex', gap: '8px' }}>
+              <Input 
+                prefix={<SearchOutlined style={{ color: 'var(--theme-muted)' }} />}
+                placeholder="Search report description, reason, or details..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onPressEnter={fetchReports}
+                style={{
+                  background: 'rgba(var(--theme-contrast-rgb), 0.05)',
+                  borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)',
+                  color: 'var(--theme-heading)',
+                  borderRadius: '10px',
+                  height: '44px'
+                }}
+                allowClear
+              />
+              <Button 
+                type="primary" 
+                onClick={fetchReports} 
+                style={{ background: '#0ea5e9', borderColor: '#0ea5e9', borderRadius: '10px', height: '44px', fontWeight: 600 }}
+              >
+                Search
+              </Button>
+            </div>
+
+            <button 
+              type="button"
+              className={`portal-filter-trigger-btn ${activeFiltersCount > 0 ? 'active' : ''}`}
+              onClick={() => setDrawerOpen(true)}
+            >
+              <FilterOutlined style={{ color: activeFiltersCount > 0 ? '#38bdf8' : 'inherit' }} />
+              <span>Filters</span>
+              {activeFiltersCount > 0 && (
+                <span style={{
+                  background: '#0ea5e9',
+                  color: 'var(--theme-on-primary)',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  borderRadius: '10px',
+                  padding: '1px 7px',
+                  marginLeft: '2px'
+                }}>
+                  {activeFiltersCount}
+                </span>
+              )}
+            </button>
+
+            {(activeFiltersCount > 0 || search) && (
+              <Tooltip title="Reset all filters">
+                <Button 
+                  icon={<ClearOutlined />} 
+                  onClick={() => {
+                    handleResetFilters();
+                    fetchReports();
+                  }}
+                  style={{ 
+                    height: '44px', 
+                    width: '44px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: '10px', 
+                    background: 'rgba(var(--theme-contrast-rgb), 0.06)', 
+                    color: 'var(--theme-muted)', 
+                    borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)' 
+                  }}
+                />
+              </Tooltip>
+            )}
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-            <span style={{ color: '#9ca3af', fontSize: '13px' }}>Status:</span>
+          {/* Active Filter Chips */}
+          {(activeFiltersCount > 0) && (
+            <div className="portal-active-filters-bar">
+              <span className="portal-active-filters-label">Active Filters:</span>
+              
+              {statusFilter !== 'ALL' && (
+                <span className="portal-filter-tag">
+                  <TagOutlined /> Status: {statusFilter}
+                  <CloseOutlined onClick={() => setStatusFilter('ALL')} />
+                </span>
+              )}
+
+              {typeFilter !== 'ALL' && (
+                <span className="portal-filter-tag">
+                  <FlagOutlined /> Type: {typeFilter}
+                  <CloseOutlined onClick={() => setTypeFilter('ALL')} />
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Filter Drawer */}
+        <Drawer
+          title={
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <FilterOutlined style={{ color: 'var(--theme-link)' }} />
+              <span>Filter Moderation Reports</span>
+            </div>
+          }
+          placement="right"
+          width={380}
+          open={drawerOpen}
+          onClose={() => setDrawerOpen(false)}
+          footer={
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Button 
+                onClick={() => {
+                  handleResetFilters();
+                  setDrawerOpen(false);
+                }}
+                disabled={activeFiltersCount === 0 && !search}
+                style={{ borderRadius: '8px', background: 'transparent', color: 'var(--theme-subtle)', border: '1px solid rgba(var(--theme-contrast-rgb),0.15)' }}
+              >
+                Reset All
+              </Button>
+              <Button 
+                type="primary" 
+                onClick={() => {
+                  setDrawerOpen(false);
+                  fetchReports();
+                }}
+                style={{ borderRadius: '8px', background: '#0ea5e9', borderColor: '#0ea5e9', fontWeight: 600 }}
+              >
+                Apply & View ({reports.length})
+              </Button>
+            </div>
+          }
+        >
+          <div className="portal-filter-section">
+            <div className="portal-filter-section-title">
+              <TagOutlined /> Moderation Status
+            </div>
             <Select 
               value={statusFilter} 
               onChange={setStatusFilter}
-              style={{ width: 160 }}
+              style={{ width: '100%' }}
+              size="large"
             >
               <Option value="ALL">All Statuses</Option>
-              <Option value="OPEN">Open</Option>
-              <Option value="INVESTIGATING">Investigating</Option>
+              <Option value="OPEN">Open Reports</Option>
+              <Option value="INVESTIGATING">Under Investigation</Option>
               <Option value="RESOLVED">Resolved</Option>
-              <Option value="REJECTED">Rejected</Option>
+              <Option value="REJECTED">Dismissed / Rejected</Option>
             </Select>
+          </div>
 
-            <span style={{ color: '#9ca3af', fontSize: '13px' }}>Type:</span>
+          <Divider style={{ borderColor: 'rgba(var(--theme-contrast-rgb),0.08)', margin: '18px 0' }} />
+
+          <div className="portal-filter-section">
+            <div className="portal-filter-section-title">
+              <FlagOutlined /> Report Reason / Type
+            </div>
             <Select 
               value={typeFilter} 
               onChange={setTypeFilter}
-              style={{ width: 180 }}
+              style={{ width: '100%' }}
+              size="large"
             >
               <Option value="ALL">All Report Types</Option>
-              <Option value="Fake job">Fake Job</Option>
+              <Option value="Fake job">Fake Mandate / Job</Option>
               <Option value="Fake organisation">Fake Organisation</Option>
-              <Option value="Spam">Spam</Option>
+              <Option value="Spam">Spam / Unsolicited</Option>
               <Option value="Inappropriate content">Inappropriate Content</Option>
               <Option value="Other issue">Other Issue</Option>
             </Select>
           </div>
-        </div>
+        </Drawer>
 
         {/* Reports Table */}
         <motion.div 
@@ -323,7 +461,7 @@ const ManageReports = () => {
         {/* Report Review Modal */}
         <Modal
           title={
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'white', fontSize: '18px', fontWeight: 700 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--theme-heading)', fontSize: '18px', fontWeight: 700 }}>
               <AlertOutlined style={{ color: '#ef4444' }} /> Moderation Incident Review #{selectedReport?.id}
             </div>
           }
@@ -332,12 +470,12 @@ const ManageReports = () => {
           footer={null}
           width={650}
           styles={{
-            content: { background: '#1e293b', border: '1px solid rgba(255, 255, 255, 0.12)', borderRadius: '20px' },
-            header: { background: '#1e293b' },
+            content: { background: 'var(--theme-surface)', border: '1px solid rgba(var(--theme-contrast-rgb), 0.12)', borderRadius: '20px' },
+            header: { background: 'var(--theme-surface)' },
           }}
         >
           {selectedReport && (
-            <div style={{ color: '#e2e8f0', marginTop: '16px' }}>
+            <div style={{ color: 'var(--theme-secondary)', marginTop: '16px' }}>
               <div 
                 style={{
                   padding: '16px',
@@ -354,7 +492,7 @@ const ManageReports = () => {
                   <Tag color={getTypeTagColor(selectedReport.type)} style={{ fontSize: '13px', padding: '4px 10px' }}>
                     {selectedReport.type}
                   </Tag>
-                  <span style={{ color: '#9ca3af', fontSize: '13px', marginLeft: '8px' }}>
+                  <span style={{ color: 'var(--theme-muted)', fontSize: '13px', marginLeft: '8px' }}>
                     Logged on {new Date(selectedReport.createdAt).toLocaleString()}
                   </span>
                 </div>
@@ -364,10 +502,10 @@ const ManageReports = () => {
               </div>
 
               <div>
-                <h4 style={{ color: '#bae6fd', fontSize: '13px', textTransform: 'uppercase', marginBottom: '8px' }}>
+                <h4 style={{ color: 'var(--theme-link-soft)', fontSize: '13px', textTransform: 'uppercase', marginBottom: '8px' }}>
                   Reported Incident Statement
                 </h4>
-                <div style={{ background: 'rgba(255,255,255,0.03)', padding: '16px', borderRadius: '10px', lineHeight: 1.6, color: '#f3f4f6' }}>
+                <div style={{ background: 'rgba(var(--theme-contrast-rgb),0.03)', padding: '16px', borderRadius: '10px', lineHeight: 1.6, color: 'var(--theme-text)' }}>
                   {selectedReport.description}
                 </div>
               </div>
@@ -409,7 +547,7 @@ const ManageReports = () => {
         {/* Create Test Report Modal */}
         <Modal
           title={
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'white', fontSize: '18px', fontWeight: 700 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--theme-heading)', fontSize: '18px', fontWeight: 700 }}>
               <WarningOutlined style={{ color: '#f59e0b' }} /> Log Moderation Incident
             </div>
           }
@@ -417,8 +555,8 @@ const ManageReports = () => {
           onCancel={() => setCreateModalOpen(false)}
           footer={null}
           styles={{
-            content: { background: '#1e293b', border: '1px solid rgba(255, 255, 255, 0.12)', borderRadius: '20px' },
-            header: { background: '#1e293b' },
+            content: { background: 'var(--theme-surface)', border: '1px solid rgba(var(--theme-contrast-rgb), 0.12)', borderRadius: '20px' },
+            header: { background: 'var(--theme-surface)' },
           }}
         >
           <Form 

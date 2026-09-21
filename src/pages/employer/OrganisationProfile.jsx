@@ -29,6 +29,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchOrganisationProfile, updateOrganisationProfile } from '../../store/employerSlice';
 import api from '../../api';
+import { getFileUrl } from '../../utils/fileUrl';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -78,11 +79,11 @@ const OrganisationProfile = () => {
       });
       const logoUrl = res.data?.data?.logoUrl;
       form.setFieldsValue({ logoUrl });
-      message.success('Organisation logo uploaded to Cloudflare R2!');
+      message.success('Organisation logo uploaded successfully!');
       fetchOrg();
     } catch (error) {
       console.error('Logo upload failed:', error);
-      message.error(error?.response?.data?.message || 'Failed to upload logo to Cloudflare R2');
+      message.error(error?.response?.data?.message || 'Failed to upload logo');
     } finally {
       setUploadingLogo(false);
       e.target.value = '';
@@ -137,14 +138,14 @@ const OrganisationProfile = () => {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', flexWrap: 'wrap', gap: '16px' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-              <Link to="/employer" style={{ color: '#38bdf8', fontSize: '13px', fontWeight: 500 }}>
+              <Link to="/employer" style={{ color: 'var(--theme-link)', fontSize: '13px', fontWeight: 500 }}>
                 ← Back to Employer Dashboard
               </Link>
             </div>
-            <h1 style={{ fontSize: '28px', fontWeight: 700, color: 'white', margin: 0 }}>
+            <h1 style={{ fontSize: '28px', fontWeight: 700, color: 'var(--theme-heading)', margin: 0 }}>
               Organisation Profile & Branding
             </h1>
-            <p style={{ color: '#9ca3af', fontSize: '14px', margin: '4px 0 0' }}>
+            <p style={{ color: 'var(--theme-muted)', fontSize: '14px', margin: '4px 0 0' }}>
               Manage your company information, insolvency credentials, and branding visible to candidates.
             </p>
           </div>
@@ -153,7 +154,7 @@ const OrganisationProfile = () => {
             <Link to={`/companies/${orgData.id}`} target="_blank">
               <Button 
                 icon={<EyeOutlined />} 
-                style={{ borderRadius: '8px', background: 'rgba(56, 189, 248, 0.1)', borderColor: '#38bdf8', color: '#38bdf8' }}
+                style={{ borderRadius: '8px', background: 'rgba(56, 189, 248, 0.1)', borderColor: '#38bdf8', color: 'var(--theme-link)' }}
               >
                 View Public Profile ↗
               </Button>
@@ -184,7 +185,7 @@ const OrganisationProfile = () => {
                   <Avatar
                     size={72}
                     icon={<BankOutlined />}
-                    src={currentValues.logoUrl || orgData?.logoUrl}
+                    src={getFileUrl(currentValues.logoUrl || orgData?.logoUrl)}
                     style={{ backgroundColor: '#0ea5e9' }}
                   />
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, minWidth: '240px' }}>
@@ -197,7 +198,7 @@ const OrganisationProfile = () => {
                           padding: '8px 16px',
                           background: '#0ea5e9',
                           borderRadius: '8px',
-                          color: 'white',
+                          color: 'var(--theme-on-primary)',
                           cursor: uploadingLogo ? 'not-allowed' : 'pointer',
                           fontSize: '13px',
                           fontWeight: 600,
@@ -205,7 +206,7 @@ const OrganisationProfile = () => {
                           opacity: uploadingLogo ? 0.6 : 1
                         }}
                       >
-                        <PlusOutlined spin={uploadingLogo} /> {uploadingLogo ? 'Uploading to R2...' : 'Upload Logo to Cloudflare R2'}
+                        <PlusOutlined spin={uploadingLogo} /> {uploadingLogo ? 'Uploading...' : 'Upload Logo'}
                         <input
                           type="file"
                           accept="image/*"
@@ -225,14 +226,11 @@ const OrganisationProfile = () => {
                         </Button>
                       )}
                     </div>
-                    <span style={{ color: '#94a3b8', fontSize: '12px' }}>
-                      Upload corporate logo to Cloudflare R2 (PNG, JPG, SVG, WebP up to 3MB)
-                    </span>
                   </div>
                 </div>
 
-                <Divider style={{ borderColor: 'rgba(255, 255, 255, 0.08)' }} orientation="left">
-                  <span style={{ color: '#38bdf8', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                <Divider style={{ borderColor: 'rgba(var(--theme-contrast-rgb), 0.08)' }} orientation="left">
+                  <span style={{ color: 'var(--theme-link)', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '1px' }}>
                     Entity Details
                   </span>
                 </Divider>
@@ -240,17 +238,17 @@ const OrganisationProfile = () => {
                 <Row gutter={20}>
                   <Col xs={24} sm={14}>
                     <Form.Item
-                      label={<span style={{ color: '#e2e8f0' }}>Organisation Name</span>}
+                      label={<span style={{ color: 'var(--theme-secondary)' }}>Organisation Name</span>}
                       name="name"
                       rules={[{ required: true, message: 'Organisation name is required' }]}
                     >
-                      <Input placeholder="e.g. Resolution Advocates & Advisory IPE" style={{ background: 'rgba(255, 255, 255, 0.05)', color: 'white', borderColor: 'rgba(255, 255, 255, 0.15)' }} />
+                      <Input placeholder="e.g. Resolution Advocates & Advisory IPE" style={{ background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.15)' }} />
                     </Form.Item>
                   </Col>
 
                   <Col xs={24} sm={10}>
                     <Form.Item
-                      label={<span style={{ color: '#e2e8f0' }}>Organisation Type</span>}
+                      label={<span style={{ color: 'var(--theme-secondary)' }}>Organisation Type</span>}
                       name="type"
                       rules={[{ required: true, message: 'Please select organisation type' }]}
                     >
@@ -264,32 +262,32 @@ const OrganisationProfile = () => {
 
                   <Col xs={24} sm={12}>
                     <Form.Item
-                      label={<span style={{ color: '#e2e8f0' }}>Headquarters / Location</span>}
+                      label={<span style={{ color: 'var(--theme-secondary)' }}>Headquarters / Location</span>}
                       name="location"
                       rules={[{ required: true, message: 'Location is required' }]}
                     >
-                      <Input placeholder="e.g. New Delhi, Mumbai, Bengaluru" style={{ background: 'rgba(255, 255, 255, 0.05)', color: 'white', borderColor: 'rgba(255, 255, 255, 0.15)' }} />
+                      <Input placeholder="e.g. New Delhi, Mumbai, Bengaluru" style={{ background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.15)' }} />
                     </Form.Item>
                   </Col>
 
                   <Col xs={24} sm={12}>
                     <Form.Item
-                      label={<span style={{ color: '#e2e8f0' }}>Official Website</span>}
+                      label={<span style={{ color: 'var(--theme-secondary)' }}>Official Website</span>}
                       name="website"
                     >
-                      <Input placeholder="https://www.example.com" style={{ background: 'rgba(255, 255, 255, 0.05)', color: 'white', borderColor: 'rgba(255, 255, 255, 0.15)' }} />
+                      <Input placeholder="https://www.example.com" style={{ background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.15)' }} />
                     </Form.Item>
                   </Col>
 
                   <Col xs={24}>
                     <Form.Item
-                      label={<span style={{ color: '#e2e8f0' }}>About Organisation & Insolvency Practice</span>}
+                      label={<span style={{ color: 'var(--theme-secondary)' }}>About Organisation & Insolvency Practice</span>}
                       name="description"
                     >
                       <TextArea
                         rows={5}
                         placeholder="Describe your organisation, CIRP / liquidation track record, advisory sectors, and team culture..."
-                        style={{ background: 'rgba(255, 255, 255, 0.05)', color: 'white', borderColor: 'rgba(255, 255, 255, 0.15)' }}
+                        style={{ background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.15)' }}
                       />
                     </Form.Item>
                   </Col>
@@ -310,13 +308,13 @@ const OrganisationProfile = () => {
             {/* Live Preview Column */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               <div className="portal-glass-card" style={{ padding: '28px' }}>
-                <div style={{ color: '#38bdf8', fontSize: '12px', fontWeight: 600, textTransform: 'uppercase', marginBottom: '16px' }}>
+                <div style={{ color: 'var(--theme-link)', fontSize: '12px', fontWeight: 600, textTransform: 'uppercase', marginBottom: '16px' }}>
                   Live Candidate View Preview
                 </div>
 
                 <div style={{
-                  background: 'rgba(255, 255, 255, 0.03)',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  background: 'rgba(var(--theme-contrast-rgb), 0.03)',
+                  border: '1px solid rgba(var(--theme-contrast-rgb), 0.08)',
                   borderRadius: '16px',
                   padding: '24px'
                 }}>
@@ -336,14 +334,14 @@ const OrganisationProfile = () => {
                       {currentValues.name ? currentValues.name.substring(0, 2).toUpperCase() : 'CO'}
                     </div>
                     <div>
-                      <div style={{ fontSize: '18px', fontWeight: 700, color: 'white' }}>
+                      <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--theme-heading)' }}>
                         {currentValues.name || 'Organisation Name'}
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
                         <Tag color="purple" style={{ borderRadius: '6px', fontSize: '11px', fontWeight: 600 }}>
                           {currentValues.type || 'IPE'}
                         </Tag>
-                        <span style={{ color: '#9ca3af', fontSize: '13px' }}>
+                        <span style={{ color: 'var(--theme-muted)', fontSize: '13px' }}>
                           <EnvironmentOutlined style={{ marginRight: '4px' }} />
                           {currentValues.location || 'Location'}
                         </span>
@@ -351,14 +349,14 @@ const OrganisationProfile = () => {
                     </div>
                   </div>
 
-                  <p style={{ color: '#cbd5e1', fontSize: '13px', lineHeight: '1.6', marginBottom: '16px' }}>
+                  <p style={{ color: 'var(--theme-detail)', fontSize: '13px', lineHeight: '1.6', marginBottom: '16px' }}>
                     {currentValues.description || 'No description provided yet.'}
                   </p>
 
                   {currentValues.website && (
-                    <div style={{ color: '#38bdf8', fontSize: '13px' }}>
+                    <div style={{ color: 'var(--theme-link)', fontSize: '13px' }}>
                       <GlobalOutlined style={{ marginRight: '6px' }} />
-                      <a href={currentValues.website} target="_blank" rel="noopener noreferrer" style={{ color: '#38bdf8' }}>
+                      <a href={currentValues.website} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--theme-link)' }}>
                         {currentValues.website}
                       </a>
                     </div>
@@ -366,17 +364,17 @@ const OrganisationProfile = () => {
                 </div>
 
                 <div style={{ marginTop: '20px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                  <div style={{ background: 'rgba(255, 255, 255, 0.03)', padding: '12px', borderRadius: '10px', textAlign: 'center' }}>
-                    <div style={{ fontSize: '20px', fontWeight: 700, color: 'white' }}>
+                  <div style={{ background: 'rgba(var(--theme-contrast-rgb), 0.03)', padding: '12px', borderRadius: '10px', textAlign: 'center' }}>
+                    <div style={{ fontSize: '20px', fontWeight: 700, color: 'var(--theme-heading)' }}>
                       {orgData?._count?.jobs || 0}
                     </div>
-                    <div style={{ fontSize: '12px', color: '#9ca3af' }}>Active Mandates</div>
+                    <div style={{ fontSize: '12px', color: 'var(--theme-muted)' }}>Active Mandates</div>
                   </div>
-                  <div style={{ background: 'rgba(255, 255, 255, 0.03)', padding: '12px', borderRadius: '10px', textAlign: 'center' }}>
+                  <div style={{ background: 'rgba(var(--theme-contrast-rgb), 0.03)', padding: '12px', borderRadius: '10px', textAlign: 'center' }}>
                     <div style={{ fontSize: '20px', fontWeight: 700, color: '#10b981' }}>
                       Verified
                     </div>
-                    <div style={{ fontSize: '12px', color: '#9ca3af' }}>Status</div>
+                    <div style={{ fontSize: '12px', color: 'var(--theme-muted)' }}>Status</div>
                   </div>
                 </div>
               </div>

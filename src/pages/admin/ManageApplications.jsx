@@ -7,9 +7,13 @@ import {
   SolutionOutlined, 
   EyeOutlined, 
   ReloadOutlined, 
-  CalendarOutlined 
+  CalendarOutlined,
+  FilterOutlined,
+  ClearOutlined,
+  CloseOutlined,
+  TagOutlined
 } from '@ant-design/icons';
-import { Table, Input, Select, Tag, Button, Modal, message, Space } from 'antd';
+import { Table, Input, Select, Tag, Button, Modal, Drawer, Divider, message, Space } from 'antd';
 import { motion } from 'framer-motion';
 
 const { Option } = Select;
@@ -22,6 +26,7 @@ const ManageApplications = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedApp, setSelectedApp] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [actionLoadingId, setActionLoadingId] = useState(null);
@@ -42,6 +47,19 @@ const ManageApplications = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    fetchApplications();
+  }, [statusFilter]);
+
+  const activeFiltersCount = [
+    statusFilter !== 'ALL' ? statusFilter : null
+  ].filter(Boolean).length;
+
+  const handleResetFilters = () => {
+    setSearch('');
+    setStatusFilter('ALL');
   };
 
   useEffect(() => {
@@ -98,7 +116,7 @@ const ManageApplications = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#38bdf8',
+              color: 'var(--theme-link)',
               fontWeight: 700,
               fontSize: '14px'
             }}
@@ -106,8 +124,8 @@ const ManageApplications = () => {
             {record.candidate?.name?.charAt(0) || 'C'}
           </div>
           <div>
-            <div style={{ fontWeight: 600, color: '#ffffff', fontSize: '14px' }}>{record.candidate?.name || 'Unknown Candidate'}</div>
-            <div style={{ fontSize: '12px', color: '#9ca3af' }}>{record.candidate?.email}</div>
+            <div style={{ fontWeight: 600, color: 'var(--theme-heading)', fontSize: '14px' }}>{record.candidate?.name || 'Unknown Candidate'}</div>
+            <div style={{ fontSize: '12px', color: 'var(--theme-muted)' }}>{record.candidate?.email}</div>
           </div>
         </div>
       ),
@@ -117,8 +135,8 @@ const ManageApplications = () => {
       key: 'job',
       render: (_, record) => (
         <div>
-          <div style={{ fontWeight: 600, color: '#ffffff', fontSize: '14px' }}>{record.job?.title || 'Unknown Job'}</div>
-          <div style={{ fontSize: '12px', color: '#38bdf8', marginTop: '2px' }}>
+          <div style={{ fontWeight: 600, color: 'var(--theme-heading)', fontSize: '14px' }}>{record.job?.title || 'Unknown Job'}</div>
+          <div style={{ fontSize: '12px', color: 'var(--theme-link)', marginTop: '2px' }}>
             🏢 {record.job?.employer?.name || 'Unknown Entity'}
           </div>
         </div>
@@ -129,7 +147,7 @@ const ManageApplications = () => {
       dataIndex: 'createdAt',
       key: 'createdAt',
       render: (date) => (
-        <span style={{ color: '#cbd5e1', fontSize: '13px' }}>
+        <span style={{ color: 'var(--theme-detail)', fontSize: '13px' }}>
           <CalendarOutlined style={{ marginRight: '4px' }} />
           {new Date(date).toLocaleDateString()}
         </span>
@@ -155,8 +173,8 @@ const ManageApplications = () => {
             icon={<EyeOutlined />}
             onClick={() => openAppModal(record)}
             style={{ 
-              background: 'rgba(255, 255, 255, 0.08)', 
-              borderColor: 'rgba(255, 255, 255, 0.15)', 
+              background: 'rgba(var(--theme-contrast-rgb), 0.08)', 
+              borderColor: 'rgba(var(--theme-contrast-rgb), 0.15)', 
               color: '#e0f2fe',
               borderRadius: '6px'
             }}
@@ -200,55 +218,158 @@ const ManageApplications = () => {
           }
         />
 
-        {/* Filter and Search */}
+        {/* Clean Search & Filter Bar */}
         <div 
           className="portal-glass-card" 
           style={{ 
             padding: '16px 20px', 
-            marginBottom: '24px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '16px',
-            flexWrap: 'wrap'
+            marginBottom: '24px'
           }}
         >
-          <div style={{ flex: '1 1 280px', display: 'flex', gap: '8px' }}>
-            <Input 
-              prefix={<SearchOutlined style={{ color: '#9ca3af' }} />}
-              placeholder="Search candidate, email, mandate, or entity..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onPressEnter={fetchApplications}
-              style={{
-                background: 'rgba(255, 255, 255, 0.05)',
-                borderColor: 'rgba(255, 255, 255, 0.12)',
-                color: 'white',
-                borderRadius: '10px'
-              }}
-              allowClear
-            />
-            <Button type="primary" onClick={fetchApplications} style={{ background: '#0ea5e9', borderColor: '#0ea5e9', borderRadius: '10px' }}>
-              Search
-            </Button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+            <div style={{ flex: '1 1 300px', display: 'flex', gap: '8px' }}>
+              <Input 
+                prefix={<SearchOutlined style={{ color: 'var(--theme-muted)' }} />}
+                placeholder="Search candidate, email, mandate, or entity..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onPressEnter={fetchApplications}
+                style={{
+                  background: 'rgba(var(--theme-contrast-rgb), 0.05)',
+                  borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)',
+                  color: 'var(--theme-heading)',
+                  borderRadius: '10px',
+                  height: '44px'
+                }}
+                allowClear
+              />
+              <Button 
+                type="primary" 
+                onClick={fetchApplications} 
+                style={{ background: '#0ea5e9', borderColor: '#0ea5e9', borderRadius: '10px', height: '44px', fontWeight: 600 }}
+              >
+                Search
+              </Button>
+            </div>
+
+            <button 
+              type="button"
+              className={`portal-filter-trigger-btn ${activeFiltersCount > 0 ? 'active' : ''}`}
+              onClick={() => setDrawerOpen(true)}
+            >
+              <FilterOutlined style={{ color: activeFiltersCount > 0 ? '#38bdf8' : 'inherit' }} />
+              <span>Filters</span>
+              {activeFiltersCount > 0 && (
+                <span style={{
+                  background: '#0ea5e9',
+                  color: 'var(--theme-on-primary)',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  borderRadius: '10px',
+                  padding: '1px 7px',
+                  marginLeft: '2px'
+                }}>
+                  {activeFiltersCount}
+                </span>
+              )}
+            </button>
+
+            {(activeFiltersCount > 0 || search) && (
+              <Tooltip title="Reset all filters">
+                <Button 
+                  icon={<ClearOutlined />} 
+                  onClick={() => {
+                    handleResetFilters();
+                    fetchApplications();
+                  }}
+                  style={{ 
+                    height: '44px', 
+                    width: '44px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: '10px', 
+                    background: 'rgba(var(--theme-contrast-rgb), 0.06)', 
+                    color: 'var(--theme-muted)', 
+                    borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)' 
+                  }}
+                />
+              </Tooltip>
+            )}
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ color: '#9ca3af', fontSize: '13px' }}>Status:</span>
+          {/* Active Filter Chips */}
+          {(activeFiltersCount > 0) && (
+            <div className="portal-active-filters-bar">
+              <span className="portal-active-filters-label">Active Filters:</span>
+              
+              {statusFilter !== 'ALL' && (
+                <span className="portal-filter-tag">
+                  <TagOutlined /> Status: {statusFilter}
+                  <CloseOutlined onClick={() => setStatusFilter('ALL')} />
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Filter Drawer */}
+        <Drawer
+          title={
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <FilterOutlined style={{ color: 'var(--theme-link)' }} />
+              <span>Filter Candidate Applications</span>
+            </div>
+          }
+          placement="right"
+          width={380}
+          open={drawerOpen}
+          onClose={() => setDrawerOpen(false)}
+          footer={
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Button 
+                onClick={() => {
+                  handleResetFilters();
+                  setDrawerOpen(false);
+                }}
+                disabled={activeFiltersCount === 0 && !search}
+                style={{ borderRadius: '8px', background: 'transparent', color: 'var(--theme-subtle)', border: '1px solid rgba(var(--theme-contrast-rgb),0.15)' }}
+              >
+                Reset All
+              </Button>
+              <Button 
+                type="primary" 
+                onClick={() => {
+                  setDrawerOpen(false);
+                  fetchApplications();
+                }}
+                style={{ borderRadius: '8px', background: '#0ea5e9', borderColor: '#0ea5e9', fontWeight: 600 }}
+              >
+                Apply & View ({applications.length})
+              </Button>
+            </div>
+          }
+        >
+          <div className="portal-filter-section">
+            <div className="portal-filter-section-title">
+              <TagOutlined /> Application Status
+            </div>
             <Select 
               value={statusFilter} 
               onChange={setStatusFilter}
-              style={{ width: 170 }}
+              style={{ width: '100%' }}
+              size="large"
             >
               <Option value="ALL">All Statuses</Option>
-              <Option value="APPLIED">Applied</Option>
+              <Option value="APPLIED">Applied / In Review</Option>
               <Option value="SHORTLISTED">Shortlisted</Option>
-              <Option value="INTERVIEW">Interview</Option>
-              <Option value="SELECTED">Selected</Option>
+              <Option value="INTERVIEW">Interview Scheduled</Option>
+              <Option value="SELECTED">Selected / Hired</Option>
               <Option value="REJECTED">Rejected</Option>
               <Option value="WITHDRAWN">Withdrawn</Option>
             </Select>
           </div>
-        </div>
+        </Drawer>
 
         {/* Table */}
         <motion.div 
@@ -270,8 +391,8 @@ const ManageApplications = () => {
         {/* Application Modal */}
         <Modal
           title={
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'white', fontSize: '18px', fontWeight: 700 }}>
-              <SolutionOutlined style={{ color: '#38bdf8' }} /> Application Dossier #{selectedApp?.id}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--theme-heading)', fontSize: '18px', fontWeight: 700 }}>
+              <SolutionOutlined style={{ color: 'var(--theme-link)' }} /> Application Dossier #{selectedApp?.id}
             </div>
           }
           open={modalOpen}
@@ -279,17 +400,17 @@ const ManageApplications = () => {
           footer={null}
           width={720}
           styles={{
-            content: { background: '#1e293b', border: '1px solid rgba(255, 255, 255, 0.12)', borderRadius: '20px' },
-            header: { background: '#1e293b' },
+            content: { background: 'var(--theme-surface)', border: '1px solid rgba(var(--theme-contrast-rgb), 0.12)', borderRadius: '20px' },
+            header: { background: 'var(--theme-surface)' },
           }}
         >
           {selectedApp && (
-            <div style={{ color: '#e2e8f0', marginTop: '16px' }}>
+            <div style={{ color: 'var(--theme-secondary)', marginTop: '16px' }}>
               <div 
                 style={{
                   padding: '16px',
-                  background: 'rgba(255, 255, 255, 0.04)',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  background: 'rgba(var(--theme-contrast-rgb), 0.04)',
+                  border: '1px solid rgba(var(--theme-contrast-rgb), 0.08)',
                   borderRadius: '14px',
                   marginBottom: '20px',
                   display: 'flex',
@@ -298,8 +419,8 @@ const ManageApplications = () => {
                 }}
               >
                 <div>
-                  <h3 style={{ margin: 0, color: '#ffffff', fontSize: '20px' }}>{selectedApp.job?.title}</h3>
-                  <p style={{ margin: '4px 0 0', color: '#38bdf8', fontSize: '14px', fontWeight: 500 }}>
+                  <h3 style={{ margin: 0, color: 'var(--theme-heading)', fontSize: '20px' }}>{selectedApp.job?.title}</h3>
+                  <p style={{ margin: '4px 0 0', color: 'var(--theme-link)', fontSize: '14px', fontWeight: 500 }}>
                     🏢 {selectedApp.job?.employer?.name}
                   </p>
                 </div>
@@ -309,23 +430,23 @@ const ManageApplications = () => {
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <div style={{ padding: '16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px' }}>
-                  <h4 style={{ color: '#38bdf8', fontSize: '13px', textTransform: 'uppercase', marginBottom: '12px', fontWeight: 700, letterSpacing: '0.5px' }}>
+                <div style={{ padding: '16px', background: 'rgba(var(--theme-contrast-rgb),0.03)', border: '1px solid rgba(var(--theme-contrast-rgb),0.08)', borderRadius: '12px' }}>
+                  <h4 style={{ color: 'var(--theme-link)', fontSize: '13px', textTransform: 'uppercase', marginBottom: '12px', fontWeight: 700, letterSpacing: '0.5px' }}>
                     Candidate Profile Information
                   </h4>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '14px' }}>
-                    <div><span style={{ color: '#9ca3af' }}>Name:</span> <strong style={{ color: '#ffffff', marginLeft: '6px' }}>{selectedApp.candidate?.name}</strong></div>
-                    <div><span style={{ color: '#9ca3af' }}>Email:</span> <strong style={{ color: '#ffffff', marginLeft: '6px' }}>{selectedApp.candidate?.email}</strong></div>
-                    <div><span style={{ color: '#9ca3af' }}>Location:</span> <strong style={{ color: '#ffffff', marginLeft: '6px' }}>{selectedApp.candidate?.candidateProfile?.city || 'N/A'}</strong></div>
-                    <div><span style={{ color: '#9ca3af' }}>Experience:</span> <strong style={{ color: '#ffffff', marginLeft: '6px' }}>{selectedApp.candidate?.candidateProfile?.experience ? `${selectedApp.candidate.candidateProfile.experience} Yrs` : 'N/A'}</strong></div>
-                    <div><span style={{ color: '#9ca3af' }}>Designation:</span> <strong style={{ color: '#ffffff', marginLeft: '6px' }}>{selectedApp.candidate?.candidateProfile?.designation || 'N/A'}</strong></div>
-                    <div><span style={{ color: '#9ca3af' }}>Notice Period:</span> <strong style={{ color: '#ffffff', marginLeft: '6px' }}>{selectedApp.candidate?.candidateProfile?.noticePeriod || 'N/A'}</strong></div>
+                    <div><span style={{ color: 'var(--theme-muted)' }}>Name:</span> <strong style={{ color: 'var(--theme-heading)', marginLeft: '6px' }}>{selectedApp.candidate?.name}</strong></div>
+                    <div><span style={{ color: 'var(--theme-muted)' }}>Email:</span> <strong style={{ color: 'var(--theme-heading)', marginLeft: '6px' }}>{selectedApp.candidate?.email}</strong></div>
+                    <div><span style={{ color: 'var(--theme-muted)' }}>Location:</span> <strong style={{ color: 'var(--theme-heading)', marginLeft: '6px' }}>{selectedApp.candidate?.candidateProfile?.city || 'N/A'}</strong></div>
+                    <div><span style={{ color: 'var(--theme-muted)' }}>Experience:</span> <strong style={{ color: 'var(--theme-heading)', marginLeft: '6px' }}>{selectedApp.candidate?.candidateProfile?.experience ? `${selectedApp.candidate.candidateProfile.experience} Yrs` : 'N/A'}</strong></div>
+                    <div><span style={{ color: 'var(--theme-muted)' }}>Designation:</span> <strong style={{ color: 'var(--theme-heading)', marginLeft: '6px' }}>{selectedApp.candidate?.candidateProfile?.designation || 'N/A'}</strong></div>
+                    <div><span style={{ color: 'var(--theme-muted)' }}>Notice Period:</span> <strong style={{ color: 'var(--theme-heading)', marginLeft: '6px' }}>{selectedApp.candidate?.candidateProfile?.noticePeriod || 'N/A'}</strong></div>
                   </div>
                 </div>
 
                 {selectedApp.candidate?.candidateProfile?.skills?.length > 0 && (
-                  <div style={{ padding: '16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px' }}>
-                    <h4 style={{ color: '#38bdf8', fontSize: '13px', textTransform: 'uppercase', marginBottom: '10px', fontWeight: 700, letterSpacing: '0.5px' }}>
+                  <div style={{ padding: '16px', background: 'rgba(var(--theme-contrast-rgb),0.03)', border: '1px solid rgba(var(--theme-contrast-rgb),0.08)', borderRadius: '12px' }}>
+                    <h4 style={{ color: 'var(--theme-link)', fontSize: '13px', textTransform: 'uppercase', marginBottom: '10px', fontWeight: 700, letterSpacing: '0.5px' }}>
                       Candidate Skills
                     </h4>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
@@ -343,9 +464,9 @@ const ManageApplications = () => {
                 <Button 
                   onClick={() => setModalOpen(false)}
                   style={{
-                    background: 'rgba(255, 255, 255, 0.08)',
-                    border: '1px solid rgba(255, 255, 255, 0.15)',
-                    color: '#ffffff',
+                    background: 'rgba(var(--theme-contrast-rgb), 0.08)',
+                    border: '1px solid rgba(var(--theme-contrast-rgb), 0.15)',
+                    color: 'var(--theme-heading)',
                     borderRadius: '8px',
                     padding: '6px 18px'
                   }}
