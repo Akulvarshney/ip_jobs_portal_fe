@@ -71,9 +71,9 @@ function App() {
       }}
     >
       <BrowserRouter>
-        <div className="portal-app-layout">
+        <div className="portal-app-root">
           <Navbar />
-          <main className="portal-main-content">
+          <main className="portal-main-area">
             <Routes>
               {/* Public Routes */}
               <Route path="/" element={<Home />} />

@@ -3,11 +3,11 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../store/authSlice';
 import { Tag, Avatar, Dropdown } from 'antd';
-import { 
-  RocketOutlined, 
-  UserOutlined, 
-  LogoutOutlined, 
-  DashboardOutlined, 
+import {
+  RocketOutlined,
+  UserOutlined,
+  LogoutOutlined,
+  DashboardOutlined,
   SafetyCertificateOutlined,
   SendOutlined,
   BookOutlined,
@@ -88,32 +88,32 @@ const Navbar = () => {
     },
   ];
 
-  const userMenuItems = user?.role === 'CANDIDATE' 
+  const userMenuItems = user?.role === 'CANDIDATE'
     ? getCandidateMenuItems()
     : [
-        {
-          key: 'dashboard',
-          icon: <DashboardOutlined className="portal-menu-icon" />,
-          label: getUserDashboardLabel(),
-          onClick: () => navigate(getUserDashboardPath()),
-        },
-        {
-          key: 'settings',
-          icon: <SettingOutlined className="portal-menu-icon" />,
-          label: 'Settings',
-          onClick: () => navigate(user?.role === 'EMPLOYER' ? '/employer/settings' : '/admin/settings'),
-        },
-        {
-          type: 'divider',
-        },
-        {
-          key: 'logout',
-          icon: <LogoutOutlined />,
-          label: 'Logout',
-          danger: true,
-          onClick: handleLogout,
-        },
-      ];
+      {
+        key: 'dashboard',
+        icon: <DashboardOutlined className="portal-menu-icon" />,
+        label: getUserDashboardLabel(),
+        onClick: () => navigate(getUserDashboardPath()),
+      },
+      {
+        key: 'settings',
+        icon: <SettingOutlined className="portal-menu-icon" />,
+        label: 'Settings',
+        onClick: () => navigate(user?.role === 'EMPLOYER' ? '/employer/settings' : '/admin/settings'),
+      },
+      {
+        type: 'divider',
+      },
+      {
+        key: 'logout',
+        icon: <LogoutOutlined />,
+        label: 'Logout',
+        danger: true,
+        onClick: handleLogout,
+      },
+    ];
 
   const getDashboardLinkLabel = () => {
     if (user?.role === 'ADMIN') return 'Admin Portal';
@@ -135,8 +135,8 @@ const Navbar = () => {
           <Link to="/" className={`portal-nav-link ${location.pathname === '/' ? 'active' : ''}`}>
             Home
           </Link>
-          <Link 
-            to={getUserDashboardPath()} 
+          <Link
+            to={getUserDashboardPath()}
             className={`portal-nav-link ${location.pathname.startsWith('/candidate') || location.pathname.startsWith('/employer') || location.pathname.startsWith('/admin') ? 'active' : ''}`}
           >
             {getDashboardLinkLabel()}
@@ -152,12 +152,12 @@ const Navbar = () => {
               <Tag className="portal-nav-role-tag">
                 {user?.role === 'ADMIN' ? 'Platform Admin' : (user?.role === 'EMPLOYER' ? 'Employer' : 'Professional')}
               </Tag>
-              
+
               <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" arrow>
                 <div className="portal-nav-user-pill">
-                  <Avatar 
-                    size="small" 
-                    icon={<UserOutlined />} 
+                  <Avatar
+                    size="small"
+                    icon={<UserOutlined />}
                     src={getFileUrl(user?.profilePhoto || user?.candidateProfile?.profilePhoto)}
                     className="portal-nav-avatar"
                   />

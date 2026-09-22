@@ -161,50 +161,50 @@ const ManageJobs = () => {
       key: 'actions',
       render: (_, record) => (
         <Space size="small" wrap>
-          <Button 
-            size="small" 
-            icon={<EyeOutlined />}
-            onClick={() => openJobModal(record)}
-            className="portal-btn-review"
-          >
-            Review
-          </Button>
+          <Tooltip title="Review Mandate">
+            <Button 
+              size="small" 
+              icon={<EyeOutlined />}
+              onClick={() => openJobModal(record)}
+              className="portal-btn-review"
+            />
+          </Tooltip>
 
           {record.status !== 'ACTIVE' && (
-            <Button
-              size="small"
-              type="primary"
-              loading={actionLoadingId === record.id}
-              icon={<CheckCircleOutlined />}
-              onClick={() => handleUpdateStatus(record.id, 'ACTIVE')}
-              className="portal-btn-approve-sm"
-            >
-              Approve
-            </Button>
+            <Tooltip title="Approve & Publish">
+              <Button
+                size="small"
+                type="primary"
+                loading={actionLoadingId === record.id}
+                icon={<CheckCircleOutlined />}
+                onClick={() => handleUpdateStatus(record.id, 'ACTIVE')}
+                className="portal-btn-approve-sm"
+              />
+            </Tooltip>
           )}
 
           {record.status === 'ACTIVE' && (
-            <Button
-              size="small"
-              loading={actionLoadingId === record.id}
-              icon={<PauseCircleOutlined />}
-              onClick={() => handleUpdateStatus(record.id, 'PAUSED')}
-              className="portal-btn-pause-sm"
-            >
-              Pause
-            </Button>
+            <Tooltip title="Pause Mandate">
+              <Button
+                size="small"
+                loading={actionLoadingId === record.id}
+                icon={<PauseCircleOutlined />}
+                onClick={() => handleUpdateStatus(record.id, 'PAUSED')}
+                className="portal-btn-pause-sm"
+              />
+            </Tooltip>
           )}
 
           {record.status !== 'CLOSED' && (
-            <Button
-              size="small"
-              loading={actionLoadingId === record.id}
-              icon={<CloseCircleOutlined />}
-              onClick={() => handleUpdateStatus(record.id, 'CLOSED')}
-              className="portal-btn-close-sm"
-            >
-              Close
-            </Button>
+            <Tooltip title="Close Mandate">
+              <Button
+                size="small"
+                loading={actionLoadingId === record.id}
+                icon={<CloseCircleOutlined />}
+                onClick={() => handleUpdateStatus(record.id, 'CLOSED')}
+                className="portal-btn-close-sm"
+              />
+            </Tooltip>
           )}
 
           <Popconfirm
@@ -215,15 +215,15 @@ const ManageJobs = () => {
             cancelText="Cancel"
             okButtonProps={{ danger: true }}
           >
-            <Button
-              size="small"
-              danger
-              loading={actionLoadingId === record.id}
-              icon={<DeleteOutlined />}
-              className="portal-btn-radius-6"
-            >
-              Delete
-            </Button>
+            <Tooltip title="Delete Mandate">
+              <Button
+                size="small"
+                danger
+                loading={actionLoadingId === record.id}
+                icon={<DeleteOutlined />}
+                className="portal-btn-radius-6"
+              />
+            </Tooltip>
           </Popconfirm>
         </Space>
       ),

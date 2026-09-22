@@ -20,7 +20,8 @@ import {
   CheckCircleOutlined, 
   CloseCircleOutlined,
   ClockCircleOutlined,
-  VideoCameraOutlined
+  VideoCameraOutlined,
+  FileTextOutlined
 } from '@ant-design/icons';
 import { motion } from 'framer-motion';
 import { Link, useSearchParams } from 'react-router-dom';
@@ -168,9 +169,9 @@ const CandidateApplications = () => {
       render: (_, record) => (
         <div className="portal-app-actions-wrap">
           <Link to={`/jobs/${record.jobId}`}>
-            <Button size="small" type="link" className="portal-app-action-link">
-              Job Details
-            </Button>
+            <Tooltip title="Job Details">
+              <Button size="small" type="link" icon={<FileTextOutlined />} className="portal-app-action-link" />
+            </Tooltip>
           </Link>
           {record.status !== 'WITHDRAWN' && record.status !== 'REJECTED' && record.status !== 'SELECTED' && (
             <Popconfirm
@@ -180,9 +181,9 @@ const CandidateApplications = () => {
               okText="Withdraw"
               cancelText="Cancel"
             >
-              <Button size="small" type="link" danger className="portal-app-withdraw-btn">
-                Withdraw
-              </Button>
+              <Tooltip title="Withdraw Application">
+                <Button size="small" type="link" danger icon={<StopOutlined />} className="portal-app-withdraw-btn" />
+              </Tooltip>
             </Popconfirm>
           )}
         </div>

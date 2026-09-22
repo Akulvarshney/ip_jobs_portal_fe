@@ -181,50 +181,50 @@ const ManageReports = () => {
       key: 'actions',
       render: (_, record) => (
         <Space size="small">
-          <Button 
-            size="small" 
-            icon={<EyeOutlined />}
-            onClick={() => openReportModal(record)}
-            className="portal-btn-review"
-          >
-            Review
-          </Button>
+          <Tooltip title="Review Report">
+            <Button 
+              size="small" 
+              icon={<EyeOutlined />}
+              onClick={() => openReportModal(record)}
+              className="portal-btn-review"
+            />
+          </Tooltip>
 
           {record.status === 'OPEN' && (
-            <Button
-              size="small"
-              icon={<SyncOutlined />}
-              loading={actionLoadingId === record.id}
-              onClick={() => handleUpdateStatus(record.id, 'INVESTIGATING')}
-              className="portal-btn-pause-sm"
-            >
-              Investigate
-            </Button>
+            <Tooltip title="Investigate Report">
+              <Button
+                size="small"
+                icon={<SyncOutlined />}
+                loading={actionLoadingId === record.id}
+                onClick={() => handleUpdateStatus(record.id, 'INVESTIGATING')}
+                className="portal-btn-pause-sm"
+              />
+            </Tooltip>
           )}
 
           {record.status !== 'RESOLVED' && (
-            <Button
-              size="small"
-              type="primary"
-              icon={<CheckCircleOutlined />}
-              loading={actionLoadingId === record.id}
-              onClick={() => handleUpdateStatus(record.id, 'RESOLVED')}
-              className="portal-btn-approve-sm"
-            >
-              Resolve
-            </Button>
+            <Tooltip title="Resolve Report">
+              <Button
+                size="small"
+                type="primary"
+                icon={<CheckCircleOutlined />}
+                loading={actionLoadingId === record.id}
+                onClick={() => handleUpdateStatus(record.id, 'RESOLVED')}
+                className="portal-btn-approve-sm"
+              />
+            </Tooltip>
           )}
 
           {record.status !== 'REJECTED' && record.status !== 'RESOLVED' && (
-            <Button
-              size="small"
-              icon={<CloseCircleOutlined />}
-              loading={actionLoadingId === record.id}
-              onClick={() => handleUpdateStatus(record.id, 'REJECTED')}
-              className="portal-btn-close-sm"
-            >
-              Reject
-            </Button>
+            <Tooltip title="Reject Report">
+              <Button
+                size="small"
+                icon={<CloseCircleOutlined />}
+                loading={actionLoadingId === record.id}
+                onClick={() => handleUpdateStatus(record.id, 'REJECTED')}
+                className="portal-btn-close-sm"
+              />
+            </Tooltip>
           )}
         </Space>
       ),

@@ -165,39 +165,39 @@ const ManageEmployers = () => {
       key: 'actions',
       render: (_, record) => (
         <Space size="small">
-          <Button 
-            size="small" 
-            icon={<EyeOutlined />}
-            onClick={() => openDossier(record)}
-            className="portal-btn-neutral"
-          >
-            Dossier
-          </Button>
+          <Tooltip title="View Dossier">
+            <Button 
+              size="small" 
+              icon={<EyeOutlined />}
+              onClick={() => openDossier(record)}
+              className="portal-btn-neutral"
+            />
+          </Tooltip>
 
           {record.status !== 'APPROVED' && (
-            <Button
-              size="small"
-              type="primary"
-              loading={actionLoadingId === record.id}
-              icon={<CheckCircleOutlined />}
-              onClick={() => handleUpdateStatus(record.id, 'APPROVED')}
-              className="portal-btn-success font-medium"
-            >
-              Approve
-            </Button>
+            <Tooltip title="Approve Organisation">
+              <Button
+                size="small"
+                type="primary"
+                loading={actionLoadingId === record.id}
+                icon={<CheckCircleOutlined />}
+                onClick={() => handleUpdateStatus(record.id, 'APPROVED')}
+                className="portal-btn-success font-medium"
+              />
+            </Tooltip>
           )}
 
           {record.status === 'APPROVED' && (
-            <Button
-              size="small"
-              danger
-              loading={actionLoadingId === record.id}
-              icon={<StopOutlined />}
-              onClick={() => handleUpdateStatus(record.id, 'SUSPENDED')}
-              className="portal-btn-danger-soft"
-            >
-              Suspend
-            </Button>
+            <Tooltip title="Suspend Organisation">
+              <Button
+                size="small"
+                danger
+                loading={actionLoadingId === record.id}
+                icon={<StopOutlined />}
+                onClick={() => handleUpdateStatus(record.id, 'SUSPENDED')}
+                className="portal-btn-danger-soft"
+              />
+            </Tooltip>
           )}
         </Space>
       ),

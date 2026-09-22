@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Button, Tag, Badge, message } from 'antd';
+import { Table, Button, Tag, Badge, message, Tooltip } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchEmployerJobs } from '../../store/employerSlice';
@@ -84,13 +84,13 @@ const ManageJobs = () => {
       title: 'Action',
       key: 'action',
       render: (_, record) => (
-        <button 
-          className="portal-btn-primary portal-btn-compact-apply portal-inline-flex-center-gap-6"
-          onClick={() => navigate(`/employer/jobs/${record.id}`)}
-        >
-          <span>View Candidates & Details</span>
-          <ArrowRightOutlined className="portal-icon-11" />
-        </button>
+        <Tooltip title="View Candidates & Details">
+          <Button 
+            className="portal-btn-primary portal-btn-compact-apply"
+            icon={<ArrowRightOutlined />}
+            onClick={() => navigate(`/employer/jobs/${record.id}`)}
+          />
+        </Tooltip>
       )
     }
   ];

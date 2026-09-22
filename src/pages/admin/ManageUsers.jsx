@@ -18,7 +18,7 @@ import {
   CloseOutlined,
   TagOutlined
 } from '@ant-design/icons';
-import { Table, Input, Select, Tag, Button, Modal, Drawer, Divider, message, Badge, Descriptions, Space } from 'antd';
+import { Table, Input, Select, Tag, Button, Modal, Drawer, Divider, message, Badge, Descriptions, Space, Tooltip } from 'antd';
 import { motion } from 'framer-motion';
 
 const { Option } = Select;
@@ -176,26 +176,26 @@ const ManageUsers = () => {
       key: 'actions',
       render: (_, record) => (
         <Space size="small">
-          <Button 
-            size="small" 
-            icon={<EyeOutlined />}
-            onClick={() => openUserDetails(record)}
-            className="portal-btn-neutral"
-          >
-            View
-          </Button>
+          <Tooltip title="View Details">
+            <Button 
+              size="small" 
+              icon={<EyeOutlined />}
+              onClick={() => openUserDetails(record)}
+              className="portal-btn-neutral"
+            />
+          </Tooltip>
 
           {record.role !== 'ADMIN' && (
-            <Button
-              size="small"
-              danger={record.status === 'ACTIVE'}
-              loading={actionLoadingId === record.id}
-              icon={record.status === 'ACTIVE' ? <StopOutlined /> : <CheckCircleOutlined />}
-              onClick={() => handleToggleStatus(record)}
-              className={record.status === 'ACTIVE' ? 'portal-btn-danger-soft' : 'portal-btn-success-soft'}
-            >
-              {record.status === 'ACTIVE' ? 'Suspend' : 'Activate'}
-            </Button>
+            <Tooltip title={record.status === 'ACTIVE' ? 'Suspend User' : 'Activate User'}>
+              <Button
+                size="small"
+                danger={record.status === 'ACTIVE'}
+                loading={actionLoadingId === record.id}
+                icon={record.status === 'ACTIVE' ? <StopOutlined /> : <CheckCircleOutlined />}
+                onClick={() => handleToggleStatus(record)}
+                className={record.status === 'ACTIVE' ? 'portal-btn-danger-soft' : 'portal-btn-success-soft'}
+              />
+            </Tooltip>
           )}
         </Space>
       ),

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Button, Modal, Form, Input, Select, Typography, message, Tag, Badge } from 'antd';
+import { Table, Button, Modal, Form, Input, Select, Typography, message, Tag, Badge, Tooltip } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchEmployerJobs, createJob, inviteCandidate, fetchJobApplicants } from '../store/employerSlice';
-import { PlusOutlined, UserOutlined, MailOutlined, SendOutlined, CheckCircleOutlined, BankOutlined, DollarOutlined, SolutionOutlined } from '@ant-design/icons';
+import { PlusOutlined, UserOutlined, MailOutlined, SendOutlined, CheckCircleOutlined, BankOutlined, DollarOutlined, SolutionOutlined, ArrowRightOutlined } from '@ant-design/icons';
 import { motion } from 'framer-motion';
 import { 
   JOB_TYPES, 
@@ -121,12 +121,13 @@ const EmployerDashboard = () => {
       title: 'Action', 
       key: 'action', 
       render: (_, record) => (
-        <button 
-          className="portal-btn-primary portal-btn-compact-apply" 
-          onClick={() => navigate(`/employer/jobs/${record.id}`)}
-        >
-          View Mandate & Applicants
-        </button>
+        <Tooltip title="View Mandate & Applicants">
+          <Button 
+            className="portal-btn-primary portal-btn-compact-apply" 
+            icon={<ArrowRightOutlined />}
+            onClick={() => navigate(`/employer/jobs/${record.id}`)}
+          />
+        </Tooltip>
       )
     }
   ];
@@ -262,13 +263,15 @@ const EmployerDashboard = () => {
                 key: 'action', 
                 render: (_, record) => (
                   record.status !== 'INVITED' ? (
-                    <Button type="primary" size="small" icon={<SendOutlined />} onClick={() => handleInvite(record.id)} className="portal-btn-cyan">
-                      Send Interview Invite
-                    </Button>
+                    <Tooltip title="Send Interview Invite">
+                      <Button type="primary" size="small" icon={<SendOutlined />} onClick={() => handleInvite(record.id)} className="portal-btn-cyan" />
+                    </Tooltip>
                   ) : (
-                    <span className="portal-color-success portal-font-semibold portal-inline-flex-center-gap-4">
-                      <CheckCircleOutlined /> Invited
-                    </span>
+                    <Tooltip title="Interview Invitation Sent">
+                      <span className="portal-color-success portal-font-semibold portal-inline-flex-center-gap-4">
+                        <CheckCircleOutlined />
+                      </span>
+                    </Tooltip>
                   )
                 )
               }

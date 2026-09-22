@@ -25,6 +25,7 @@ import {
   CalendarOutlined, 
   CheckCircleOutlined, 
   CloseCircleOutlined, 
+  CheckOutlined,
   EyeOutlined, 
   FileTextOutlined, 
   BankOutlined, 
@@ -259,49 +260,51 @@ const ManageApplications = () => {
       key: 'actions',
       render: (_, record) => (
         <div className="portal-actions-group portal-flex-wrap">
-          <Button
-            size="small"
-            icon={<EyeOutlined />}
-            onClick={() => {
-              setSelectedApp(record);
-              setCandidateModalVisible(true);
-            }}
-            className="portal-btn-neutral portal-btn-rounded-6"
-          >
-            Review Profile
-          </Button>
-
-          {record.status === 'APPLIED' && (
+          <Tooltip title="Review Profile">
             <Button
               size="small"
-              type="primary"
-              onClick={() => handleUpdateStatus(record.id, 'SHORTLISTED')}
-              className="portal-btn-purple"
-            >
-              Shortlist
-            </Button>
+              icon={<EyeOutlined />}
+              onClick={() => {
+                setSelectedApp(record);
+                setCandidateModalVisible(true);
+              }}
+              className="portal-btn-neutral portal-btn-rounded-6"
+            />
+          </Tooltip>
+
+          {record.status === 'APPLIED' && (
+            <Tooltip title="Shortlist Candidate">
+              <Button
+                size="small"
+                type="primary"
+                icon={<CheckOutlined />}
+                onClick={() => handleUpdateStatus(record.id, 'SHORTLISTED')}
+                className="portal-btn-purple"
+              />
+            </Tooltip>
           )}
 
           {record.status !== 'INTERVIEW' && record.status !== 'REJECTED' && record.status !== 'WITHDRAWN' && (
-            <Button
-              size="small"
-              icon={<CalendarOutlined />}
-              onClick={() => handleOpenInterviewModal(record)}
-              className="portal-btn-gold"
-            >
-              Interview
-            </Button>
+            <Tooltip title="Schedule Interview">
+              <Button
+                size="small"
+                icon={<CalendarOutlined />}
+                onClick={() => handleOpenInterviewModal(record)}
+                className="portal-btn-gold"
+              />
+            </Tooltip>
           )}
 
           {record.status === 'INTERVIEW' && (
-            <Button
-              size="small"
-              type="primary"
-              onClick={() => handleUpdateStatus(record.id, 'SELECTED')}
-              className="portal-btn-green"
-            >
-              Select / Hire
-            </Button>
+            <Tooltip title="Select / Hire Candidate">
+              <Button
+                size="small"
+                type="primary"
+                icon={<CheckCircleOutlined />}
+                onClick={() => handleUpdateStatus(record.id, 'SELECTED')}
+                className="portal-btn-green"
+              />
+            </Tooltip>
           )}
 
           {record.status !== 'REJECTED' && record.status !== 'WITHDRAWN' && (
@@ -311,9 +314,9 @@ const ManageApplications = () => {
               okText="Reject"
               cancelText="Cancel"
             >
-              <Button size="small" danger className="portal-btn-rounded-6">
-                Reject
-              </Button>
+              <Tooltip title="Reject Candidate">
+                <Button size="small" danger icon={<CloseCircleOutlined />} className="portal-btn-rounded-6" />
+              </Tooltip>
             </Popconfirm>
           )}
         </div>

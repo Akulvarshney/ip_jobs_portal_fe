@@ -202,23 +202,23 @@ const EmployerJobDetails = () => {
       key: 'actions',
       render: (_, record) => (
         <Space size="small" wrap>
-          <Button 
-            size="small"
-            icon={<FileTextOutlined className="portal-text-link" />}
-            onClick={() => openCVModal(record)}
-            className="portal-btn-cyan-soft"
-          >
-            View CV
-          </Button>
+          <Tooltip title="View CV">
+            <Button 
+              size="small"
+              icon={<FileTextOutlined className="portal-text-link" />}
+              onClick={() => openCVModal(record)}
+              className="portal-btn-cyan-soft"
+            />
+          </Tooltip>
 
-          <Button 
-            size="small"
-            icon={<EyeOutlined />}
-            onClick={() => openCandidateDossier(record)}
-            className="portal-btn-neutral"
-          >
-            Profile
-          </Button>
+          <Tooltip title="Candidate Profile">
+            <Button 
+              size="small"
+              icon={<EyeOutlined />}
+              onClick={() => openCandidateDossier(record)}
+              className="portal-btn-neutral"
+            />
+          </Tooltip>
 
           <Select
             size="small"
