@@ -110,27 +110,13 @@ const ManageUsers = () => {
       title: 'User / Identity',
       key: 'name',
       render: (_, record) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div 
-            style={{
-              width: '38px',
-              height: '38px',
-              borderRadius: '10px',
-              background: 'rgba(14, 165, 233, 0.15)',
-              border: '1px solid rgba(56, 189, 248, 0.3)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'var(--theme-link)',
-              fontWeight: 700,
-              fontSize: '15px'
-            }}
-          >
+        <div className="portal-flex-center-gap-12">
+          <div className="portal-avatar-init">
             {record.name?.charAt(0) || 'U'}
           </div>
           <div>
-            <div style={{ fontWeight: 600, color: 'var(--theme-heading)', fontSize: '14px' }}>{record.name}</div>
-            <div style={{ fontSize: '12px', color: 'var(--theme-muted)' }}>{record.email}</div>
+            <div className="portal-candidate-name">{record.name}</div>
+            <div className="portal-text-muted-xs">{record.email}</div>
           </div>
         </div>
       ),
@@ -143,7 +129,7 @@ const ManageUsers = () => {
         let color = 'cyan';
         if (role === 'EMPLOYER') color = 'purple';
         if (role === 'ADMIN') color = 'gold';
-        return <Tag color={color} style={{ fontWeight: 600 }}>{role}</Tag>;
+        return <Tag color={color} className="font-semibold">{role}</Tag>;
       },
     },
     {
@@ -152,24 +138,24 @@ const ManageUsers = () => {
       render: (_, record) => {
         if (record.role === 'EMPLOYER') {
           return (
-            <span style={{ color: 'var(--theme-detail)', fontSize: '13px' }}>
+            <span className="portal-text-detail-sm">
               {record.employerMember?.employer?.name ? (
                 <span>🏢 {record.employerMember.employer.name}</span>
               ) : (
-                <span style={{ color: 'var(--theme-muted)' }}>No entity attached</span>
+                <span className="portal-text-muted">No entity attached</span>
               )}
             </span>
           );
         }
         if (record.role === 'CANDIDATE') {
           return (
-            <span style={{ color: 'var(--theme-detail)', fontSize: '13px' }}>
+            <span className="portal-text-detail-sm">
               {record.candidateProfile?.designation || `${record.candidateProfile?.experience || 0} yrs exp`}
               {record.candidateProfile?.city && ` • ${record.candidateProfile.city}`}
             </span>
           );
         }
-        return <span style={{ color: 'var(--theme-muted)' }}>System Administrator</span>;
+        return <span className="portal-text-muted">System Administrator</span>;
       },
     },
     {
@@ -179,7 +165,7 @@ const ManageUsers = () => {
       render: (status) => (
         <Tag 
           color={status === 'ACTIVE' ? 'success' : 'error'}
-          style={{ fontWeight: 600 }}
+          className="font-semibold"
         >
           {status}
         </Tag>
@@ -194,12 +180,7 @@ const ManageUsers = () => {
             size="small" 
             icon={<EyeOutlined />}
             onClick={() => openUserDetails(record)}
-            style={{ 
-              background: 'rgba(var(--theme-contrast-rgb), 0.08)', 
-              borderColor: 'rgba(var(--theme-contrast-rgb), 0.15)', 
-              color: '#e0f2fe',
-              borderRadius: '6px'
-            }}
+            className="portal-btn-neutral"
           >
             View
           </Button>
@@ -211,12 +192,7 @@ const ManageUsers = () => {
               loading={actionLoadingId === record.id}
               icon={record.status === 'ACTIVE' ? <StopOutlined /> : <CheckCircleOutlined />}
               onClick={() => handleToggleStatus(record)}
-              style={{
-                borderRadius: '6px',
-                background: record.status === 'ACTIVE' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(16, 185, 129, 0.15)',
-                borderColor: record.status === 'ACTIVE' ? 'rgba(239, 68, 68, 0.4)' : 'rgba(16, 185, 129, 0.4)',
-                color: record.status === 'ACTIVE' ? '#fca5a5' : '#6ee7b7'
-              }}
+              className={record.status === 'ACTIVE' ? 'portal-btn-danger-soft' : 'portal-btn-success-soft'}
             >
               {record.status === 'ACTIVE' ? 'Suspend' : 'Activate'}
             </Button>
@@ -227,7 +203,7 @@ const ManageUsers = () => {
   ];
 
   return (
-    <div style={{ width: '100%' }}>
+    <div className="portal-w-full">
       <AdminHeader 
           title="User Governance" 
           subtitle="Directory of insolvency candidates, employer representatives, and administrative accounts."
@@ -244,33 +220,21 @@ const ManageUsers = () => {
         />
 
         {/* Clean Search & Filter Bar */}
-        <div 
-          className="portal-glass-card" 
-          style={{ 
-            padding: '16px 20px', 
-            marginBottom: '24px'
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-            <form onSubmit={handleSearchSubmit} style={{ flex: '1 1 300px', display: 'flex', gap: '8px' }}>
+        <div className="portal-glass-card portal-p-16-20 portal-mb-24">
+          <div className="portal-flex-center-gap-12 flex-wrap">
+            <form onSubmit={handleSearchSubmit} className="portal-admin-search-form">
               <Input 
-                prefix={<SearchOutlined style={{ color: 'var(--theme-muted)' }} />}
+                prefix={<SearchOutlined className="portal-text-muted" />}
                 placeholder="Search candidate or employer by name, email..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                style={{
-                  background: 'rgba(var(--theme-contrast-rgb), 0.05)',
-                  borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)',
-                  color: 'var(--theme-heading)',
-                  borderRadius: '10px',
-                  height: '44px'
-                }}
+                className="portal-search-toolbar-input"
                 allowClear
               />
               <Button 
                 type="primary" 
                 onClick={fetchUsers} 
-                style={{ background: '#0ea5e9', borderColor: '#0ea5e9', borderRadius: '10px', height: '44px', fontWeight: 600 }}
+                className="portal-btn-cyan-h44"
               >
                 Search
               </Button>
@@ -281,18 +245,10 @@ const ManageUsers = () => {
               className={`portal-filter-trigger-btn ${activeFiltersCount > 0 ? 'active' : ''}`}
               onClick={() => setDrawerOpen(true)}
             >
-              <FilterOutlined style={{ color: activeFiltersCount > 0 ? '#38bdf8' : 'inherit' }} />
+              <FilterOutlined className={activeFiltersCount > 0 ? 'portal-text-cyan' : ''} />
               <span>Filters</span>
               {activeFiltersCount > 0 && (
-                <span style={{
-                  background: '#0ea5e9',
-                  color: 'var(--theme-on-primary)',
-                  fontSize: '11px',
-                  fontWeight: 700,
-                  borderRadius: '10px',
-                  padding: '1px 7px',
-                  marginLeft: '2px'
-                }}>
+                <span className="portal-badge-counter">
                   {activeFiltersCount}
                 </span>
               )}
@@ -306,17 +262,7 @@ const ManageUsers = () => {
                     handleResetFilters();
                     fetchUsers();
                   }}
-                  style={{ 
-                    height: '44px', 
-                    width: '44px',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    borderRadius: '10px', 
-                    background: 'rgba(var(--theme-contrast-rgb), 0.06)', 
-                    color: 'var(--theme-muted)', 
-                    borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)' 
-                  }}
+                  className="portal-btn-reset-filters"
                 />
               </Tooltip>
             )}
@@ -347,8 +293,8 @@ const ManageUsers = () => {
         {/* Filter Drawer */}
         <Drawer
           title={
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <FilterOutlined style={{ color: 'var(--theme-link)' }} />
+            <div className="portal-drawer-title-row">
+              <FilterOutlined className="portal-text-link" />
               <span>Filter User Accounts</span>
             </div>
           }
@@ -357,14 +303,14 @@ const ManageUsers = () => {
           open={drawerOpen}
           onClose={() => setDrawerOpen(false)}
           footer={
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="portal-flex-between-center">
               <Button 
                 onClick={() => {
                   handleResetFilters();
                   setDrawerOpen(false);
                 }}
                 disabled={activeFiltersCount === 0 && !search}
-                style={{ borderRadius: '8px', background: 'transparent', color: 'var(--theme-subtle)', border: '1px solid rgba(var(--theme-contrast-rgb),0.15)' }}
+                className="portal-btn-ghost"
               >
                 Reset All
               </Button>
@@ -374,7 +320,7 @@ const ManageUsers = () => {
                   setDrawerOpen(false);
                   fetchUsers();
                 }}
-                style={{ borderRadius: '8px', background: '#0ea5e9', borderColor: '#0ea5e9', fontWeight: 600 }}
+                className="portal-btn-cyan-apply"
               >
                 Apply & View ({users.length})
               </Button>
@@ -391,7 +337,7 @@ const ManageUsers = () => {
                 setRoleFilter(val); 
                 setSearchParams(val !== 'ALL' ? { role: val } : {}); 
               }}
-              style={{ width: '100%' }}
+              className="portal-w-full"
               size="large"
             >
               <Option value="ALL">All Roles</Option>
@@ -401,7 +347,7 @@ const ManageUsers = () => {
             </Select>
           </div>
 
-          <Divider style={{ borderColor: 'rgba(var(--theme-contrast-rgb),0.08)', margin: '18px 0' }} />
+          <Divider className="portal-divider-subtle portal-my-18" />
 
           <div className="portal-filter-section">
             <div className="portal-filter-section-title">
@@ -410,7 +356,7 @@ const ManageUsers = () => {
             <Select 
               value={statusFilter} 
               onChange={setStatusFilter}
-              style={{ width: '100%' }}
+              className="portal-w-full"
               size="large"
             >
               <Option value="ALL">All Statuses</Option>
@@ -424,8 +370,7 @@ const ManageUsers = () => {
         <motion.div 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="portal-glass-card" 
-          style={{ padding: '20px' }}
+          className="portal-glass-card portal-p-20" 
         >
           <Table 
             columns={columns}
@@ -440,7 +385,7 @@ const ManageUsers = () => {
         {/* User Dossier Modal */}
         <Modal
           title={
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--theme-heading)', fontSize: '18px', fontWeight: 700 }}>
+            <div className="portal-modal-title-row">
               <UserOutlined /> User Profile Dossier #{selectedUser?.id}
             </div>
           }
@@ -448,29 +393,15 @@ const ManageUsers = () => {
           onCancel={() => setDetailModalOpen(false)}
           footer={null}
           width={720}
-          styles={{
-            content: { background: 'var(--theme-surface)', border: '1px solid rgba(var(--theme-contrast-rgb), 0.12)', borderRadius: '20px' },
-            header: { background: 'var(--theme-surface)' },
-          }}
         >
           {selectedUser && (
-            <div style={{ color: 'var(--theme-secondary)', marginTop: '16px' }}>
-              <div 
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  padding: '16px',
-                  background: 'rgba(var(--theme-contrast-rgb), 0.04)',
-                  borderRadius: '12px',
-                  marginBottom: '20px'
-                }}
-              >
+            <div className="portal-mt-16 text-secondary">
+              <div className="portal-dossier-header-card">
                 <div>
-                  <h3 style={{ margin: 0, color: 'var(--theme-heading)', fontSize: '20px' }}>{selectedUser.name}</h3>
-                  <p style={{ margin: '4px 0 0', color: 'var(--theme-muted)', fontSize: '14px' }}>{selectedUser.email}</p>
+                  <h3 className="portal-text-20 font-bold portal-text-heading m-0">{selectedUser.name}</h3>
+                  <p className="portal-text-muted-sm mt-4 m-0">{selectedUser.email}</p>
                 </div>
-                <div style={{ display: 'flex', gap: '8px' }}>
+                <div className="portal-flex-gap-8">
                   <Tag color={selectedUser.role === 'ADMIN' ? 'gold' : (selectedUser.role === 'EMPLOYER' ? 'purple' : 'cyan')}>
                     {selectedUser.role}
                   </Tag>
@@ -481,30 +412,30 @@ const ManageUsers = () => {
               </div>
 
               {selectedUser.role === 'CANDIDATE' && selectedUser.candidateProfile && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                    <div style={{ padding: '12px', background: 'rgba(var(--theme-contrast-rgb),0.02)', borderRadius: '8px' }}>
-                      <span style={{ color: 'var(--theme-muted)', fontSize: '12px' }}>Designation</span>
-                      <div style={{ fontWeight: 600, color: 'var(--theme-heading)' }}>{selectedUser.candidateProfile.designation || 'N/A'}</div>
+                <div className="portal-flex-col-gap-16">
+                  <div className="portal-dossier-grid">
+                    <div className="portal-dossier-box">
+                      <span className="portal-text-muted-xs">Designation</span>
+                      <div className="portal-text-heading font-semibold">{selectedUser.candidateProfile.designation || 'N/A'}</div>
                     </div>
-                    <div style={{ padding: '12px', background: 'rgba(var(--theme-contrast-rgb),0.02)', borderRadius: '8px' }}>
-                      <span style={{ color: 'var(--theme-muted)', fontSize: '12px' }}>Experience</span>
-                      <div style={{ fontWeight: 600, color: 'var(--theme-heading)' }}>{selectedUser.candidateProfile.experience ? `${selectedUser.candidateProfile.experience} Years` : 'N/A'}</div>
+                    <div className="portal-dossier-box">
+                      <span className="portal-text-muted-xs">Experience</span>
+                      <div className="portal-text-heading font-semibold">{selectedUser.candidateProfile.experience ? `${selectedUser.candidateProfile.experience} Years` : 'N/A'}</div>
                     </div>
-                    <div style={{ padding: '12px', background: 'rgba(var(--theme-contrast-rgb),0.02)', borderRadius: '8px' }}>
-                      <span style={{ color: 'var(--theme-muted)', fontSize: '12px' }}>City / Location</span>
-                      <div style={{ fontWeight: 600, color: 'var(--theme-heading)' }}>{selectedUser.candidateProfile.city || 'N/A'}</div>
+                    <div className="portal-dossier-box">
+                      <span className="portal-text-muted-xs">City / Location</span>
+                      <div className="portal-text-heading font-semibold">{selectedUser.candidateProfile.city || 'N/A'}</div>
                     </div>
-                    <div style={{ padding: '12px', background: 'rgba(var(--theme-contrast-rgb),0.02)', borderRadius: '8px' }}>
-                      <span style={{ color: 'var(--theme-muted)', fontSize: '12px' }}>Notice Period</span>
-                      <div style={{ fontWeight: 600, color: 'var(--theme-heading)' }}>{selectedUser.candidateProfile.noticePeriod || 'N/A'}</div>
+                    <div className="portal-dossier-box">
+                      <span className="portal-text-muted-xs">Notice Period</span>
+                      <div className="portal-text-heading font-semibold">{selectedUser.candidateProfile.noticePeriod || 'N/A'}</div>
                     </div>
                   </div>
 
                   {selectedUser.candidateProfile.skills?.length > 0 && (
                     <div>
-                      <h4 style={{ color: 'var(--theme-link-soft)', fontSize: '14px', marginBottom: '8px' }}>Skills & Expertise</h4>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                      <h4 className="portal-text-link-soft portal-text-14 portal-mb-8">Skills & Expertise</h4>
+                      <div className="portal-flex-wrap-gap-6">
                         {selectedUser.candidateProfile.skills.map((s) => (
                           <Tag key={s.skill.id} color="blue">{s.skill.name}</Tag>
                         ))}
@@ -514,9 +445,9 @@ const ManageUsers = () => {
 
                   {selectedUser.candidateProfile.educations?.length > 0 && (
                     <div>
-                      <h4 style={{ color: 'var(--theme-link-soft)', fontSize: '14px', marginBottom: '8px' }}>Education & Qualifications</h4>
+                      <h4 className="portal-text-link-soft portal-text-14 portal-mb-8">Education & Qualifications</h4>
                       {selectedUser.candidateProfile.educations.map((edu) => (
-                        <div key={edu.id} style={{ fontSize: '13px', color: 'var(--theme-detail)', marginBottom: '4px' }}>
+                        <div key={edu.id} className="portal-text-detail-sm portal-mb-4">
                           • <strong>{edu.qualification}</strong> ({edu.degree}) — {edu.institution}
                         </div>
                       ))}
@@ -526,15 +457,15 @@ const ManageUsers = () => {
               )}
 
               {selectedUser.role === 'EMPLOYER' && selectedUser.employerMember && (
-                <div style={{ padding: '16px', background: 'rgba(var(--theme-contrast-rgb),0.03)', borderRadius: '12px' }}>
-                  <h4 style={{ color: 'var(--theme-link-soft)', fontSize: '14px', marginBottom: '8px' }}>Organisation Membership</h4>
-                  <p style={{ margin: '4px 0' }}><strong>Organisation:</strong> {selectedUser.employerMember.employer?.name}</p>
-                  <p style={{ margin: '4px 0' }}><strong>Type:</strong> {selectedUser.employerMember.employer?.type}</p>
-                  <p style={{ margin: '4px 0' }}><strong>Status:</strong> {selectedUser.employerMember.employer?.status}</p>
+                <div className="portal-card-box">
+                  <h4 className="portal-text-link-soft portal-text-14 portal-mb-8">Organisation Membership</h4>
+                  <p className="my-4"><strong>Organisation:</strong> {selectedUser.employerMember.employer?.name}</p>
+                  <p className="my-4"><strong>Type:</strong> {selectedUser.employerMember.employer?.type}</p>
+                  <p className="my-4"><strong>Status:</strong> {selectedUser.employerMember.employer?.status}</p>
                 </div>
               )}
 
-              <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+              <div className="portal-flex-end-gap-10 mt-24">
                 <Button onClick={() => setDetailModalOpen(false)}>Close</Button>
                 {selectedUser.role !== 'ADMIN' && (
                   <Button

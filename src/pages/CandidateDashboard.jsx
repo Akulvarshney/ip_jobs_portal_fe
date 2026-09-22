@@ -121,58 +121,35 @@ const CandidateDashboard = () => {
   const nextMissingItem = completeness?.missingItems?.[0] || null;
 
   return (
-    <div style={{ width: '100%', margin: 0, padding: 0 }}>
+    <div className="portal-w-full portal-m-0 portal-p-0">
       {/* Header Greeting & Profile Progress Banner */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        style={{
-          background: 'linear-gradient(135deg, rgba(var(--theme-surface-rgb), 0.8) 0%, rgba(var(--theme-bg-rgb), 0.9) 100%)',
-          border: '1px solid rgba(var(--theme-contrast-rgb), 0.1)',
-          borderRadius: '20px',
-          padding: '28px 32px',
-          marginTop: 0,
-          marginBottom: '32px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '24px',
-          boxShadow: '0 20px 40px -15px rgba(var(--theme-shadow-rgb), 0.4)'
-        }}
+        className="portal-cand-hero-banner"
       >
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-            <span style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--theme-link)', fontWeight: 600 }}>
+          <div className="portal-flex-center-gap-10 portal-mb-8">
+            <span className="portal-cand-tag-label">
               Candidate Portal
             </span>
-            <Tag color="cyan" style={{ borderRadius: '12px', fontSize: '11px', padding: '0 8px' }}>
+            <Tag color="cyan" className="portal-completeness-tag portal-text-11">
               {data?.profile?.professionalCategory || 'Insolvency & Restructuring Professional'}
             </Tag>
           </div>
-          <h1 style={{ fontSize: '30px', fontWeight: 700, color: 'var(--theme-heading)', margin: 0 }}>
+          <h1 className="portal-page-title">
             Welcome back, {user?.name || 'Professional'} 👋
           </h1>
-          <p style={{ color: 'var(--theme-muted)', marginTop: '6px', marginBottom: 0, fontSize: '15px' }}>
+          <p className="portal-page-subtitle">
             Track your Insolvency & Bankruptcy mandates, interview schedules, and employer requests.
           </p>
         </div>
 
-        <div style={{
-          background: 'rgba(var(--theme-contrast-rgb), 0.04)',
-          border: '1px solid rgba(var(--theme-contrast-rgb), 0.08)',
-          padding: '16px 20px',
-          borderRadius: '16px',
-          minWidth: '280px'
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-            <span style={{ fontSize: '13px', color: 'var(--theme-secondary)', fontWeight: 500 }}>Profile Completeness</span>
-            <span style={{
-              fontSize: '14px',
-              color: stats.profileCompleteness === 100 ? '#34d399' : '#38bdf8',
-              fontWeight: 700
-            }}>
+        <div className="portal-cand-completeness-box">
+          <div className="portal-flex-between-center portal-mb-8">
+            <span className="portal-form-label portal-text-13">Profile Completeness</span>
+            <span className={`portal-font-bold portal-text-14 ${stats.profileCompleteness === 100 ? 'portal-color-success' : 'portal-color-cyan'}`}>
               {stats.profileCompleteness}%
             </span>
           </div>
@@ -182,21 +159,21 @@ const CandidateDashboard = () => {
             strokeColor={stats.profileCompleteness === 100 ? '#10b981' : { '0%': '#0ea5e9', '100%': '#38bdf8' }}
             trailColor="rgba(var(--theme-contrast-rgb), 0.1)"
           />
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px', gap: '8px' }}>
+          <div className="portal-flex-between-center portal-mt-10 portal-gap-8">
             {stats.profileCompleteness === 100 ? (
-              <span style={{ fontSize: '12px', color: 'var(--theme-success)', fontWeight: 500 }}>
+              <span className="portal-color-success portal-text-12 portal-font-medium">
                 ✓ Profile 100% Complete
               </span>
             ) : nextMissingItem ? (
-              <Link to={nextMissingItem.route || '/candidate/profile'} style={{ fontSize: '12px', color: 'var(--theme-link)', fontWeight: 500 }}>
+              <Link to={nextMissingItem.route || '/candidate/profile'} className="portal-tag-link portal-text-12 portal-font-medium">
                 + {nextMissingItem.label} (+{nextMissingItem.points - (nextMissingItem.earned || 0)}%)
               </Link>
             ) : (
-              <Link to="/candidate/profile" style={{ fontSize: '12px', color: 'var(--theme-link)', fontWeight: 500 }}>
+              <Link to="/candidate/profile" className="portal-tag-link portal-text-12 portal-font-medium">
                 + Add Experience / Skills
               </Link>
             )}
-            <Link to="/candidate/profile" style={{ fontSize: '12px', color: 'var(--theme-subtle)' }}>
+            <Link to="/candidate/profile" className="portal-text-subtle-12">
               Edit Profile →
             </Link>
           </div>
@@ -204,28 +181,22 @@ const CandidateDashboard = () => {
       </motion.div>
 
       {/* 4 Stat Cards as defined in ProductMap 4.1 */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-        gap: '20px',
-        marginBottom: '36px'
-      }}>
+      <div className="portal-cards-grid portal-mb-36">
         {/* Applications */}
         <motion.div
           whileHover={{ y: -4 }}
           onClick={() => navigate('/candidate/applications')}
-          className="portal-glass-card"
-          style={{ padding: '24px', cursor: 'pointer', border: '1px solid rgba(56, 189, 248, 0.2)' }}
+          className="portal-glass-card portal-p-24 portal-cursor-pointer portal-border-cyan-20"
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <span style={{ color: 'var(--theme-muted)', fontSize: '14px', fontWeight: 500 }}>Applications</span>
-            <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'rgba(56, 189, 248, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--theme-link)', fontSize: '20px' }}>
+          <div className="portal-flex-between-center portal-mb-16">
+            <span className="portal-card-meta portal-text-14">Applications</span>
+            <div className="portal-cand-stat-icon-wrap cyan">
               <SendOutlined />
             </div>
           </div>
-          <div style={{ fontSize: '36px', fontWeight: 700, color: 'var(--theme-heading)' }}>{stats.applications}</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '8px', color: 'var(--theme-link)', fontSize: '13px' }}>
-            <span>View all submitted</span> <ArrowRightOutlined style={{ fontSize: '11px' }} />
+          <div className="portal-cand-stat-num">{stats.applications}</div>
+          <div className="portal-cand-stat-footer portal-color-link">
+            <span>View all submitted</span> <ArrowRightOutlined className="portal-icon-11" />
           </div>
         </motion.div>
 
@@ -233,18 +204,17 @@ const CandidateDashboard = () => {
         <motion.div
           whileHover={{ y: -4 }}
           onClick={() => navigate('/candidate/applications?status=SHORTLISTED')}
-          className="portal-glass-card"
-          style={{ padding: '24px', cursor: 'pointer', border: '1px solid rgba(168, 85, 247, 0.2)' }}
+          className="portal-glass-card portal-p-24 portal-cursor-pointer portal-border-purple-20"
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <span style={{ color: 'var(--theme-muted)', fontSize: '14px', fontWeight: 500 }}>Shortlisted</span>
-            <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'rgba(168, 85, 247, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#a855f7', fontSize: '20px' }}>
+          <div className="portal-flex-between-center portal-mb-16">
+            <span className="portal-card-meta portal-text-14">Shortlisted</span>
+            <div className="portal-cand-stat-icon-wrap purple">
               <CheckCircleOutlined />
             </div>
           </div>
-          <div style={{ fontSize: '36px', fontWeight: 700, color: 'var(--theme-heading)' }}>{stats.shortlisted}</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '8px', color: '#a855f7', fontSize: '13px' }}>
-            <span>Recruiter interest</span> <ArrowRightOutlined style={{ fontSize: '11px' }} />
+          <div className="portal-cand-stat-num">{stats.shortlisted}</div>
+          <div className="portal-cand-stat-footer portal-color-purple">
+            <span>Recruiter interest</span> <ArrowRightOutlined className="portal-icon-11" />
           </div>
         </motion.div>
 
@@ -252,18 +222,17 @@ const CandidateDashboard = () => {
         <motion.div
           whileHover={{ y: -4 }}
           onClick={() => navigate('/candidate/interviews')}
-          className="portal-glass-card"
-          style={{ padding: '24px', cursor: 'pointer', border: '1px solid rgba(234, 179, 8, 0.2)' }}
+          className="portal-glass-card portal-p-24 portal-cursor-pointer portal-border-gold-20"
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <span style={{ color: 'var(--theme-muted)', fontSize: '14px', fontWeight: 500 }}>Interviews</span>
-            <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'rgba(234, 179, 8, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#eab308', fontSize: '20px' }}>
+          <div className="portal-flex-between-center portal-mb-16">
+            <span className="portal-card-meta portal-text-14">Interviews</span>
+            <div className="portal-cand-stat-icon-wrap gold">
               <CalendarOutlined />
             </div>
           </div>
-          <div style={{ fontSize: '36px', fontWeight: 700, color: 'var(--theme-heading)' }}>{stats.interviews}</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '8px', color: '#eab308', fontSize: '13px' }}>
-            <span>Scheduled meetings</span> <ArrowRightOutlined style={{ fontSize: '11px' }} />
+          <div className="portal-cand-stat-num">{stats.interviews}</div>
+          <div className="portal-cand-stat-footer portal-color-gold">
+            <span>Scheduled meetings</span> <ArrowRightOutlined className="portal-icon-11" />
           </div>
         </motion.div>
 
@@ -271,202 +240,150 @@ const CandidateDashboard = () => {
         <motion.div
           whileHover={{ y: -4 }}
           onClick={() => navigate('/candidate/saved-jobs')}
-          className="portal-glass-card"
-          style={{ padding: '24px', cursor: 'pointer', border: '1px solid rgba(16, 185, 129, 0.2)' }}
+          className="portal-glass-card portal-p-24 portal-cursor-pointer portal-border-green-20"
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <span style={{ color: 'var(--theme-muted)', fontSize: '14px', fontWeight: 500 }}>Saved Jobs</span>
-            <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'rgba(16, 185, 129, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981', fontSize: '20px' }}>
+          <div className="portal-flex-between-center portal-mb-16">
+            <span className="portal-card-meta portal-text-14">Saved Jobs</span>
+            <div className="portal-cand-stat-icon-wrap green">
               <BookOutlined />
             </div>
           </div>
-          <div style={{ fontSize: '36px', fontWeight: 700, color: 'var(--theme-heading)' }}>{stats.savedJobs}</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '8px', color: '#10b981', fontSize: '13px' }}>
-            <span>Bookmarked roles</span> <ArrowRightOutlined style={{ fontSize: '11px' }} />
+          <div className="portal-cand-stat-num">{stats.savedJobs}</div>
+          <div className="portal-cand-stat-footer portal-color-success">
+            <span>Bookmarked roles</span> <ArrowRightOutlined className="portal-icon-11" />
           </div>
         </motion.div>
       </div>
 
       {/* Main Content Grid: Left (Recent Applications & Jobs), Right (Upcoming Interviews & Quick Links) */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.8fr) minmax(0, 1.2fr)', gap: '32px' }}>
+      <div className="portal-dashboard-2col-layout">
 
         {/* Left Column */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+        <div className="portal-flex-col-gap-32">
 
           {/* Recent Applications Section */}
-          <div className="portal-glass-card" style={{ padding: '28px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <div className="portal-glass-card portal-p-28">
+            <div className="portal-flex-between-center portal-mb-20">
               <div>
-                <h2 style={{ fontSize: '20px', fontWeight: 600, color: 'var(--theme-heading)', margin: 0 }}>Recent Applications</h2>
-                <p style={{ color: 'var(--theme-muted)', fontSize: '13px', margin: '4px 0 0' }}>Latest updates on your job applications</p>
+                <h2 className="portal-section-title">Recent Applications</h2>
+                <p className="portal-section-desc">Latest updates on your job applications</p>
               </div>
               <Link to="/candidate/applications">
-                <Button type="link" style={{ color: 'var(--theme-link)', padding: 0 }}>View All</Button>
+                <Button type="link" className="portal-tag-link portal-p-0">View All</Button>
               </Link>
             </div>
 
             {data?.recentApplications?.length > 0 ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div className="portal-flex-col-gap-14">
                 {data.recentApplications.map((app) => (
                   <div
                     key={app.id}
-                    style={{
-                      background: 'rgba(var(--theme-contrast-rgb), 0.03)',
-                      border: '1px solid rgba(var(--theme-contrast-rgb), 0.08)',
-                      borderRadius: '12px',
-                      padding: '16px 18px',
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      gap: '16px',
-                      transition: 'all 0.2s'
-                    }}
+                    className="portal-cand-app-card"
                   >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                      <div style={{
-                        width: '42px',
-                        height: '42px',
-                        borderRadius: '10px',
-                        background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(14, 165, 233, 0.05))',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontWeight: 700,
-                        color: 'var(--theme-link)',
-                        fontSize: '15px'
-                      }}>
+                    <div className="portal-flex-center-gap-14">
+                      <div className="portal-cand-app-avatar">
                         {app.job?.employer?.name ? app.job.employer.name.substring(0, 2).toUpperCase() : 'CO'}
                       </div>
                       <div>
-                        <div style={{ fontSize: '15px', fontWeight: 600, color: 'var(--theme-heading)' }}>{app.job?.title}</div>
-                        <div style={{ fontSize: '13px', color: 'var(--theme-subtle)' }}>
+                        <div className="portal-card-heading">{app.job?.title}</div>
+                        <div className="portal-card-meta">
                           {app.job?.employer?.name || 'Insolvency Firm'} • Applied {new Date(app.createdAt).toLocaleDateString()}
                         </div>
                       </div>
                     </div>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div className="portal-flex-center-gap-12">
                       <Tag
-                        style={{
-                          borderRadius: '12px',
-                          padding: '4px 12px',
-                          fontSize: '12px',
-                          fontWeight: 600,
-                          borderColor: getStatusColor(app.status),
-                          color: getStatusColor(app.status),
-                          background: `${getStatusColor(app.status)}15`
-                        }}
+                        className={`portal-status-badge ${app.status?.toLowerCase() || 'default'}`}
                       >
                         {app.status}
                       </Tag>
                       <Link to={`/jobs/${app.job?.id}`}>
-                        <Button size="small" type="text" icon={<EyeOutlined />} style={{ color: 'var(--theme-muted)' }} />
+                        <Button size="small" type="text" icon={<EyeOutlined />} className="portal-color-muted" />
                       </Link>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div style={{ textAlign: 'center', padding: '36px 16px', color: 'var(--theme-muted)' }}>
-                <SendOutlined style={{ fontSize: '32px', color: 'var(--theme-link)', marginBottom: '12px', opacity: 0.6 }} />
-                <p style={{ margin: 0 }}>You have not applied to any mandates yet.</p>
+              <div className="portal-empty-card">
+                <SendOutlined className="portal-empty-icon" />
+                <p className="portal-m-0">You have not applied to any mandates yet.</p>
                 <Link to="/candidate/jobs">
-                  <Button type="primary" style={{ marginTop: '12px', borderRadius: '8px' }}>Explore Mandates</Button>
+                  <Button type="primary" className="portal-btn-cyan portal-mt-12">Explore Mandates</Button>
                 </Link>
               </div>
             )}
           </div>
 
           {/* Recommended Open Mandates Section */}
-          <div className="portal-glass-card" style={{ padding: '28px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <div className="portal-glass-card portal-p-28">
+            <div className="portal-flex-between-center portal-mb-20">
               <div>
-                <h2 style={{ fontSize: '20px', fontWeight: 600, color: 'var(--theme-heading)', margin: 0 }}>Recommended For You</h2>
-                <p style={{ color: 'var(--theme-muted)', fontSize: '13px', margin: '4px 0 0' }}>Latest Insolvency, CIRP & Restructuring roles</p>
+                <h2 className="portal-section-title">Recommended For You</h2>
+                <p className="portal-section-desc">Latest Insolvency, CIRP & Restructuring roles</p>
               </div>
               <Link to="/candidate/jobs">
-                <Button type="link" style={{ color: 'var(--theme-link)', padding: 0 }}>Search All</Button>
+                <Button type="link" className="portal-tag-link portal-p-0">Search All</Button>
               </Link>
             </div>
 
             {data?.recommendedJobs?.length > 0 ? (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
+              <div className="portal-cand-rec-jobs-grid">
                 {data.recommendedJobs.map((job) => (
                   <div
                     key={job.id}
-                    style={{
-                      background: 'rgba(var(--theme-contrast-rgb), 0.03)',
-                      border: '1px solid rgba(var(--theme-contrast-rgb), 0.08)',
-                      borderRadius: '14px',
-                      padding: '20px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'space-between'
-                    }}
+                    className="portal-cand-rec-job-card"
                   >
                     <div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <div style={{
-                            padding: '3px 8px',
-                            borderRadius: '6px',
-                            background: 'rgba(56, 189, 248, 0.1)',
-                            color: 'var(--theme-link)',
-                            fontSize: '11px',
-                            fontWeight: 600
-                          }}>
+                      <div className="portal-flex-between-center portal-mb-12">
+                        <div className="portal-flex-center-gap-6">
+                          <div className="portal-employer-type-badge">
                             {job.employer?.type || 'VERIFIED'}
                           </div>
-                          <Tag color={getJobTypeColor(job.jobType)} style={{ borderRadius: '6px', fontSize: '10px', padding: '0 6px', margin: 0, lineHeight: '18px' }}>
+                          <Tag color={getJobTypeColor(job.jobType)} className="portal-tag-compact">
                             {getJobTypeLabel(job.jobType)}
                           </Tag>
-                          <Tag style={{ borderRadius: '6px', fontSize: '10px', padding: '0 6px', margin: 0, lineHeight: '18px', background: 'rgba(56, 189, 248, 0.1)', color: 'var(--theme-link)', border: '1px solid rgba(56, 189, 248, 0.25)' }}>
+                          <Tag className="portal-tag-compact portal-tag-exp">
                             {getExperienceLevelShortLabel(job.experienceLevel)}
                           </Tag>
                         </div>
                         <button
                           onClick={() => handleToggleSave(job.id)}
-                          style={{
-                            background: 'transparent',
-                            border: 'none',
-                            cursor: 'pointer',
-                            color: savedStatus[job.id] ? '#ef4444' : 'var(--theme-placeholder)',
-                            fontSize: '16px'
-                          }}
+                          className={`portal-heart-btn ${savedStatus[job.id] ? 'active' : ''}`}
                         >
                           {savedStatus[job.id] ? <HeartFilled /> : <HeartOutlined />}
                         </button>
                       </div>
 
-                      <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--theme-heading)', margin: '0 0 6px' }}>
+                      <h3 className="portal-card-heading portal-mb-6">
                         {job.title}
                       </h3>
-                      <div style={{ fontSize: '13px', color: 'var(--theme-subtle)', marginBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '4px' }}>
+                      <div className="portal-card-meta portal-flex-between-center portal-mb-10 portal-flex-wrap-gap-4">
                         <span>{job.employer?.name || 'Insolvency Entity'}</span>
-                        <span style={{ color: 'var(--theme-success)', fontWeight: 600, fontSize: '12px' }}>
+                        <span className="portal-salary-badge">
                           <DollarOutlined /> {getSalaryRangeLabel(job.salaryRange)}
                         </span>
                       </div>
 
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '16px' }}>
+                      <div className="portal-flex-wrap-gap-8 portal-mb-16">
                         {job.skills?.slice(0, 3).map(s => (
-                          <Tag key={s.skill?.id} style={{ borderRadius: '6px', fontSize: '11px', background: 'rgba(var(--theme-contrast-rgb), 0.06)', color: 'var(--theme-detail)', border: 'none' }}>
+                          <Tag key={s.skill?.id} className="portal-skill-badge">
                             {s.skill?.name}
                           </Tag>
                         ))}
                       </div>
                     </div>
 
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '12px', borderTop: '1px solid rgba(var(--theme-contrast-rgb), 0.06)' }}>
-                      <Link to={`/jobs/${job.id}`} style={{ fontSize: '13px', color: 'var(--theme-link)' }}>
+                    <div className="portal-flex-between-center portal-pt-12 portal-border-top-subtle">
+                      <Link to={`/jobs/${job.id}`} className="portal-tag-link portal-text-13">
                         View Details
                       </Link>
                       {appliedStatus[job.id] ? (
                         <Tag color="cyan" icon={<CheckCircleOutlined />}>Applied</Tag>
                       ) : (
                         <button
-                          className="portal-btn-primary"
-                          style={{ padding: '6px 14px', fontSize: '12px' }}
+                          className="portal-btn-primary portal-btn-compact-apply"
                           onClick={() => handleApplyClick(job)}
                         >
                           Apply Now
@@ -477,12 +394,12 @@ const CandidateDashboard = () => {
                 ))}
               </div>
             ) : (
-              <div style={{ textAlign: 'center', padding: '36px 16px', color: 'var(--theme-muted)', background: 'rgba(var(--theme-contrast-rgb), 0.02)', borderRadius: '12px', border: '1px solid rgba(var(--theme-contrast-rgb), 0.05)' }}>
-                <CheckCircleOutlined style={{ fontSize: '32px', color: '#10b981', marginBottom: '12px', opacity: 0.7 }} />
-                <p style={{ margin: 0, color: 'var(--theme-text)', fontWeight: 500 }}>You're all caught up!</p>
-                <p style={{ margin: '4px 0 12px', fontSize: '13px', color: 'var(--theme-muted)' }}>You have applied to all current matching active mandates.</p>
+              <div className="portal-empty-card">
+                <CheckCircleOutlined className="portal-empty-icon-green" />
+                <p className="portal-empty-title">You're all caught up!</p>
+                <p className="portal-empty-desc">You have applied to all current matching active mandates.</p>
                 <Link to="/candidate/jobs">
-                  <Button style={{ borderRadius: '8px' }}>Browse All Mandates</Button>
+                  <Button className="portal-btn-rounded-8">Browse All Mandates</Button>
                 </Link>
               </div>
             )}
@@ -491,43 +408,38 @@ const CandidateDashboard = () => {
         </div>
 
         {/* Right Column */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+        <div className="portal-flex-col-gap-32">
 
           {/* Upcoming Interviews Widget */}
-          <div className="portal-glass-card" style={{ padding: '28px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
-              <h2 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--theme-heading)', margin: 0 }}>
-                <CalendarOutlined style={{ color: '#eab308', marginRight: '8px' }} />
+          <div className="portal-glass-card portal-p-28">
+            <div className="portal-flex-between-center portal-mb-18">
+              <h2 className="portal-card-heading portal-text-18 portal-m-0">
+                <CalendarOutlined className="portal-color-gold portal-mr-8" />
                 Upcoming Interviews
               </h2>
-              <Link to="/candidate/interviews" style={{ fontSize: '13px', color: 'var(--theme-link)' }}>
+              <Link to="/candidate/interviews" className="portal-tag-link portal-text-13">
                 All
               </Link>
             </div>
 
             {data?.upcomingInterviews?.length > 0 ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div className="portal-flex-col-gap-14">
                 {data.upcomingInterviews.map((interview) => (
                   <div
                     key={interview.id}
-                    style={{
-                      background: 'linear-gradient(135deg, rgba(234, 179, 8, 0.08) 0%, rgba(var(--theme-surface-rgb), 0.6) 100%)',
-                      border: '1px solid rgba(234, 179, 8, 0.25)',
-                      borderRadius: '14px',
-                      padding: '16px',
-                    }}
+                    className="portal-cand-interview-card"
                   >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                    <div className="portal-flex-between-center portal-mb-8">
                       <div>
-                        <div style={{ fontWeight: 600, color: 'var(--theme-heading)', fontSize: '14px' }}>{interview.job?.title || 'Mandate Interview'}</div>
-                        <div style={{ fontSize: '12px', color: 'var(--theme-detail)' }}>{interview.employer?.name}</div>
+                        <div className="portal-card-heading portal-text-14">{interview.job?.title || 'Mandate Interview'}</div>
+                        <div className="portal-card-meta portal-text-12">{interview.employer?.name}</div>
                       </div>
-                      <Tag color="gold" style={{ borderRadius: '8px', fontSize: '11px' }}>
+                      <Tag color="gold" className="portal-tag-compact">
                         {interview.interviewType}
                       </Tag>
                     </div>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '12px', color: '#fde047', marginBottom: '12px' }}>
+                    <div className="portal-cand-interview-time-row">
                       <span>📅 {new Date(interview.interviewDate).toLocaleDateString()}</span>
                       <span>⏰ {interview.interviewTime || 'Scheduled'}</span>
                     </div>
@@ -537,98 +449,58 @@ const CandidateDashboard = () => {
                         href={interview.meetingLink.startsWith('http') ? interview.meetingLink : `https://${interview.meetingLink}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        style={{
-                          display: 'block',
-                          textAlign: 'center',
-                          background: '#eab308',
-                          color: '#0f172a',
-                          fontWeight: 600,
-                          padding: '6px 12px',
-                          borderRadius: '8px',
-                          fontSize: '13px',
-                          textDecoration: 'none'
-                        }}
+                        className="portal-cand-join-meeting-btn"
                       >
-                        <VideoCameraOutlined style={{ marginRight: '6px' }} /> Join Meeting
+                        <VideoCameraOutlined className="portal-mr-6" /> Join Meeting
                       </a>
                     )}
                   </div>
                 ))}
               </div>
             ) : (
-              <div style={{ textAlign: 'center', padding: '24px 12px', background: 'rgba(var(--theme-contrast-rgb), 0.02)', borderRadius: '12px', border: '1px solid rgba(var(--theme-contrast-rgb), 0.05)' }}>
-                <CalendarOutlined style={{ fontSize: '28px', color: 'var(--theme-muted)', marginBottom: '8px', opacity: 0.5 }} />
-                <p style={{ color: 'var(--theme-muted)', fontSize: '13px', margin: 0 }}>No upcoming interviews scheduled right now.</p>
+              <div className="portal-empty-card portal-p-24">
+                <CalendarOutlined className="portal-empty-icon" />
+                <p className="portal-empty-desc portal-m-0">No upcoming interviews scheduled right now.</p>
               </div>
             )}
           </div>
 
           {/* Candidate Quick Action Tools */}
-          <div className="portal-glass-card" style={{ padding: '28px' }}>
-            <h2 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--theme-heading)', marginBottom: '16px' }}>Candidate Toolkit</h2>
+          <div className="portal-glass-card portal-p-28">
+            <h2 className="portal-section-title portal-mb-16">Candidate Toolkit</h2>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div className="portal-flex-col-gap-12">
               <Link
                 to="/candidate/profile"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '12px 16px',
-                  borderRadius: '10px',
-                  background: 'rgba(var(--theme-contrast-rgb), 0.04)',
-                  border: '1px solid rgba(var(--theme-contrast-rgb), 0.08)',
-                  color: 'var(--theme-heading)',
-                  textDecoration: 'none'
-                }}
+                className="portal-cand-toolkit-link"
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <UserOutlined style={{ color: 'var(--theme-link)', fontSize: '16px' }} />
-                  <span style={{ fontSize: '14px', fontWeight: 500 }}>Update Professional Profile</span>
+                <div className="portal-flex-center-gap-12">
+                  <UserOutlined className="portal-color-link portal-text-16" />
+                  <span className="portal-font-medium portal-text-14">Update Professional Profile</span>
                 </div>
-                <ArrowRightOutlined style={{ fontSize: '12px', color: 'var(--theme-muted)' }} />
+                <ArrowRightOutlined className="portal-icon-12 portal-color-muted" />
               </Link>
 
               <Link
                 to="/candidate/profile?tab=resume"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '12px 16px',
-                  borderRadius: '10px',
-                  background: 'rgba(var(--theme-contrast-rgb), 0.04)',
-                  border: '1px solid rgba(var(--theme-contrast-rgb), 0.08)',
-                  color: 'var(--theme-heading)',
-                  textDecoration: 'none'
-                }}
+                className="portal-cand-toolkit-link"
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <FileTextOutlined style={{ color: '#a855f7', fontSize: '16px' }} />
-                  <span style={{ fontSize: '14px', fontWeight: 500 }}>Manage Resume Document</span>
+                <div className="portal-flex-center-gap-12">
+                  <FileTextOutlined className="portal-color-purple portal-text-16" />
+                  <span className="portal-font-medium portal-text-14">Manage Resume Document</span>
                 </div>
-                <ArrowRightOutlined style={{ fontSize: '12px', color: 'var(--theme-muted)' }} />
+                <ArrowRightOutlined className="portal-icon-12 portal-color-muted" />
               </Link>
 
               <Link
                 to="/candidate/jobs"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '12px 16px',
-                  borderRadius: '10px',
-                  background: 'rgba(var(--theme-contrast-rgb), 0.04)',
-                  border: '1px solid rgba(var(--theme-contrast-rgb), 0.08)',
-                  color: 'var(--theme-heading)',
-                  textDecoration: 'none'
-                }}
+                className="portal-cand-toolkit-link"
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <RocketOutlined style={{ color: '#10b981', fontSize: '16px' }} />
-                  <span style={{ fontSize: '14px', fontWeight: 500 }}>Search Insolvency Mandates</span>
+                <div className="portal-flex-center-gap-12">
+                  <RocketOutlined className="portal-color-success portal-text-16" />
+                  <span className="portal-font-medium portal-text-14">Search Insolvency Mandates</span>
                 </div>
-                <ArrowRightOutlined style={{ fontSize: '12px', color: 'var(--theme-muted)' }} />
+                <ArrowRightOutlined className="portal-icon-12 portal-color-muted" />
               </Link>
             </div>
           </div>
@@ -651,18 +523,18 @@ const CandidateDashboard = () => {
             type="primary"
             loading={applying}
             onClick={submitApplication}
-            style={{ background: '#0ea5e9' }}
+            className="portal-btn-cyan"
           >
             Submit Application
           </Button>,
         ]}
       >
-        <div style={{ padding: '8px 0' }}>
-          <p style={{ color: 'var(--theme-detail)', fontSize: '14px' }}>
+        <div className="portal-modal-inner">
+          <p className="portal-card-meta portal-text-14">
             Applying to: <strong>{selectedJob?.employer?.name}</strong>
           </p>
-          <div style={{ marginTop: '16px', marginBottom: '8px' }}>
-            <label style={{ display: 'block', fontSize: '13px', color: 'var(--theme-subtle)', marginBottom: '6px' }}>
+          <div className="portal-mt-16 portal-mb-8">
+            <label className="portal-form-label portal-block portal-text-13 portal-mb-6">
               Cover Note / Insolvency & Restructuring Experience Highlight (Optional):
             </label>
             <Input.TextArea
@@ -670,10 +542,10 @@ const CandidateDashboard = () => {
               value={coverNote}
               onChange={(e) => setCoverNote(e.target.value)}
               placeholder="E.g. Highlight your CIRP matters, liquidation experience, NCLT appearances, or IBC advisory qualifications..."
-              style={{ borderRadius: '8px', background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.15)' }}
+              className="portal-modal-textarea"
             />
           </div>
-          <div style={{ fontSize: '12px', color: 'var(--theme-subtle)', background: 'rgba(56, 189, 248, 0.08)', padding: '10px 12px', borderRadius: '8px', marginTop: '12px' }}>
+          <div className="portal-cand-apply-info-box">
             ℹ️ Your profile details, education, IBC skills, and active resume will be shared with the recruiter.
           </div>
         </div>

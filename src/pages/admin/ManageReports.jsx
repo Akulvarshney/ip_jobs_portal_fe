@@ -139,10 +139,10 @@ const ManageReports = () => {
       key: 'type',
       render: (_, record) => (
         <div>
-          <Tag color={getTypeTagColor(record.type)} style={{ fontWeight: 600 }}>
+          <Tag color={getTypeTagColor(record.type)} className="portal-fw-600">
             {record.type}
           </Tag>
-          <span style={{ fontSize: '12px', color: 'var(--theme-muted)', marginLeft: '6px' }}>#{record.id}</span>
+          <span className="portal-text-muted-12 portal-ml-6">#{record.id}</span>
         </div>
       ),
     },
@@ -151,7 +151,7 @@ const ManageReports = () => {
       dataIndex: 'description',
       key: 'description',
       render: (text) => (
-        <span style={{ color: 'var(--theme-secondary)', fontSize: '14px', maxWidth: '380px', display: 'inline-block' }}>
+        <span className="portal-report-desc-truncate">
           {text}
         </span>
       ),
@@ -161,7 +161,7 @@ const ManageReports = () => {
       dataIndex: 'createdAt',
       key: 'createdAt',
       render: (date) => (
-        <span style={{ color: 'var(--theme-detail)', fontSize: '13px' }}>
+        <span className="portal-text-detail-13">
           {new Date(date).toLocaleDateString()}
         </span>
       ),
@@ -171,7 +171,7 @@ const ManageReports = () => {
       dataIndex: 'status',
       key: 'status',
       render: (status) => (
-        <Tag color={getStatusTagColor(status)} style={{ fontWeight: 600 }}>
+        <Tag color={getStatusTagColor(status)} className="portal-fw-600">
           {status}
         </Tag>
       ),
@@ -185,12 +185,7 @@ const ManageReports = () => {
             size="small" 
             icon={<EyeOutlined />}
             onClick={() => openReportModal(record)}
-            style={{ 
-              background: 'rgba(var(--theme-contrast-rgb), 0.08)', 
-              borderColor: 'rgba(var(--theme-contrast-rgb), 0.15)', 
-              color: '#e0f2fe',
-              borderRadius: '6px'
-            }}
+            className="portal-btn-review"
           >
             Review
           </Button>
@@ -201,7 +196,7 @@ const ManageReports = () => {
               icon={<SyncOutlined />}
               loading={actionLoadingId === record.id}
               onClick={() => handleUpdateStatus(record.id, 'INVESTIGATING')}
-              style={{ background: 'rgba(245, 158, 11, 0.15)', borderColor: 'rgba(245, 158, 11, 0.4)', color: '#fde047', borderRadius: '6px' }}
+              className="portal-btn-pause-sm"
             >
               Investigate
             </Button>
@@ -214,7 +209,7 @@ const ManageReports = () => {
               icon={<CheckCircleOutlined />}
               loading={actionLoadingId === record.id}
               onClick={() => handleUpdateStatus(record.id, 'RESOLVED')}
-              style={{ background: '#10b981', borderColor: '#10b981', borderRadius: '6px' }}
+              className="portal-btn-approve-sm"
             >
               Resolve
             </Button>
@@ -226,7 +221,7 @@ const ManageReports = () => {
               icon={<CloseCircleOutlined />}
               loading={actionLoadingId === record.id}
               onClick={() => handleUpdateStatus(record.id, 'REJECTED')}
-              style={{ background: 'rgba(var(--theme-contrast-rgb), 0.05)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.15)', color: 'var(--theme-muted)', borderRadius: '6px' }}
+              className="portal-btn-close-sm"
             >
               Reject
             </Button>
@@ -237,15 +232,14 @@ const ManageReports = () => {
   ];
 
   return (
-    <div style={{ width: '100%' }}>
+    <div className="portal-w-full">
       <AdminHeader 
           title="Platform Moderation & Reports" 
           subtitle="Audit reported fake jobs, unverified organisations, spam mandates, or compliance violations."
           actions={
-            <div style={{ display: 'flex', gap: '10px' }}>
+            <div className="portal-flex-gap-10">
               <button 
-                className="portal-btn-primary" 
-                style={{ padding: '8px 16px', fontSize: '13px' }}
+                className="portal-btn-primary portal-btn-sm-13" 
                 onClick={() => setCreateModalOpen(true)}
               >
                 <PlusOutlined /> Log New Report
@@ -263,34 +257,22 @@ const ManageReports = () => {
         />
 
         {/* Clean Search & Filter Bar */}
-        <div 
-          className="portal-glass-card" 
-          style={{ 
-            padding: '16px 20px', 
-            marginBottom: '24px'
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-            <div style={{ flex: '1 1 300px', display: 'flex', gap: '8px' }}>
+        <div className="portal-glass-card portal-p-16-20 portal-mb-24">
+          <div className="portal-flex-wrap-gap-12">
+            <div className="portal-flex-grow-gap-8">
               <Input 
-                prefix={<SearchOutlined style={{ color: 'var(--theme-muted)' }} />}
+                prefix={<SearchOutlined className="portal-muted-icon" />}
                 placeholder="Search report description, reason, or details..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 onPressEnter={fetchReports}
-                style={{
-                  background: 'rgba(var(--theme-contrast-rgb), 0.05)',
-                  borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)',
-                  color: 'var(--theme-heading)',
-                  borderRadius: '10px',
-                  height: '44px'
-                }}
+                className="portal-input-h44"
                 allowClear
               />
               <Button 
                 type="primary" 
                 onClick={fetchReports} 
-                style={{ background: '#0ea5e9', borderColor: '#0ea5e9', borderRadius: '10px', height: '44px', fontWeight: 600 }}
+                className="portal-btn-cyan-h44"
               >
                 Search
               </Button>
@@ -301,18 +283,10 @@ const ManageReports = () => {
               className={`portal-filter-trigger-btn ${activeFiltersCount > 0 ? 'active' : ''}`}
               onClick={() => setDrawerOpen(true)}
             >
-              <FilterOutlined style={{ color: activeFiltersCount > 0 ? '#38bdf8' : 'inherit' }} />
+              <FilterOutlined className={activeFiltersCount > 0 ? 'portal-text-cyan' : ''} />
               <span>Filters</span>
               {activeFiltersCount > 0 && (
-                <span style={{
-                  background: '#0ea5e9',
-                  color: 'var(--theme-on-primary)',
-                  fontSize: '11px',
-                  fontWeight: 700,
-                  borderRadius: '10px',
-                  padding: '1px 7px',
-                  marginLeft: '2px'
-                }}>
+                <span className="portal-filter-badge-count">
                   {activeFiltersCount}
                 </span>
               )}
@@ -326,17 +300,7 @@ const ManageReports = () => {
                     handleResetFilters();
                     fetchReports();
                   }}
-                  style={{ 
-                    height: '44px', 
-                    width: '44px',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    borderRadius: '10px', 
-                    background: 'rgba(var(--theme-contrast-rgb), 0.06)', 
-                    color: 'var(--theme-muted)', 
-                    borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)' 
-                  }}
+                  className="portal-btn-icon-h44"
                 />
               </Tooltip>
             )}
@@ -367,8 +331,8 @@ const ManageReports = () => {
         {/* Filter Drawer */}
         <Drawer
           title={
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <FilterOutlined style={{ color: 'var(--theme-link)' }} />
+            <div className="portal-drawer-title-row">
+              <FilterOutlined className="portal-text-link" />
               <span>Filter Moderation Reports</span>
             </div>
           }
@@ -377,14 +341,14 @@ const ManageReports = () => {
           open={drawerOpen}
           onClose={() => setDrawerOpen(false)}
           footer={
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="portal-between-row">
               <Button 
                 onClick={() => {
                   handleResetFilters();
                   setDrawerOpen(false);
                 }}
                 disabled={activeFiltersCount === 0 && !search}
-                style={{ borderRadius: '8px', background: 'transparent', color: 'var(--theme-subtle)', border: '1px solid rgba(var(--theme-contrast-rgb),0.15)' }}
+                className="portal-btn-ghost"
               >
                 Reset All
               </Button>
@@ -394,7 +358,7 @@ const ManageReports = () => {
                   setDrawerOpen(false);
                   fetchReports();
                 }}
-                style={{ borderRadius: '8px', background: '#0ea5e9', borderColor: '#0ea5e9', fontWeight: 600 }}
+                className="portal-btn-cyan-apply"
               >
                 Apply & View ({reports.length})
               </Button>
@@ -408,7 +372,7 @@ const ManageReports = () => {
             <Select 
               value={statusFilter} 
               onChange={setStatusFilter}
-              style={{ width: '100%' }}
+              className="portal-w-full"
               size="large"
             >
               <Option value="ALL">All Statuses</Option>
@@ -419,7 +383,7 @@ const ManageReports = () => {
             </Select>
           </div>
 
-          <Divider style={{ borderColor: 'rgba(var(--theme-contrast-rgb),0.08)', margin: '18px 0' }} />
+          <Divider className="portal-divider-subtle" />
 
           <div className="portal-filter-section">
             <div className="portal-filter-section-title">
@@ -428,7 +392,7 @@ const ManageReports = () => {
             <Select 
               value={typeFilter} 
               onChange={setTypeFilter}
-              style={{ width: '100%' }}
+              className="portal-w-full"
               size="large"
             >
               <Option value="ALL">All Report Types</Option>
@@ -445,8 +409,7 @@ const ManageReports = () => {
         <motion.div 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="portal-glass-card" 
-          style={{ padding: '20px' }}
+          className="portal-glass-card portal-p-20"
         >
           <Table 
             columns={columns}
@@ -461,38 +424,23 @@ const ManageReports = () => {
         {/* Report Review Modal */}
         <Modal
           title={
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--theme-heading)', fontSize: '18px', fontWeight: 700 }}>
-              <AlertOutlined style={{ color: '#ef4444' }} /> Moderation Incident Review #{selectedReport?.id}
+            <div className="portal-modal-header-row">
+              <AlertOutlined className="portal-text-danger" /> Moderation Incident Review #{selectedReport?.id}
             </div>
           }
           open={detailModalOpen}
           onCancel={() => setDetailModalOpen(false)}
           footer={null}
           width={650}
-          styles={{
-            content: { background: 'var(--theme-surface)', border: '1px solid rgba(var(--theme-contrast-rgb), 0.12)', borderRadius: '20px' },
-            header: { background: 'var(--theme-surface)' },
-          }}
         >
           {selectedReport && (
-            <div style={{ color: 'var(--theme-secondary)', marginTop: '16px' }}>
-              <div 
-                style={{
-                  padding: '16px',
-                  background: 'rgba(239, 68, 68, 0.08)',
-                  border: '1px solid rgba(239, 68, 68, 0.25)',
-                  borderRadius: '12px',
-                  marginBottom: '20px',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center'
-                }}
-              >
+            <div className="portal-text-secondary portal-mt-16">
+              <div className="portal-incident-box-alert">
                 <div>
-                  <Tag color={getTypeTagColor(selectedReport.type)} style={{ fontSize: '13px', padding: '4px 10px' }}>
+                  <Tag color={getTypeTagColor(selectedReport.type)} className="portal-tag-report-type">
                     {selectedReport.type}
                   </Tag>
-                  <span style={{ color: 'var(--theme-muted)', fontSize: '13px', marginLeft: '8px' }}>
+                  <span className="portal-text-muted-13-ml8">
                     Logged on {new Date(selectedReport.createdAt).toLocaleString()}
                   </span>
                 </div>
@@ -502,15 +450,15 @@ const ManageReports = () => {
               </div>
 
               <div>
-                <h4 style={{ color: 'var(--theme-link-soft)', fontSize: '13px', textTransform: 'uppercase', marginBottom: '8px' }}>
+                <h4 className="portal-subhead-link-soft">
                   Reported Incident Statement
                 </h4>
-                <div style={{ background: 'rgba(var(--theme-contrast-rgb),0.03)', padding: '16px', borderRadius: '10px', lineHeight: 1.6, color: 'var(--theme-text)' }}>
+                <div className="portal-incident-statement-box">
                   {selectedReport.description}
                 </div>
               </div>
 
-              <div style={{ marginTop: '28px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+              <div className="portal-modal-footer-actions">
                 <Button onClick={() => setDetailModalOpen(false)}>Close</Button>
                 {selectedReport.status === 'OPEN' && (
                   <Button
@@ -523,7 +471,7 @@ const ManageReports = () => {
                 {selectedReport.status !== 'RESOLVED' && (
                   <Button
                     type="primary"
-                    style={{ background: '#10b981', borderColor: '#10b981' }}
+                    className="portal-btn-approve-green"
                     onClick={() => handleUpdateStatus(selectedReport.id, 'RESOLVED')}
                     loading={actionLoadingId === selectedReport.id}
                   >
@@ -547,23 +495,19 @@ const ManageReports = () => {
         {/* Create Test Report Modal */}
         <Modal
           title={
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--theme-heading)', fontSize: '18px', fontWeight: 700 }}>
-              <WarningOutlined style={{ color: '#f59e0b' }} /> Log Moderation Incident
+            <div className="portal-modal-header-row">
+              <WarningOutlined className="portal-text-warning" /> Log Moderation Incident
             </div>
           }
           open={createModalOpen}
           onCancel={() => setCreateModalOpen(false)}
           footer={null}
-          styles={{
-            content: { background: 'var(--theme-surface)', border: '1px solid rgba(var(--theme-contrast-rgb), 0.12)', borderRadius: '20px' },
-            header: { background: 'var(--theme-surface)' },
-          }}
         >
           <Form 
             form={form} 
             layout="vertical" 
             onFinish={handleCreateReport} 
-            style={{ marginTop: '16px' }}
+            className="portal-mt-16"
             initialValues={{ type: 'Fake job' }}
           >
             <Form.Item 
@@ -588,8 +532,8 @@ const ManageReports = () => {
               <TextArea rows={4} placeholder="Describe the suspected spam, fake CIRP mandate, or misconduct..." />
             </Form.Item>
 
-            <Form.Item style={{ marginBottom: 0, marginTop: '24px' }}>
-              <button className="portal-btn-primary" type="submit" style={{ width: '100%', padding: '12px' }}>
+            <Form.Item className="portal-form-item-submit">
+              <button className="portal-btn-primary portal-w-full portal-p-12" type="submit">
                 Submit Incident Report
               </button>
             </Form.Item>

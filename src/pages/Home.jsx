@@ -152,7 +152,7 @@ const Home = () => {
         transition={{ duration: 0.6, ease: "easeOut" }}
       >
         <div className="portal-hero-badge">
-          <ThunderboltOutlined style={{ color: 'var(--theme-link)' }} />
+          <ThunderboltOutlined className="portal-text-link" />
           <span>India's #1 Portal for IBC & Restructuring Professionals</span>
         </div>
 
@@ -174,7 +174,7 @@ const Home = () => {
           transition={{ delay: 0.3, type: 'spring', stiffness: 120 }}
         >
           <div className="portal-search-input-wrapper">
-            <SearchOutlined style={{ color: 'var(--theme-link)', fontSize: '18px' }} />
+            <SearchOutlined className="portal-search-prefix-icon" />
             <input 
               type="text" 
               placeholder="Search by role (e.g. Liquidator), skill (e.g. NCLT), or company..." 
@@ -200,7 +200,6 @@ const Home = () => {
             <span 
               key={tag} 
               className={`portal-tag-pill ${activeFilterTag === tag ? 'active' : ''}`}
-              style={activeFilterTag === tag ? { background: 'rgba(14, 165, 233, 0.3)', borderColor: '#38bdf8', color: 'var(--theme-heading)' } : {}}
               onClick={() => setActiveFilterTag(tag)}
             >
               {tag}
@@ -246,14 +245,14 @@ const Home = () => {
         </div>
 
         {filteredJobs.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '60px 20px', background: 'rgba(var(--theme-contrast-rgb),0.02)', borderRadius: '16px', border: '1px solid rgba(var(--theme-contrast-rgb),0.06)' }}>
-            <p style={{ color: 'var(--theme-subtle)', fontSize: '16px', margin: '0 0 16px' }}>
+          <div className="portal-empty-featured-box">
+            <p className="portal-empty-text-16">
               No featured opportunities found matching "{activeFilterTag}".
             </p>
             <Button 
               type="primary" 
               onClick={() => { setActiveFilterTag('All'); setSearchTerm(''); }}
-              style={{ background: '#0ea5e9', borderColor: '#0ea5e9', borderRadius: '8px', fontWeight: 600 }}
+              className="portal-btn-cyan-apply"
             >
               Show All Opportunities
             </Button>
@@ -263,8 +262,7 @@ const Home = () => {
             {filteredJobs.slice(0, 6).map((job) => (
               <div 
                 key={job.id} 
-                className="portal-job-card portal-glass-card" 
-                style={{ cursor: 'pointer' }}
+                className="portal-job-card portal-glass-card portal-cursor-pointer" 
                 onClick={() => handleJobClick(job.id)}
               >
                 <div>
@@ -299,8 +297,7 @@ const Home = () => {
                 <div className="portal-job-footer">
                   <div className="portal-job-salary">{job.salary || 'Competitive Mandate'}</div>
                   <button 
-                    className="portal-btn-primary" 
-                    style={{ padding: '6px 14px', fontSize: '13px' }} 
+                    className="portal-btn-primary portal-btn-sm-13" 
                     onClick={(e) => {
                       e.stopPropagation();
                       handleJobClick(job.id);
@@ -318,7 +315,7 @@ const Home = () => {
       {/* Dual Role Call to Action Section */}
       <section className="portal-dual-cta">
         <div className="portal-cta-card portal-cta-card-seeker portal-glass-card">
-          <UserSwitchOutlined style={{ fontSize: '36px', color: 'var(--theme-link-soft)', marginBottom: '16px' }} />
+          <UserSwitchOutlined className="portal-cta-icon-blue" />
           <h3 className="portal-cta-title">For Professionals (IPs/CAs/Lawyers)</h3>
           <p className="portal-cta-desc">
             Build your professional profile, verify your IBBI credentials, browse high-paying roles, and receive direct interview invites from ARCs and Banks.
@@ -330,12 +327,12 @@ const Home = () => {
         </div>
 
         <div className="portal-cta-card portal-cta-card-employer portal-glass-card">
-          <BankOutlined style={{ fontSize: '36px', color: '#f0abfc', marginBottom: '16px' }} />
+          <BankOutlined className="portal-cta-icon-purple" />
           <h3 className="portal-cta-title">For Entities (ARCs/Banks/NBFCs)</h3>
           <p className="portal-cta-desc">
             Post open positions, leverage our AI to instantly shortlist verified Insolvency Professionals and legal experts, and send special invitations.
           </p>
-          <button className="portal-btn-secondary" style={{ borderColor: 'rgba(125, 211, 252, 0.4)' }} onClick={() => navigate(isAuthenticated ? '/employer' : '/login')}>
+          <button className="portal-btn-secondary portal-btn-border-cyan" onClick={() => navigate(isAuthenticated ? '/employer' : '/login')}>
             <span>{isAuthenticated ? 'Go to Entity Dashboard' : 'Post Your First Job'}</span>
             <ArrowRightOutlined />
           </button>
@@ -344,7 +341,7 @@ const Home = () => {
 
       {/* Platform Features Grid */}
       <section className="portal-section" id="features">
-        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+        <div className="portal-text-center portal-mb-40">
           <h2 className="portal-section-title">Built for the Indian Restructuring Ecosystem</h2>
           <p className="portal-section-subtitle">Experience a streamlined portal designed for precision, compliance, and speed.</p>
         </div>

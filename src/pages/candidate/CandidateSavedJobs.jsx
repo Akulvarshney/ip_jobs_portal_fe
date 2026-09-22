@@ -80,138 +80,110 @@ const CandidateSavedJobs = () => {
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        style={{ marginBottom: '28px' }}
+        className="portal-page-header"
       >
-          <h1 style={{ fontSize: '28px', fontWeight: 700, color: 'var(--theme-heading)', margin: 0 }}>Saved Mandates</h1>
-          <p style={{ color: 'var(--theme-muted)', fontSize: '14px', margin: '4px 0 0' }}>
-            Bookmarked opportunities for quick reference and application.
-          </p>
-        </motion.div>
+        <h1 className="portal-page-title">Saved Mandates</h1>
+        <p className="portal-page-subtitle">
+          Bookmarked opportunities for quick reference and application.
+        </p>
+      </motion.div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '24px' }}>
-          <AnimatePresence>
-            {savedJobs.map((item) => {
-              const job = item.job;
-              const hasApplied = job?.applications?.length > 0;
+      <div className="portal-cards-grid">
+        <AnimatePresence>
+          {savedJobs.map((item) => {
+            const job = item.job;
+            const hasApplied = job?.applications?.length > 0;
 
-              return (
-                <motion.div
-                  key={item.id}
-                  layout
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  whileHover={{ y: -4 }}
-                  className="portal-glass-card"
-                  style={{
-                    padding: '24px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between',
-                    border: '1px solid rgba(var(--theme-contrast-rgb), 0.1)'
-                  }}
-                >
-                  <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '14px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <div style={{
-                          width: '42px',
-                          height: '42px',
-                          borderRadius: '10px',
-                          background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(56, 189, 248, 0.05))',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontWeight: 700,
-                          color: '#10b981',
-                          fontSize: '15px'
-                        }}>
-                          {job?.employer?.name ? job.employer.name.substring(0, 2).toUpperCase() : 'CO'}
+            return (
+              <motion.div
+                key={item.id}
+                layout
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                whileHover={{ y: -4 }}
+                className="portal-glass-card portal-saved-card"
+              >
+                <div>
+                  <div className="portal-saved-card-header">
+                    <div className="portal-saved-company-group">
+                      <div className="portal-saved-avatar">
+                        {job?.employer?.name ? job.employer.name.substring(0, 2).toUpperCase() : 'CO'}
+                      </div>
+                      <div>
+                        <div className="portal-saved-org-type">
+                          {job?.employer?.type || 'VERIFIED ORG'}
                         </div>
-                        <div>
-                          <div style={{ fontSize: '12px', color: '#10b981', fontWeight: 600 }}>
-                            {job?.employer?.type || 'VERIFIED ORG'}
-                          </div>
-                          <div style={{ fontSize: '14px', color: 'var(--theme-detail)', fontWeight: 500 }}>
-                            {job?.employer?.name || 'Insolvency Entity'}
-                          </div>
+                        <div className="portal-saved-org-name">
+                          {job?.employer?.name || 'Insolvency Entity'}
                         </div>
                       </div>
-
-                      <Popconfirm
-                        title="Remove from saved jobs?"
-                        onConfirm={() => handleRemoveSaved(job.id)}
-                        okText="Remove"
-                        cancelText="Cancel"
-                      >
-                        <Button 
-                          size="small" 
-                          danger 
-                          icon={<DeleteOutlined />} 
-                          style={{ borderRadius: '8px', background: 'rgba(239, 68, 68, 0.1)', borderColor: 'rgba(239, 68, 68, 0.2)' }} 
-                        />
-                      </Popconfirm>
                     </div>
 
-                    <h3 style={{ fontSize: '17px', fontWeight: 600, color: 'var(--theme-heading)', margin: '0 0 8px' }}>
-                      {job?.title}
-                    </h3>
-
-                    <p style={{
-                      color: 'var(--theme-muted)',
-                      fontSize: '13px',
-                      lineHeight: '1.5',
-                      marginBottom: '14px',
-                      display: '-webkit-box',
-                      WebkitLineClamp: 3,
-                      WebkitBoxOrient: 'vertical',
-                      overflow: 'hidden'
-                    }}>
-                      {job?.description}
-                    </p>
-
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '14px' }}>
-                      {job?.skills?.slice(0, 3).map(s => (
-                        <Tag key={s.skill?.id} style={{ borderRadius: '6px', fontSize: '11px', background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-detail)', border: 'none' }}>
-                          {s.skill?.name}
-                        </Tag>
-                      ))}
-                    </div>
+                    <Popconfirm
+                      title="Remove from saved jobs?"
+                      onConfirm={() => handleRemoveSaved(job.id)}
+                      okText="Remove"
+                      cancelText="Cancel"
+                    >
+                      <Button 
+                        size="small" 
+                        danger 
+                        icon={<DeleteOutlined />} 
+                        className="portal-delete-btn"
+                      />
+                    </Popconfirm>
                   </div>
 
-                  <div style={{ paddingTop: '16px', borderTop: '1px solid rgba(var(--theme-contrast-rgb), 0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Link to={`/jobs/${job?.id}`} style={{ fontSize: '13px', color: 'var(--theme-link)', fontWeight: 500 }}>
-                      View Mandate ↗
-                    </Link>
+                  <h3 className="portal-saved-job-title">
+                    {job?.title}
+                  </h3>
 
-                    {hasApplied ? (
-                      <Tag color="cyan" icon={<CheckCircleOutlined />}>Applied</Tag>
-                    ) : (
-                      <button
-                        className="portal-btn-primary"
-                        style={{ padding: '6px 14px', fontSize: '12px' }}
-                        onClick={() => handleOpenApply(job)}
-                      >
-                        Apply Now
-                      </button>
-                    )}
+                  <p className="portal-saved-job-desc">
+                    {job?.description}
+                  </p>
+
+                  <div className="portal-saved-skills-wrap">
+                    {job?.skills?.slice(0, 3).map(s => (
+                      <Tag key={s.skill?.id} className="portal-saved-skill-tag">
+                        {s.skill?.name}
+                      </Tag>
+                    ))}
                   </div>
-                </motion.div>
-              );
-            })}
-          </AnimatePresence>
+                </div>
+
+                <div className="portal-saved-card-footer">
+                  <Link to={`/jobs/${job?.id}`} className="portal-saved-view-link">
+                    View Mandate ↗
+                  </Link>
+
+                  {hasApplied ? (
+                    <Tag color="cyan" icon={<CheckCircleOutlined />}>Applied</Tag>
+                  ) : (
+                    <button
+                      className="portal-btn-primary portal-saved-apply-btn"
+                      onClick={() => handleOpenApply(job)}
+                    >
+                      Apply Now
+                    </button>
+                  )}
+                </div>
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
+      </div>
+
+      {savedJobs.length === 0 && !loading && (
+        <div className="portal-glass-card portal-empty-state-card">
+          <BookOutlined className="portal-empty-state-icon" />
+          <h3 className="portal-empty-state-title">No saved mandates yet</h3>
+          <p className="portal-empty-state-desc">Save interesting roles from the search page to apply later.</p>
+          <Link to="/candidate/jobs">
+            <Button type="primary" className="portal-empty-state-btn">Explore Mandates</Button>
+          </Link>
         </div>
-
-        {savedJobs.length === 0 && !loading && (
-          <div className="portal-glass-card" style={{ padding: '60px', textAlign: 'center', marginTop: '20px' }}>
-            <BookOutlined style={{ fontSize: '48px', color: '#10b981', marginBottom: '16px', opacity: 0.6 }} />
-            <h3 style={{ color: 'var(--theme-heading)', fontSize: '20px', margin: 0 }}>No saved mandates yet</h3>
-            <p style={{ color: 'var(--theme-muted)', marginTop: '8px' }}>Save interesting roles from the search page to apply later.</p>
-            <Link to="/candidate/jobs">
-              <Button type="primary" style={{ marginTop: '12px', borderRadius: '8px' }}>Explore Mandates</Button>
-            </Link>
-          </div>
-        )}
+      )}
 
       {/* Apply Modal */}
       <Modal
@@ -227,18 +199,18 @@ const CandidateSavedJobs = () => {
             type="primary" 
             loading={applying} 
             onClick={submitApplication}
-            style={{ background: '#0ea5e9' }}
+            className="portal-btn-theme-primary"
           >
             Submit Application
           </Button>,
         ]}
       >
-        <div style={{ padding: '8px 0' }}>
-          <p style={{ color: 'var(--theme-detail)', fontSize: '14px' }}>
+        <div className="portal-modal-apply-body">
+          <p className="portal-modal-apply-target">
             Applying to: <strong>{selectedJob?.employer?.name}</strong>
           </p>
-          <div style={{ marginTop: '16px', marginBottom: '8px' }}>
-            <label style={{ display: 'block', fontSize: '13px', color: 'var(--theme-subtle)', marginBottom: '6px' }}>
+          <div className="portal-modal-field-group">
+            <label className="portal-modal-field-label">
               Cover Note (Optional):
             </label>
             <Input.TextArea
@@ -246,7 +218,7 @@ const CandidateSavedJobs = () => {
               value={coverNote}
               onChange={(e) => setCoverNote(e.target.value)}
               placeholder="Highlight relevant CIRP, liquidation, resolution plan, or forensic assignments..."
-              style={{ borderRadius: '8px', background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.15)' }}
+              className="portal-modal-textarea"
             />
           </div>
         </div>

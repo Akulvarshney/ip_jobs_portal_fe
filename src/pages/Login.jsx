@@ -27,7 +27,7 @@ const { Title, Text } = Typography;
 
 // Custom Google G Icon SVG
 const GoogleIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" style={{ marginRight: '10px' }}>
+  <svg width="18" height="18" viewBox="0 0 24 24" className="portal-mr-10">
     <path
       fill="#4285F4"
       d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -420,15 +420,15 @@ const Login = () => {
         <div className="portal-bg-blob-2"></div>
       </div>
 
-      <div style={{ maxWidth: '520px', width: '100%', margin: '40px auto', padding: '0 16px', position: 'relative', zIndex: 10 }}>
+      <div className="portal-auth-page-container">
         
         {/* Top Logo / Brand */}
-        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', background: 'rgba(56, 189, 248, 0.1)', border: '1px solid rgba(56, 189, 248, 0.25)', padding: '8px 18px', borderRadius: '50px', marginBottom: '12px' }}>
-            <RocketOutlined style={{ color: 'var(--theme-link)', fontSize: '18px' }} />
-            <span style={{ color: 'var(--theme-link)', fontWeight: 700, letterSpacing: '1px', fontSize: '13px' }}>RESOLVE PLATFORM AUTH</span>
+        <div className="portal-auth-brand-header">
+          <div className="portal-auth-badge">
+            <RocketOutlined className="portal-text-link portal-text-18" />
+            <span className="portal-auth-badge-text">RESOLVE PLATFORM AUTH</span>
           </div>
-          <Title level={2} style={{ color: 'var(--theme-heading)', margin: 0, fontWeight: 800, fontSize: '28px' }}>
+          <Title level={2} className="portal-auth-title">
             {googleOnboardingUser 
               ? 'Complete Your Profile'
               : isLogin 
@@ -436,7 +436,7 @@ const Login = () => {
                 : 'Join the Network'
             }
           </Title>
-          <Text style={{ color: 'var(--theme-muted)', fontSize: '14px', marginTop: '6px', display: 'block' }}>
+          <Text className="portal-auth-subtitle">
             {googleOnboardingUser
               ? 'Select how you want to use the Insolvency & Valuation ecosystem'
               : isLogin
@@ -451,8 +451,7 @@ const Login = () => {
           initial={{ opacity: 0, y: 15 }} 
           animate={{ opacity: 1, y: 0 }} 
           transition={{ duration: 0.3 }}
-          className="portal-card"
-          style={{ padding: '32px', background: 'rgba(var(--theme-bg-rgb), 0.85)', backdropFilter: 'blur(20px)', border: '1px solid rgba(var(--theme-contrast-rgb), 0.12)', borderRadius: '20px', boxShadow: '0 20px 40px -15px rgba(var(--theme-shadow-rgb),0.5)' }}
+          className="portal-card portal-auth-card"
         >
           {errorMessage && (
             <Alert
@@ -461,7 +460,7 @@ const Login = () => {
               showIcon
               closable
               onClose={() => setErrorMessage('')}
-              style={{ marginBottom: '20px', borderRadius: '10px', background: 'rgba(239, 68, 68, 0.12)', border: '1px solid rgba(239, 68, 68, 0.3)', color: 'var(--theme-danger)' }}
+              className="portal-alert-error-custom"
             />
           )}
 
@@ -471,29 +470,20 @@ const Login = () => {
           {googleOnboardingUser ? (
             <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }}>
               {/* Google Verified Banner */}
-              <div style={{ 
-                background: 'rgba(56, 189, 248, 0.08)', 
-                border: '1px solid rgba(56, 189, 248, 0.25)', 
-                borderRadius: '14px', 
-                padding: '16px', 
-                marginBottom: '24px', 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '14px' 
-              }}>
+              <div className="portal-google-verified-banner">
                 <Avatar 
                   size={48} 
                   src={googleOnboardingUser.photoUrl || null} 
                   icon={<UserOutlined />} 
-                  style={{ border: '2px solid #38bdf8', backgroundColor: '#0284c7' }} 
+                  className="portal-avatar-blue-border" 
                 />
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
-                    <Tag color="cyan" style={{ margin: 0, fontSize: '11px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                <div className="portal-flex-1">
+                  <div className="portal-flex-center-gap-6 portal-mb-2">
+                    <Tag color="cyan" className="portal-tag-verified">
                       <CheckCircleFilled /> Google Verified
                     </Tag>
                   </div>
-                  <div style={{ color: 'var(--theme-heading)', fontWeight: 600, fontSize: '14px' }}>
+                  <div className="portal-verified-email-text">
                     {googleOnboardingUser.email}
                   </div>
                 </div>
@@ -507,49 +497,36 @@ const Login = () => {
               >
                 {/* Full Name */}
                 <Form.Item
-                  label={<span style={{ color: 'var(--theme-secondary)', fontSize: '13px', fontWeight: 600 }}>Your Full Name</span>}
+                  label={<span className="portal-form-label-bold">Your Full Name</span>}
                   name="name"
                   rules={[{ required: true, message: 'Please enter your name' }]}
-                  style={{ marginBottom: '20px' }}
+                  className="portal-mb-20"
                 >
                   <Input
-                    prefix={<UserOutlined style={{ color: 'var(--theme-link)' }} />}
+                    prefix={<UserOutlined className="portal-text-link" />}
                     placeholder="e.g. Adv. Rahul Sharma"
                     size="large"
-                    style={{ background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)', borderRadius: '10px' }}
+                    className="portal-auth-input"
                   />
                 </Form.Item>
 
                 {/* Role Selection Cards */}
-                <div style={{ marginBottom: '20px' }}>
-                  <label style={{ color: 'var(--theme-secondary)', fontSize: '13px', fontWeight: 600, display: 'block', marginBottom: '10px' }}>
+                <div className="portal-mb-20">
+                  <label className="portal-form-label-block">
                     How would you like to register?
                   </label>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div className="portal-role-grid">
                     {/* Role Option 1: CANDIDATE / PROFESSIONAL */}
                     <div
                       onClick={() => setGoogleRole('CANDIDATE')}
-                      style={{
-                        padding: '16px 14px',
-                        borderRadius: '14px',
-                        cursor: 'pointer',
-                        transition: 'all 0.25s ease',
-                        border: googleRole === 'CANDIDATE' 
-                          ? '2px solid #38bdf8' 
-                          : '1px solid rgba(var(--theme-contrast-rgb), 0.1)',
-                        background: googleRole === 'CANDIDATE' 
-                          ? 'rgba(56, 189, 248, 0.12)' 
-                          : 'rgba(var(--theme-contrast-rgb), 0.03)',
-                        boxShadow: googleRole === 'CANDIDATE' ? '0 0 15px rgba(56, 189, 248, 0.2)' : 'none',
-                        textAlign: 'center'
-                      }}
+                      className={`portal-role-card ${googleRole === 'CANDIDATE' ? 'active' : ''}`}
                     >
-                      <UserOutlined style={{ fontSize: '24px', color: googleRole === 'CANDIDATE' ? '#38bdf8' : 'var(--theme-muted)', marginBottom: '8px', display: 'block' }} />
-                      <div style={{ color: 'var(--theme-heading)', fontWeight: 600, fontSize: '14px', marginBottom: '4px' }}>
+                      <UserOutlined className={`portal-role-icon ${googleRole === 'CANDIDATE' ? 'active' : ''}`} />
+                      <div className="portal-role-title">
                         Job Seeker / IP
                       </div>
-                      <div style={{ color: 'var(--theme-subtle)', fontSize: '11px', lineHeight: 1.3 }}>
+                      <div className="portal-role-desc">
                         Insolvency Professional, Valuer, CA, CS, Legal Expert
                       </div>
                     </div>
@@ -557,26 +534,13 @@ const Login = () => {
                     {/* Role Option 2: EMPLOYER / RECRUITER */}
                     <div
                       onClick={() => setGoogleRole('EMPLOYER')}
-                      style={{
-                        padding: '16px 14px',
-                        borderRadius: '14px',
-                        cursor: 'pointer',
-                        transition: 'all 0.25s ease',
-                        border: googleRole === 'EMPLOYER' 
-                          ? '2px solid #38bdf8' 
-                          : '1px solid rgba(var(--theme-contrast-rgb), 0.1)',
-                        background: googleRole === 'EMPLOYER' 
-                          ? 'rgba(56, 189, 248, 0.12)' 
-                          : 'rgba(var(--theme-contrast-rgb), 0.03)',
-                        boxShadow: googleRole === 'EMPLOYER' ? '0 0 15px rgba(56, 189, 248, 0.2)' : 'none',
-                        textAlign: 'center'
-                      }}
+                      className={`portal-role-card ${googleRole === 'EMPLOYER' ? 'active' : ''}`}
                     >
-                      <BankOutlined style={{ fontSize: '24px', color: googleRole === 'EMPLOYER' ? '#38bdf8' : 'var(--theme-muted)', marginBottom: '8px', display: 'block' }} />
-                      <div style={{ color: 'var(--theme-heading)', fontWeight: 600, fontSize: '14px', marginBottom: '4px' }}>
+                      <BankOutlined className={`portal-role-icon ${googleRole === 'EMPLOYER' ? 'active' : ''}`} />
+                      <div className="portal-role-title">
                         Employer / Entity
                       </div>
-                      <div style={{ color: 'var(--theme-subtle)', fontSize: '11px', lineHeight: 1.3 }}>
+                      <div className="portal-role-desc">
                         IPE, Bank, ARC, Law Firm hiring professionals
                       </div>
                     </div>
@@ -585,17 +549,17 @@ const Login = () => {
 
                 {/* If Employer selected, prompt Company Name */}
                 {googleRole === 'EMPLOYER' && (
-                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} style={{ marginBottom: '20px' }}>
+                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="portal-mb-20">
                     <Form.Item
-                      label={<span style={{ color: 'var(--theme-secondary)', fontSize: '13px', fontWeight: 600 }}>Organization / Company Name</span>}
+                      label={<span className="portal-form-label-bold">Organization / Company Name</span>}
                       name="companyName"
                       rules={[{ required: true, message: 'Please enter your company / firm name' }]}
                     >
                       <Input
-                        prefix={<BankOutlined style={{ color: 'var(--theme-link)' }} />}
+                        prefix={<BankOutlined className="portal-text-link" />}
                         placeholder="e.g. Arcil Resolution Services Pvt Ltd"
                         size="large"
-                        style={{ background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)', borderRadius: '10px' }}
+                        className="portal-auth-input"
                       />
                     </Form.Item>
                   </motion.div>
@@ -603,24 +567,23 @@ const Login = () => {
 
                 <button
                   type="submit"
-                  className="portal-btn-primary"
-                  style={{ width: '100%', padding: '13px', fontSize: '15px', borderRadius: '10px', marginTop: '10px' }}
+                  className="portal-btn-primary portal-btn-auth-submit"
                   disabled={loading}
                 >
                   {loading ? 'Creating Profile...' : 'Complete Setup & Enter Portal →'}
                 </button>
 
-                <div style={{ textAlign: 'center', marginTop: '12px', fontSize: '11px', color: '#64748b' }}>
+                <div className="portal-auth-terms-note">
                   By completing setup, you agree to our{' '}
-                  <Link to="/terms" style={{ color: 'var(--theme-link)' }}>Terms</Link> and{' '}
-                  <Link to="/privacy" style={{ color: 'var(--theme-link)' }}>Privacy Policy</Link>.
+                  <Link to="/terms" className="portal-text-link">Terms</Link> and{' '}
+                  <Link to="/privacy" className="portal-text-link">Privacy Policy</Link>.
                 </div>
 
-                <div style={{ textAlign: 'center', marginTop: '14px' }}>
+                <div className="portal-text-center portal-mt-14">
                   <button
                     type="button"
                     onClick={() => { setGoogleOnboardingUser(null); setIsLogin(true); }}
-                    style={{ background: 'none', border: 'none', color: 'var(--theme-subtle)', cursor: 'pointer', fontSize: '13px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                    className="portal-btn-link-switch"
                   >
                     <ArrowLeftOutlined /> Use a different account
                   </button>
@@ -636,62 +599,44 @@ const Login = () => {
               {/* Google Live OAuth Button */}
               <button
                 type="button"
-                className="google-btn"
+                className="google-btn portal-google-login-btn"
                 onClick={() => googleLoginTrigger()}
                 disabled={googleLoading}
-                style={{
-                  width: '100%',
-                  padding: '12px 16px',
-                  borderRadius: '12px',
-                  background: 'rgba(var(--theme-contrast-rgb), 0.08)',
-                  border: '1px solid rgba(var(--theme-contrast-rgb), 0.18)',
-                  color: 'var(--theme-heading)',
-                  fontSize: '15px',
-                  fontWeight: 600,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  marginBottom: '20px'
-                }}
-                onMouseOver={(e) => e.currentTarget.style.background = 'rgba(var(--theme-contrast-rgb), 0.14)'}
-                onMouseOut={(e) => e.currentTarget.style.background = 'rgba(var(--theme-contrast-rgb), 0.08)'}
               >
                 <GoogleIcon />
                 {googleLoading ? 'Connecting to Google...' : 'Continue with Google'}
               </button>
 
-              <Divider style={{ borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)', color: '#64748b', fontSize: '12px', margin: '20px 0' }}>
+              <Divider className="portal-auth-divider">
                 OR SIGN IN WITH EMAIL
               </Divider>
 
               <Form form={loginForm} layout="vertical" onFinish={onLoginFinish} requiredMark={false}>
                 <Form.Item
-                  label={<span style={{ color: 'var(--theme-secondary)', fontSize: '13px' }}>Email Address</span>}
+                  label={<span className="portal-form-label">Email Address</span>}
                   name="email"
                   rules={[
                     { required: true, message: 'Please enter your email' },
                     { type: 'email', message: 'Enter a valid email' }
                   ]}
-                  style={{ marginBottom: '16px' }}
+                  className="portal-mb-16"
                 >
                   <Input
-                    prefix={<MailOutlined style={{ color: 'var(--theme-link)' }} />}
+                    prefix={<MailOutlined className="portal-text-link" />}
                     placeholder="name@example.com"
                     size="large"
-                    style={{ background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)', borderRadius: '10px' }}
+                    className="portal-auth-input"
                   />
                 </Form.Item>
 
                 <Form.Item
                   label={
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                      <span style={{ color: 'var(--theme-secondary)', fontSize: '13px' }}>Password</span>
+                    <div className="portal-between-row portal-w-full">
+                      <span className="portal-form-label">Password</span>
                       <button
                         type="button"
                         onClick={openForgotPasswordModal}
-                        style={{ background: 'none', border: 'none', color: 'var(--theme-link)', fontSize: '12px', cursor: 'pointer', padding: 0, fontWeight: 500 }}
+                        className="portal-btn-forgot-password"
                       >
                         Forgot Password?
                       </button>
@@ -699,20 +644,19 @@ const Login = () => {
                   }
                   name="password"
                   rules={[{ required: true, message: 'Please enter your password' }]}
-                  style={{ marginBottom: '24px' }}
+                  className="portal-mb-24"
                 >
                   <Input.Password
-                    prefix={<LockOutlined style={{ color: 'var(--theme-link)' }} />}
+                    prefix={<LockOutlined className="portal-text-link" />}
                     placeholder="••••••••"
                     size="large"
-                    style={{ background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)', borderRadius: '10px' }}
+                    className="portal-auth-input"
                   />
                 </Form.Item>
 
                 <button
                   type="submit"
-                  className="portal-btn-primary"
-                  style={{ width: '100%', padding: '12px', fontSize: '15px', borderRadius: '10px' }}
+                  className="portal-btn-primary portal-btn-auth-full"
                   disabled={loading}
                 >
                   {loading ? 'Authenticating...' : 'Sign In to Portal'}
@@ -720,29 +664,29 @@ const Login = () => {
               </Form>
 
               {/* Quick Demo Login Fillers */}
-              <div style={{ marginTop: '24px', paddingTop: '18px', borderTop: '1px dashed rgba(var(--theme-contrast-rgb), 0.1)' }}>
-                <div style={{ color: '#64748b', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '10px', textAlign: 'center' }}>
+              <div className="portal-demo-accounts-box">
+                <div className="portal-demo-accounts-title">
                   ⚡ Quick Demo Accounts
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
+                <div className="portal-grid-3col-gap-8">
                   <button
                     type="button"
                     onClick={() => autofillDemo('CANDIDATE')}
-                    style={{ background: 'rgba(56, 189, 248, 0.08)', border: '1px solid rgba(56, 189, 248, 0.2)', color: 'var(--theme-link)', padding: '7px 4px', borderRadius: '8px', fontSize: '11px', cursor: 'pointer', fontWeight: 600 }}
+                    className="portal-demo-btn-candidate"
                   >
                     Candidate
                   </button>
                   <button
                     type="button"
                     onClick={() => autofillDemo('EMPLOYER')}
-                    style={{ background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.2)', color: '#10b981', padding: '7px 4px', borderRadius: '8px', fontSize: '11px', cursor: 'pointer', fontWeight: 600 }}
+                    className="portal-demo-btn-employer"
                   >
                     Employer
                   </button>
                   <button
                     type="button"
                     onClick={() => autofillDemo('ADMIN')}
-                    style={{ background: 'rgba(245, 158, 11, 0.08)', border: '1px solid rgba(245, 158, 11, 0.2)', color: '#f59e0b', padding: '7px 4px', borderRadius: '8px', fontSize: '11px', cursor: 'pointer', fontWeight: 600 }}
+                    className="portal-demo-btn-admin"
                   >
                     Admin
                   </button>
@@ -758,50 +702,32 @@ const Login = () => {
               {/* Google Live OAuth Button */}
               <button
                 type="button"
-                className="google-btn"
+                className="google-btn portal-google-login-btn"
                 onClick={() => googleLoginTrigger()}
                 disabled={googleLoading}
-                style={{
-                  width: '100%',
-                  padding: '12px 16px',
-                  borderRadius: '12px',
-                  background: 'rgba(var(--theme-contrast-rgb), 0.08)',
-                  border: '1px solid rgba(var(--theme-contrast-rgb), 0.18)',
-                  color: 'var(--theme-heading)',
-                  fontSize: '15px',
-                  fontWeight: 600,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  marginBottom: '20px'
-                }}
-                onMouseOver={(e) => e.currentTarget.style.background = 'rgba(var(--theme-contrast-rgb), 0.14)'}
-                onMouseOut={(e) => e.currentTarget.style.background = 'rgba(var(--theme-contrast-rgb), 0.08)'}
               >
                 <GoogleIcon />
                 {googleLoading ? 'Connecting to Google...' : 'Sign Up with Google'}
               </button>
 
-              <Divider style={{ borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)', color: '#64748b', fontSize: '12px', margin: '20px 0' }}>
+              <Divider className="portal-auth-divider">
                 OR REGISTER WITH EMAIL OTP
               </Divider>
 
               {/* Progress Indicator for Email OTP Flow */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', background: 'rgba(var(--theme-contrast-rgb), 0.03)', padding: '10px 14px', borderRadius: '10px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: registerStep >= 0 ? '#38bdf8' : '#64748b', fontSize: '12px', fontWeight: 600 }}>
-                  <span style={{ width: '20px', height: '20px', borderRadius: '50%', background: registerStep >= 0 ? '#38bdf8' : '#334155', color: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 700 }}>1</span>
+              <div className="portal-otp-step-bar">
+                <div className={`portal-step-item ${registerStep >= 0 ? 'active' : ''}`}>
+                  <span className={`portal-step-circle ${registerStep >= 0 ? 'active' : ''}`}>1</span>
                   Email
                 </div>
-                <div style={{ width: '20px', height: '1px', background: registerStep >= 1 ? '#38bdf8' : 'rgba(var(--theme-contrast-rgb), 0.1)' }}></div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: registerStep >= 1 ? '#38bdf8' : '#64748b', fontSize: '12px', fontWeight: 600 }}>
-                  <span style={{ width: '20px', height: '20px', borderRadius: '50%', background: registerStep >= 1 ? '#38bdf8' : '#334155', color: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 700 }}>2</span>
+                <div className={`portal-step-line ${registerStep >= 1 ? 'active' : ''}`}></div>
+                <div className={`portal-step-item ${registerStep >= 1 ? 'active' : ''}`}>
+                  <span className={`portal-step-circle ${registerStep >= 1 ? 'active' : ''}`}>2</span>
                   OTP Verify
                 </div>
-                <div style={{ width: '20px', height: '1px', background: registerStep >= 2 ? '#38bdf8' : 'rgba(var(--theme-contrast-rgb), 0.1)' }}></div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: registerStep >= 2 ? '#38bdf8' : '#64748b', fontSize: '12px', fontWeight: 600 }}>
-                  <span style={{ width: '20px', height: '20px', borderRadius: '50%', background: registerStep >= 2 ? '#38bdf8' : '#334155', color: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 700 }}>3</span>
+                <div className={`portal-step-line ${registerStep >= 2 ? 'active' : ''}`}></div>
+                <div className={`portal-step-item ${registerStep >= 2 ? 'active' : ''}`}>
+                  <span className={`portal-step-circle ${registerStep >= 2 ? 'active' : ''}`}>3</span>
                   Profile
                 </div>
               </div>
@@ -809,25 +735,24 @@ const Login = () => {
               {/* STEP 0: Email Input */}
               {registerStep === 0 && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                  <div style={{ marginBottom: '16px' }}>
-                    <label style={{ color: 'var(--theme-secondary)', fontSize: '13px', display: 'block', marginBottom: '8px' }}>
+                  <div className="portal-mb-16">
+                    <label className="portal-form-label-block-8">
                       Enter Your Email
                     </label>
                     <Input
-                      prefix={<MailOutlined style={{ color: 'var(--theme-link)' }} />}
+                      prefix={<MailOutlined className="portal-text-link" />}
                       placeholder="e.g. insolvency.specialist@domain.com"
                       size="large"
                       value={registerEmail}
                       onChange={(e) => setRegisterEmail(e.target.value)}
                       onPressEnter={handleSendOtp}
-                      style={{ background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)', borderRadius: '10px' }}
+                      className="portal-auth-input"
                     />
                   </div>
 
                   <button
                     type="button"
-                    className="portal-btn-primary"
-                    style={{ width: '100%', padding: '12px', fontSize: '15px', borderRadius: '10px' }}
+                    className="portal-btn-primary portal-btn-auth-full"
                     onClick={handleSendOtp}
                     disabled={sendingOtp}
                   >
@@ -839,38 +764,38 @@ const Login = () => {
               {/* STEP 1: Enter 6-digit OTP */}
               {registerStep === 1 && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                  <div style={{ marginBottom: '16px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                      <label style={{ color: 'var(--theme-secondary)', fontSize: '13px' }}>
+                  <div className="portal-mb-16">
+                    <div className="portal-between-row portal-mb-8">
+                      <label className="portal-form-label">
                         Enter 6-Digit OTP Code
                       </label>
                       <button 
                         type="button" 
                         onClick={() => setRegisterStep(0)} 
-                        style={{ background: 'none', border: 'none', color: 'var(--theme-link)', fontSize: '12px', cursor: 'pointer' }}
+                        className="portal-btn-change-email"
                       >
                         Change Email ({registerEmail})
                       </button>
                     </div>
 
                     <Input
-                      prefix={<KeyOutlined style={{ color: 'var(--theme-link)' }} />}
+                      prefix={<KeyOutlined className="portal-text-link" />}
                       placeholder="Enter 6-digit OTP code"
                       size="large"
                       maxLength={6}
                       value={otpCode}
                       onChange={(e) => setOtpCode(e.target.value)}
                       onPressEnter={handleVerifyOtp}
-                      style={{ background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)', borderRadius: '10px', letterSpacing: '4px', fontSize: '18px', textAlign: 'center' }}
+                      className="portal-otp-input"
                     />
 
                     {devOtpHint && (
-                      <div style={{ marginTop: '8px', fontSize: '12px', color: 'var(--theme-link)', background: 'rgba(56, 189, 248, 0.1)', padding: '6px 10px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <div className="portal-dev-otp-box">
                         <span>⚡ Development OTP: <strong>{devOtpHint}</strong></span>
                         <button 
                           type="button" 
                           onClick={() => setOtpCode(devOtpHint)} 
-                          style={{ background: '#38bdf8', border: 'none', color: '#0f172a', padding: '2px 6px', borderRadius: '4px', fontSize: '11px', cursor: 'pointer', fontWeight: 700 }}
+                          className="portal-btn-autofill-otp"
                         >
                           Auto Fill
                         </button>
@@ -878,15 +803,15 @@ const Login = () => {
                     )}
                   </div>
 
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                    <span style={{ color: '#64748b', fontSize: '13px' }}>
+                  <div className="portal-resend-row">
+                    <span className="portal-text-muted-13">
                       {otpCountdown > 0 ? `Resend code in ${otpCountdown}s` : "Didn't receive code?"}
                     </span>
                     <button
                       type="button"
                       onClick={handleSendOtp}
                       disabled={otpCountdown > 0 || sendingOtp}
-                      style={{ background: 'none', border: 'none', color: otpCountdown > 0 ? '#64748b' : '#38bdf8', cursor: otpCountdown > 0 ? 'not-allowed' : 'pointer', fontSize: '13px', fontWeight: 600 }}
+                      className={`portal-btn-resend ${otpCountdown > 0 ? 'disabled' : ''}`}
                     >
                       Resend OTP
                     </button>
@@ -894,8 +819,7 @@ const Login = () => {
 
                   <button
                     type="button"
-                    className="portal-btn-primary"
-                    style={{ width: '100%', padding: '12px', fontSize: '15px', borderRadius: '10px' }}
+                    className="portal-btn-primary portal-btn-auth-full"
                     onClick={handleVerifyOtp}
                     disabled={verifyingOtp}
                   >
@@ -907,62 +831,48 @@ const Login = () => {
               {/* STEP 2: Name, Role Selection, Password & Confirm Password */}
               {registerStep === 2 && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', color: '#10b981', fontSize: '13px', fontWeight: 500 }}>
+                  <div className="portal-verified-email-banner">
                     <CheckCircleOutlined /> Email verified: {registerEmail}
                   </div>
 
                   <Form form={passwordForm} layout="vertical" onFinish={onCompleteRegistration} requiredMark={false}>
                     {/* Full Name */}
                     <Form.Item
-                      label={<span style={{ color: 'var(--theme-secondary)', fontSize: '13px' }}>Your Full Name</span>}
+                      label={<span className="portal-form-label">Your Full Name</span>}
                       name="name"
                       rules={[{ required: true, message: 'Please enter your name' }]}
-                      style={{ marginBottom: '16px' }}
+                      className="portal-mb-16"
                     >
                       <Input
-                        prefix={<UserOutlined style={{ color: 'var(--theme-link)' }} />}
+                        prefix={<UserOutlined className="portal-text-link" />}
                         placeholder="e.g. Adv. Rajesh Mehta"
                         size="large"
-                        style={{ background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)', borderRadius: '10px' }}
+                        className="portal-auth-input"
                       />
                     </Form.Item>
 
                     {/* Role Selection */}
-                    <div style={{ marginBottom: '16px' }}>
-                      <label style={{ color: 'var(--theme-secondary)', fontSize: '13px', display: 'block', marginBottom: '8px' }}>
+                    <div className="portal-mb-16">
+                      <label className="portal-form-label-block-8">
                         Register As:
                       </label>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                      <div className="portal-grid-2col-gap-10">
                         <div
                           onClick={() => setManualRole('CANDIDATE')}
-                          style={{
-                            padding: '12px 10px',
-                            borderRadius: '10px',
-                            cursor: 'pointer',
-                            border: manualRole === 'CANDIDATE' ? '2px solid #38bdf8' : '1px solid rgba(var(--theme-contrast-rgb), 0.1)',
-                            background: manualRole === 'CANDIDATE' ? 'rgba(56, 189, 248, 0.12)' : 'rgba(var(--theme-contrast-rgb), 0.03)',
-                            textAlign: 'center'
-                          }}
+                          className={`portal-manual-role-card ${manualRole === 'CANDIDATE' ? 'active' : ''}`}
                         >
-                          <UserOutlined style={{ color: manualRole === 'CANDIDATE' ? '#38bdf8' : 'var(--theme-muted)', fontSize: '18px', marginBottom: '4px', display: 'block' }} />
-                          <div style={{ color: 'var(--theme-heading)', fontWeight: 600, fontSize: '13px' }}>Candidate / IP</div>
-                          <div style={{ color: 'var(--theme-subtle)', fontSize: '10px' }}>Job Seeker / Specialist</div>
+                          <UserOutlined className={`portal-role-icon ${manualRole === 'CANDIDATE' ? 'active' : ''}`} />
+                          <div className="portal-role-title">Candidate / IP</div>
+                          <div className="portal-role-desc">Job Seeker / Specialist</div>
                         </div>
 
                         <div
                           onClick={() => setManualRole('EMPLOYER')}
-                          style={{
-                            padding: '12px 10px',
-                            borderRadius: '10px',
-                            cursor: 'pointer',
-                            border: manualRole === 'EMPLOYER' ? '2px solid #38bdf8' : '1px solid rgba(var(--theme-contrast-rgb), 0.1)',
-                            background: manualRole === 'EMPLOYER' ? 'rgba(56, 189, 248, 0.12)' : 'rgba(var(--theme-contrast-rgb), 0.03)',
-                            textAlign: 'center'
-                          }}
+                          className={`portal-manual-role-card ${manualRole === 'EMPLOYER' ? 'active' : ''}`}
                         >
-                          <BankOutlined style={{ color: manualRole === 'EMPLOYER' ? '#38bdf8' : 'var(--theme-muted)', fontSize: '18px', marginBottom: '4px', display: 'block' }} />
-                          <div style={{ color: 'var(--theme-heading)', fontWeight: 600, fontSize: '13px' }}>Employer / Entity</div>
-                          <div style={{ color: 'var(--theme-subtle)', fontSize: '10px' }}>Hiring Organization</div>
+                          <BankOutlined className={`portal-role-icon ${manualRole === 'EMPLOYER' ? 'active' : ''}`} />
+                          <div className="portal-role-title">Employer / Entity</div>
+                          <div className="portal-role-desc">Hiring Organization</div>
                         </div>
                       </div>
                     </div>
@@ -970,39 +880,39 @@ const Login = () => {
                     {/* If Employer selected, Organization Name */}
                     {manualRole === 'EMPLOYER' && (
                       <Form.Item
-                        label={<span style={{ color: 'var(--theme-secondary)', fontSize: '13px' }}>Company / Organization Name</span>}
+                        label={<span className="portal-form-label">Company / Organization Name</span>}
                         name="companyName"
                         rules={[{ required: true, message: 'Please enter company name' }]}
-                        style={{ marginBottom: '16px' }}
+                        className="portal-mb-16"
                       >
                         <Input
-                          prefix={<BankOutlined style={{ color: 'var(--theme-link)' }} />}
+                          prefix={<BankOutlined className="portal-text-link" />}
                           placeholder="e.g. Insolvency Advisory Partners"
                           size="large"
-                          style={{ background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)', borderRadius: '10px' }}
+                          className="portal-auth-input"
                         />
                       </Form.Item>
                     )}
 
                     <Form.Item
-                      label={<span style={{ color: 'var(--theme-secondary)', fontSize: '13px' }}>Set Account Password</span>}
+                      label={<span className="portal-form-label">Set Account Password</span>}
                       name="password"
                       rules={[
                         { required: true, message: 'Please enter password' },
                         { min: 6, message: 'Password must be at least 6 characters' }
                       ]}
-                      style={{ marginBottom: '16px' }}
+                      className="portal-mb-16"
                     >
                       <Input.Password
-                        prefix={<LockOutlined style={{ color: 'var(--theme-link)' }} />}
+                        prefix={<LockOutlined className="portal-text-link" />}
                         placeholder="••••••••"
                         size="large"
-                        style={{ background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)', borderRadius: '10px' }}
+                        className="portal-auth-input"
                       />
                     </Form.Item>
 
                     <Form.Item
-                      label={<span style={{ color: 'var(--theme-secondary)', fontSize: '13px' }}>Confirm Password</span>}
+                      label={<span className="portal-form-label">Confirm Password</span>}
                       name="confirmPassword"
                       rules={[
                         { required: true, message: 'Please confirm password' },
@@ -1015,29 +925,28 @@ const Login = () => {
                           },
                         }),
                       ]}
-                      style={{ marginBottom: '24px' }}
+                      className="portal-mb-24"
                     >
                       <Input.Password
-                        prefix={<LockOutlined style={{ color: 'var(--theme-link)' }} />}
+                        prefix={<LockOutlined className="portal-text-link" />}
                         placeholder="••••••••"
                         size="large"
-                        style={{ background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)', borderRadius: '10px' }}
+                        className="portal-auth-input"
                       />
                     </Form.Item>
 
                     <button
                       type="submit"
-                      className="portal-btn-primary"
-                      style={{ width: '100%', padding: '12px', fontSize: '15px', borderRadius: '10px' }}
+                      className="portal-btn-primary portal-btn-auth-full"
                       disabled={loading}
                     >
                       {loading ? 'Creating Account...' : 'Complete Registration →'}
                     </button>
 
-                    <div style={{ textAlign: 'center', marginTop: '12px', fontSize: '11px', color: '#64748b' }}>
+                    <div className="portal-auth-terms-note">
                       By registering, you agree to our{' '}
-                      <Link to="/terms" style={{ color: 'var(--theme-link)' }}>Terms</Link> and{' '}
-                      <Link to="/privacy" style={{ color: 'var(--theme-link)' }}>Privacy Policy</Link>.
+                      <Link to="/terms" className="portal-text-link">Terms</Link> and{' '}
+                      <Link to="/privacy" className="portal-text-link">Privacy Policy</Link>.
                     </div>
                   </Form>
                 </motion.div>
@@ -1047,14 +956,14 @@ const Login = () => {
 
           {/* Toggle Login/Register footer (Hidden when in Google onboarding) */}
           {!googleOnboardingUser && (
-            <div style={{ textAlign: 'center', marginTop: '20px' }}>
-              <span style={{ color: 'var(--theme-muted)', fontSize: '14px' }}>
+            <div className="portal-auth-switch-row">
+              <span className="portal-text-muted-14">
                 {isLogin ? "Don't have an account? " : "Already have an account? "}
               </span>
               <button 
                 type="button" 
                 onClick={() => { setIsLogin(!isLogin); setErrorMessage(''); setRegisterStep(0); }}
-                style={{ background: 'none', border: 'none', color: 'var(--theme-link)', fontWeight: 600, cursor: 'pointer', fontSize: '14px' }}
+                className="portal-auth-switch-btn"
               >
                 {isLogin ? 'Sign Up' : 'Log In'}
               </button>
@@ -1069,8 +978,8 @@ const Login = () => {
       {/* ------------------------------------------------------------- */}
       <Modal
         title={
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--theme-heading)', fontSize: '17px', fontWeight: 700 }}>
-            <KeyOutlined style={{ color: 'var(--theme-link)' }} /> Reset Your Password
+          <div className="portal-modal-header-row">
+            <KeyOutlined className="portal-text-link" /> Reset Your Password
           </div>
         }
         open={showForgotModal}
@@ -1078,12 +987,8 @@ const Login = () => {
         footer={null}
         destroyOnClose
         centered
-        styles={{
-          mask: { backdropFilter: 'blur(8px)', background: 'rgba(0, 0, 0, 0.75)' },
-          content: { background: 'var(--theme-bg)', border: '1px solid rgba(var(--theme-contrast-rgb), 0.12)', borderRadius: '20px', padding: '28px', color: 'var(--theme-heading)' }
-        }}
       >
-        <p style={{ color: 'var(--theme-subtle)', fontSize: '13px', margin: '0 0 20px 0' }}>
+        <p className="portal-modal-subtitle-13">
           {forgotStep === 0 && 'Enter your registered email address to receive a 6-digit password reset OTP via Nodemailer.'}
           {forgotStep === 1 && `Enter the 6-digit verification code sent to ${forgotEmail}.`}
           {forgotStep === 2 && 'Set a strong new password for your account.'}
@@ -1096,32 +1001,31 @@ const Login = () => {
             showIcon
             closable
             onClose={() => setForgotError('')}
-            style={{ marginBottom: '16px', borderRadius: '10px', background: 'rgba(239, 68, 68, 0.12)', border: '1px solid rgba(239, 68, 68, 0.3)', color: 'var(--theme-danger)' }}
+            className="portal-alert-error-custom portal-mb-16"
           />
         )}
 
         {/* Step 0: Enter Registered Email */}
         {forgotStep === 0 && (
           <div>
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ color: 'var(--theme-secondary)', fontSize: '13px', display: 'block', marginBottom: '8px' }}>
+            <div className="portal-mb-16">
+              <label className="portal-form-label-block-8">
                 Account Email Address
               </label>
               <Input
-                prefix={<MailOutlined style={{ color: 'var(--theme-link)' }} />}
+                prefix={<MailOutlined className="portal-text-link" />}
                 placeholder="name@example.com"
                 size="large"
                 value={forgotEmail}
                 onChange={(e) => setForgotEmail(e.target.value)}
                 onPressEnter={handleSendForgotOtp}
-                style={{ background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)', borderRadius: '10px' }}
+                className="portal-auth-input"
               />
             </div>
 
             <button
               type="button"
-              className="portal-btn-primary"
-              style={{ width: '100%', padding: '12px', fontSize: '14px', borderRadius: '10px' }}
+              className="portal-btn-primary portal-btn-auth-full"
               onClick={handleSendForgotOtp}
               disabled={forgotSending}
             >
@@ -1133,38 +1037,38 @@ const Login = () => {
         {/* Step 1: Verify OTP */}
         {forgotStep === 1 && (
           <div>
-            <div style={{ marginBottom: '16px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                <label style={{ color: 'var(--theme-secondary)', fontSize: '13px' }}>
+            <div className="portal-mb-16">
+              <div className="portal-between-row portal-mb-8">
+                <label className="portal-form-label">
                   6-Digit OTP Code
                 </label>
                 <button
                   type="button"
                   onClick={() => setForgotStep(0)}
-                  style={{ background: 'none', border: 'none', color: 'var(--theme-link)', fontSize: '12px', cursor: 'pointer' }}
+                  className="portal-btn-change-email"
                 >
                   Change Email
                 </button>
               </div>
 
               <Input
-                prefix={<KeyOutlined style={{ color: 'var(--theme-link)' }} />}
+                prefix={<KeyOutlined className="portal-text-link" />}
                 placeholder="123456"
                 size="large"
                 maxLength={6}
                 value={forgotOtp}
                 onChange={(e) => setForgotOtp(e.target.value)}
                 onPressEnter={handleVerifyForgotOtp}
-                style={{ background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)', borderRadius: '10px', letterSpacing: '4px', fontSize: '18px', textAlign: 'center' }}
+                className="portal-otp-input"
               />
 
               {forgotDevOtp && (
-                <div style={{ marginTop: '8px', fontSize: '12px', color: 'var(--theme-link)', background: 'rgba(56, 189, 248, 0.1)', padding: '6px 10px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div className="portal-dev-otp-box">
                   <span>⚡ Development OTP: <strong>{forgotDevOtp}</strong></span>
                   <button 
                     type="button" 
                     onClick={() => setForgotOtp(forgotDevOtp)} 
-                    style={{ background: '#38bdf8', border: 'none', color: '#0f172a', padding: '2px 6px', borderRadius: '4px', fontSize: '11px', cursor: 'pointer', fontWeight: 700 }}
+                    className="portal-btn-autofill-otp"
                   >
                     Auto Fill
                   </button>
@@ -1172,15 +1076,15 @@ const Login = () => {
               )}
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <span style={{ color: '#64748b', fontSize: '13px' }}>
+            <div className="portal-resend-row">
+              <span className="portal-text-muted-13">
                 {forgotCountdown > 0 ? `Resend code in ${forgotCountdown}s` : "Didn't receive email?"}
               </span>
               <button
                 type="button"
                 onClick={handleSendForgotOtp}
                 disabled={forgotCountdown > 0 || forgotSending}
-                style={{ background: 'none', border: 'none', color: forgotCountdown > 0 ? '#64748b' : '#38bdf8', cursor: forgotCountdown > 0 ? 'not-allowed' : 'pointer', fontSize: '13px', fontWeight: 600 }}
+                className={`portal-btn-resend ${forgotCountdown > 0 ? 'disabled' : ''}`}
               >
                 Resend Code
               </button>
@@ -1188,8 +1092,7 @@ const Login = () => {
 
             <button
               type="button"
-              className="portal-btn-primary"
-              style={{ width: '100%', padding: '12px', fontSize: '14px', borderRadius: '10px' }}
+              className="portal-btn-primary portal-btn-auth-full"
               onClick={handleVerifyForgotOtp}
               disabled={forgotVerifying}
             >
@@ -1201,29 +1104,29 @@ const Login = () => {
         {/* Step 2: Set New Password */}
         {forgotStep === 2 && (
           <Form form={resetPasswordForm} layout="vertical" onFinish={handleResetPassword} requiredMark={false}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', color: '#10b981', fontSize: '13px', fontWeight: 500 }}>
+            <div className="portal-verified-email-banner">
               <CheckCircleOutlined /> Resetting password for: {forgotEmail}
             </div>
 
             <Form.Item
-              label={<span style={{ color: 'var(--theme-secondary)', fontSize: '13px' }}>New Password</span>}
+              label={<span className="portal-form-label">New Password</span>}
               name="newPassword"
               rules={[
                 { required: true, message: 'Please enter new password' },
                 { min: 6, message: 'Password must be at least 6 characters' }
               ]}
-              style={{ marginBottom: '16px' }}
+              className="portal-mb-16"
             >
               <Input.Password
-                prefix={<LockOutlined style={{ color: 'var(--theme-link)' }} />}
+                prefix={<LockOutlined className="portal-text-link" />}
                 placeholder="••••••••"
                 size="large"
-                style={{ background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)', borderRadius: '10px' }}
+                className="portal-auth-input"
               />
             </Form.Item>
 
             <Form.Item
-              label={<span style={{ color: 'var(--theme-secondary)', fontSize: '13px' }}>Confirm New Password</span>}
+              label={<span className="portal-form-label">Confirm New Password</span>}
               name="confirmPassword"
               rules={[
                 { required: true, message: 'Please confirm new password' },
@@ -1236,20 +1139,19 @@ const Login = () => {
                   },
                 }),
               ]}
-              style={{ marginBottom: '24px' }}
+              className="portal-mb-24"
             >
               <Input.Password
-                prefix={<LockOutlined style={{ color: 'var(--theme-link)' }} />}
+                prefix={<LockOutlined className="portal-text-link" />}
                 placeholder="••••••••"
                 size="large"
-                style={{ background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)', borderRadius: '10px' }}
+                className="portal-auth-input"
               />
             </Form.Item>
 
             <button
               type="submit"
-              className="portal-btn-primary"
-              style={{ width: '100%', padding: '12px', fontSize: '14px', borderRadius: '10px' }}
+              className="portal-btn-primary portal-btn-auth-full"
               disabled={forgotResetting}
             >
               {forgotResetting ? 'Updating Password...' : 'Save New Password & Sign In →'}

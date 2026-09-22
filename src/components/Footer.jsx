@@ -85,91 +85,55 @@ const Footer = () => {
             <div className="portal-logo-icon">
               <RocketOutlined />
             </div>
-            <span>Res<span style={{ color: "var(--theme-link)" }}>olve</span></span>
+            <span>Res<span className="portal-logo-highlight">olve</span></span>
           </Link>
           <p>
             Connecting world-class insolvency, restructuring, and legal professionals with premier advisory firms and corporate debtors.
           </p>
-          <div style={{ display: 'flex', gap: '14px', marginTop: '20px' }}>
-            <a href="#" style={{ color: 'var(--theme-muted)', fontSize: '20px', transition: 'color 0.2s' }}><GithubOutlined /></a>
-            <a href="#" style={{ color: 'var(--theme-muted)', fontSize: '20px', transition: 'color 0.2s' }}><TwitterOutlined /></a>
-            <a href="#" style={{ color: 'var(--theme-muted)', fontSize: '20px', transition: 'color 0.2s' }}><LinkedinOutlined /></a>
+          <div className="portal-footer-socials">
+            <a href="#" className="portal-footer-social-link"><GithubOutlined /></a>
+            <a href="#" className="portal-footer-social-link"><TwitterOutlined /></a>
+            <a href="#" className="portal-footer-social-link"><LinkedinOutlined /></a>
           </div>
         </div>
 
-        {/* <div>
-          <h4 className="portal-footer-title">For Candidates</h4>
-          <ul className="portal-footer-links">
-            <li><Link to="/candidate">Browse CIRP Roles</Link></li>
-            <li><Link to="/candidate/jobs">Insolvency Mandates</Link></li>
-            <li><Link to="/candidate/profile">Profile Completeness</Link></li>
-            <li><Link to="/candidate/profile?tab=resume">Upload Resume</Link></li>
-          </ul>
-        </div>
-
         <div>
-          <h4 className="portal-footer-title">For Employers</h4>
-          <ul className="portal-footer-links">
-            <li><Link to="/employer">Post a Mandate</Link></li>
-            <li><Link to="/employer">Manage Applicants</Link></li>
-            <li><Link to="/employer/organisation">Entity Profile</Link></li>
-            <li><Link to="/employer">Special Invites</Link></li>
-          </ul>
-        </div> */}
-
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-            <h4 className="portal-footer-title" style={{ margin: 0 }}>Stay Updated</h4>
+          <div className="portal-footer-newsletter-header">
+            <h4 className="portal-footer-title portal-footer-newsletter-title">Stay Updated</h4>
             {isRegistered && (
-              <Tag color="success" style={{ borderRadius: '10px', fontSize: '11px', margin: 0 }}>
+              <Tag color="success" className="portal-footer-registered-tag">
                 ✓ Registered
               </Tag>
             )}
           </div>
-          <p style={{ color: 'var(--theme-muted)', fontSize: '14px', marginBottom: '14px' }}>
+          <p className="portal-footer-newsletter-desc">
             {isRegistered
               ? "You're registered in our Stay Tuned program for curated insolvency mandates and regulatory alerts."
               : "Get weekly curated IBC mandates and restructuring opportunities sent to your inbox."}
           </p>
 
           {isRegistered ? (
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              padding: '10px 14px',
-              background: 'rgba(16, 185, 129, 0.1)',
-              border: '1px solid rgba(16, 185, 129, 0.25)',
-              borderRadius: '10px',
-              color: 'var(--theme-success)',
-              fontSize: '13px'
-            }}>
-              <CheckCircleFilled style={{ fontSize: '16px' }} />
+            <div className="portal-footer-enrolled-banner">
+              <CheckCircleFilled className="portal-footer-enrolled-icon" />
               <div>
-                <strong style={{ color: 'var(--theme-secondary)', display: 'block' }}>Already Registered</strong>
-                <span style={{ fontSize: '12px', color: 'var(--theme-subtle)' }}>{emailInput || user?.email || 'Your account is active in Stay Tuned'}</span>
+                <strong className="portal-footer-enrolled-title">Already Registered</strong>
+                <span className="portal-footer-enrolled-sub">{emailInput || user?.email || 'Your account is active in Stay Tuned'}</span>
               </div>
             </div>
           ) : (
-            <form onSubmit={handleSubscribe} style={{ display: 'flex', gap: '8px' }}>
+            <form onSubmit={handleSubscribe} className="portal-footer-form">
               <Input
                 type="email"
                 required
                 value={emailInput}
                 onChange={(e) => setEmailInput(e.target.value)}
                 placeholder="Enter your email"
-                style={{
-                  background: 'rgba(var(--theme-contrast-rgb), 0.05)',
-                  border: '1px solid rgba(var(--theme-contrast-rgb), 0.12)',
-                  color: 'var(--theme-heading)',
-                  borderRadius: '10px'
-                }}
+                className="portal-footer-input"
               />
               <button
-                className="portal-btn-primary"
+                className="portal-btn-primary portal-footer-submit-btn"
                 type="submit"
                 disabled={submitting}
-                style={{ padding: '8px 14px', cursor: submitting ? 'not-allowed' : 'pointer' }}
               >
                 {submitting ? <SyncOutlined spin /> : <SendOutlined />}
               </button>
@@ -179,11 +143,11 @@ const Footer = () => {
       </div>
 
       <div className="portal-footer-bottom">
-        <div>© {new Date().getFullYear()} Resolve Portal. All rights reserved. • Support: <a href={`mailto:${supportEmail}`} style={{ color: 'var(--theme-link)', textDecoration: 'none' }}>{supportEmail}</a></div>
-        <div style={{ display: 'flex', gap: '20px' }}>
-          <Link to="/privacy" style={{ color: 'var(--theme-muted)', textDecoration: 'none', transition: 'color 0.2s' }}>Privacy Policy</Link>
-          <Link to="/terms" style={{ color: 'var(--theme-muted)', textDecoration: 'none', transition: 'color 0.2s' }}>Terms of Service</Link>
-          <Link to="/security" style={{ color: 'var(--theme-muted)', textDecoration: 'none', transition: 'color 0.2s' }}>Security</Link>
+        <div>© {new Date().getFullYear()} Resolve Portal. All rights reserved. • Support: <a href={`mailto:${supportEmail}`} className="portal-footer-link-highlight">{supportEmail}</a></div>
+        <div className="portal-footer-legal-links">
+          <Link to="/privacy" className="portal-footer-legal-link">Privacy Policy</Link>
+          <Link to="/terms" className="portal-footer-legal-link">Terms of Service</Link>
+          <Link to="/security" className="portal-footer-legal-link">Security</Link>
         </div>
       </div>
     </footer>

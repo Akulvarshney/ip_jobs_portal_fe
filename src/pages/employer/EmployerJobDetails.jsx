@@ -125,11 +125,11 @@ const EmployerJobDetails = () => {
 
   const getStatusTag = (status) => {
     switch (status) {
-      case 'APPLIED': return <Tag color="blue" style={{ fontWeight: 600 }}>APPLIED</Tag>;
-      case 'SHORTLISTED': return <Tag color="gold" style={{ fontWeight: 600 }}>SHORTLISTED</Tag>;
-      case 'INTERVIEW': return <Tag color="purple" style={{ fontWeight: 600 }}>INTERVIEW SCHEDULED</Tag>;
-      case 'SELECTED': return <Tag color="green" style={{ fontWeight: 600 }}>HIRED / SELECTED</Tag>;
-      case 'REJECTED': return <Tag color="red" style={{ fontWeight: 600 }}>REJECTED</Tag>;
+      case 'APPLIED': return <Tag color="blue" className="font-semibold">APPLIED</Tag>;
+      case 'SHORTLISTED': return <Tag color="gold" className="font-semibold">SHORTLISTED</Tag>;
+      case 'INTERVIEW': return <Tag color="purple" className="font-semibold">INTERVIEW SCHEDULED</Tag>;
+      case 'SELECTED': return <Tag color="green" className="font-semibold">HIRED / SELECTED</Tag>;
+      case 'REJECTED': return <Tag color="red" className="font-semibold">REJECTED</Tag>;
       default: return <Tag color="blue">{status || 'APPLIED'}</Tag>;
     }
   };
@@ -142,29 +142,15 @@ const EmployerJobDetails = () => {
         const c = record.candidate;
         const profile = c?.candidateProfile;
         return (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div 
-              style={{
-                width: '42px',
-                height: '42px',
-                borderRadius: '12px',
-                background: 'linear-gradient(135deg, rgba(14, 165, 233, 0.2) 0%, rgba(56, 189, 248, 0.1) 100%)',
-                border: '1px solid rgba(14, 165, 233, 0.3)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'var(--theme-link)',
-                fontWeight: 700,
-                fontSize: '16px'
-              }}
-            >
+          <div className="portal-flex-center-gap-12">
+            <div className="portal-avatar-init">
               {c?.name?.charAt(0) || 'C'}
             </div>
             <div>
-              <div style={{ fontWeight: 600, color: 'var(--theme-heading)', fontSize: '15px' }}>
+              <div className="portal-candidate-name">
                 {c?.name || 'Candidate'}
               </div>
-              <div style={{ fontSize: '13px', color: 'var(--theme-muted)', marginTop: '2px' }}>
+              <div className="portal-candidate-sub">
                 {profile?.designation || 'Insolvency Professional'}
                 {profile?.experience ? ` • ${profile.experience} Yrs Exp` : ''}
                 {profile?.city ? ` • ${profile.city}` : ''}
@@ -180,18 +166,18 @@ const EmployerJobDetails = () => {
       render: (_, record) => {
         const skills = record.candidate?.candidateProfile?.skills || [];
         return (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', maxWidth: '280px' }}>
+          <div className="portal-applicant-skills-box">
             {skills.slice(0, 3).map(s => (
-              <Tag key={s.skill.id} color="cyan" style={{ fontSize: '11px', borderRadius: '4px', margin: 0 }}>
+              <Tag key={s.skill.id} color="cyan" className="portal-tag-tiny">
                 {s.skill.name}
               </Tag>
             ))}
             {skills.length > 3 && (
-              <Tag style={{ fontSize: '11px', background: 'rgba(var(--theme-contrast-rgb),0.05)', color: 'var(--theme-muted)', border: 'none' }}>
+              <Tag className="portal-tag-more">
                 +{skills.length - 3} more
               </Tag>
             )}
-            {skills.length === 0 && <span style={{ color: 'var(--theme-placeholder)', fontSize: '12px' }}>Standard IP Profile</span>}
+            {skills.length === 0 && <span className="portal-text-placeholder-xs">Standard IP Profile</span>}
           </div>
         );
       }
@@ -201,7 +187,7 @@ const EmployerJobDetails = () => {
       dataIndex: 'createdAt',
       key: 'createdAt',
       render: (date) => (
-        <span style={{ color: 'var(--theme-detail)', fontSize: '13px' }}>
+        <span className="portal-text-detail-sm">
           {new Date(date).toLocaleDateString()}
         </span>
       )
@@ -218,15 +204,9 @@ const EmployerJobDetails = () => {
         <Space size="small" wrap>
           <Button 
             size="small"
-            icon={<FileTextOutlined style={{ color: 'var(--theme-link)' }} />}
+            icon={<FileTextOutlined className="portal-text-link" />}
             onClick={() => openCVModal(record)}
-            style={{
-              background: 'rgba(14, 165, 233, 0.1)',
-              borderColor: 'rgba(14, 165, 233, 0.3)',
-              color: 'var(--theme-link-soft)',
-              borderRadius: '6px',
-              fontWeight: 500
-            }}
+            className="portal-btn-cyan-soft"
           >
             View CV
           </Button>
@@ -235,12 +215,7 @@ const EmployerJobDetails = () => {
             size="small"
             icon={<EyeOutlined />}
             onClick={() => openCandidateDossier(record)}
-            style={{
-              background: 'rgba(var(--theme-contrast-rgb), 0.08)',
-              borderColor: 'rgba(var(--theme-contrast-rgb), 0.15)',
-              color: 'var(--theme-heading)',
-              borderRadius: '6px'
-            }}
+            className="portal-btn-neutral"
           >
             Profile
           </Button>
@@ -250,7 +225,7 @@ const EmployerJobDetails = () => {
             value={record.status}
             onChange={(val) => handleUpdateAppStatus(record.id, val)}
             loading={actionLoadingId === record.id}
-            style={{ width: 140 }}
+            className="portal-w-140"
           >
             <Option value="APPLIED">Applied</Option>
             <Option value="SHORTLISTED">Shortlist</Option>
@@ -265,8 +240,8 @@ const EmployerJobDetails = () => {
 
   if (loading && !job) {
     return (
-      <div style={{ padding: '60px 24px', textAlign: 'center' }}>
-        <p style={{ color: 'var(--theme-muted)', fontSize: '16px' }}>Loading mandate details & candidates...</p>
+      <div className="portal-loading-container">
+        <p className="portal-loading-text">Loading mandate details & candidates...</p>
       </div>
     );
   }
@@ -277,13 +252,12 @@ const EmployerJobDetails = () => {
   const selectedCount = applicationsList.filter(a => a.status === 'SELECTED').length;
 
   return (
-    <div style={{ width: '100%' }}>
+    <div className="portal-w-full">
       {/* Navigation & Header */}
-        <div style={{ marginBottom: '24px' }}>
+        <div className="portal-mb-24">
           <button 
-            className="portal-btn-secondary"
             onClick={() => navigate('/employer')}
-            style={{ padding: '8px 16px', fontSize: '13px', marginBottom: '16px' }}
+            className="portal-btn-secondary portal-btn-back"
           >
             <ArrowLeftOutlined /> Back to Entity Dashboard
           </button>
@@ -293,48 +267,47 @@ const EmployerJobDetails = () => {
         <motion.div 
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          className="portal-glass-card" 
-          style={{ padding: '28px', marginBottom: '32px' }}
+          className="portal-glass-card portal-p-28 portal-mb-32" 
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px', marginBottom: '20px' }}>
+          <div className="portal-job-details-header">
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px', flexWrap: 'wrap' }}>
-                <Tag color={job?.status === 'ACTIVE' ? 'green' : (job?.status === 'PAUSED' ? 'gold' : 'default')} style={{ fontSize: '13px', padding: '3px 10px', fontWeight: 600 }}>
+              <div className="portal-flex-center-wrap-gap-10 portal-mb-8">
+                <Tag color={job?.status === 'ACTIVE' ? 'green' : (job?.status === 'PAUSED' ? 'gold' : 'default')} className="portal-tag-badge">
                   {job?.status}
                 </Tag>
-                <Tag color={getJobTypeColor(job?.jobType)} style={{ fontSize: '13px', padding: '3px 10px', fontWeight: 600, borderRadius: '6px' }}>
+                <Tag color={getJobTypeColor(job?.jobType)} className="portal-tag-badge-rounded">
                   {getJobTypeLabel(job?.jobType)}
                 </Tag>
-                <Tag color="geekblue" style={{ fontSize: '13px', padding: '3px 10px', fontWeight: 600, borderRadius: '6px' }}>
+                <Tag color="geekblue" className="portal-tag-badge-rounded">
                   {getExperienceLevelLabel(job?.experienceLevel)}
                 </Tag>
-                <span style={{ color: 'var(--theme-muted)', fontSize: '13px' }}>
+                <span className="portal-text-muted-sm">
                   Listed on {new Date(job?.createdAt).toLocaleDateString()}
                 </span>
               </div>
-              <h1 className="portal-section-title" style={{ fontSize: '30px', margin: 0 }}>
+              <h1 className="portal-section-title portal-text-30 m-0">
                 {job?.title}
               </h1>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--theme-link)', fontSize: '15px', marginTop: '6px', fontWeight: 500, flexWrap: 'wrap' }}>
+              <div className="portal-job-meta-row">
                 <BankOutlined /> {job?.employer?.name}
                 {job?.employer?.location && (
-                  <span style={{ color: 'var(--theme-muted)', marginLeft: '10px' }}>
+                  <span className="portal-text-muted ml-10">
                     <EnvironmentOutlined /> {job.employer.location}
                   </span>
                 )}
-                <span style={{ color: 'var(--theme-success)', marginLeft: '10px', fontWeight: 600 }}>
+                <span className="portal-text-success ml-10 font-semibold">
                   <DollarOutlined /> {getSalaryRangeLabel(job?.salaryRange)}
                 </span>
               </div>
             </div>
 
             {/* Quick Mandate Controls */}
-            <div style={{ display: 'flex', gap: '10px' }}>
+            <div className="portal-flex-gap-10">
               {job?.status === 'ACTIVE' ? (
                 <Button 
                   icon={<PauseCircleOutlined />} 
                   onClick={() => handleToggleJobStatus('PAUSED')}
-                  style={{ background: 'rgba(245, 158, 11, 0.15)', borderColor: 'rgba(245, 158, 11, 0.4)', color: '#fde047', borderRadius: '10px' }}
+                  className="portal-btn-warning-soft"
                 >
                   Pause Mandate
                 </Button>
@@ -343,7 +316,7 @@ const EmployerJobDetails = () => {
                   type="primary"
                   icon={<PlayCircleOutlined />} 
                   onClick={() => handleToggleJobStatus('ACTIVE')}
-                  style={{ background: '#10b981', borderColor: '#10b981', borderRadius: '10px' }}
+                  className="portal-btn-success"
                 >
                   Re-Activate Mandate
                 </Button>
@@ -352,64 +325,53 @@ const EmployerJobDetails = () => {
           </div>
 
           {/* Quick Metrics Bar */}
-          <div 
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-              gap: '14px',
-              padding: '16px',
-              background: 'rgba(var(--theme-contrast-rgb), 0.03)',
-              border: '1px solid rgba(var(--theme-contrast-rgb), 0.06)',
-              borderRadius: '14px',
-              marginBottom: '24px'
-            }}
-          >
+          <div className="portal-metrics-bar">
             <div>
-              <span style={{ color: 'var(--theme-muted)', fontSize: '12px' }}>Total Applications</span>
-              <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--theme-link)' }}>{applicationsList.length}</div>
+              <span className="portal-text-muted-xs">Total Applications</span>
+              <div className="portal-metric-val link">{applicationsList.length}</div>
             </div>
             <div>
-              <span style={{ color: 'var(--theme-muted)', fontSize: '12px' }}>Shortlisted</span>
-              <div style={{ fontSize: '24px', fontWeight: 700, color: '#fde047' }}>{shortlistedCount}</div>
+              <span className="portal-text-muted-xs">Shortlisted</span>
+              <div className="portal-metric-val warning">{shortlistedCount}</div>
             </div>
             <div>
-              <span style={{ color: 'var(--theme-muted)', fontSize: '12px' }}>Interviews Active</span>
-              <div style={{ fontSize: '24px', fontWeight: 700, color: '#c084fc' }}>{interviewCount}</div>
+              <span className="portal-text-muted-xs">Interviews Active</span>
+              <div className="portal-metric-val purple">{interviewCount}</div>
             </div>
             <div>
-              <span style={{ color: 'var(--theme-muted)', fontSize: '12px' }}>Hired / Selected</span>
-              <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--theme-success)' }}>{selectedCount}</div>
+              <span className="portal-text-muted-xs">Hired / Selected</span>
+              <div className="portal-metric-val success">{selectedCount}</div>
             </div>
           </div>
 
           {/* Mandate Description & Requirements */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+          <div className="portal-grid-2col-gap-20">
             <div>
-              <h4 style={{ color: 'var(--theme-link)', fontSize: '13px', textTransform: 'uppercase', marginBottom: '8px', fontWeight: 700, letterSpacing: '0.5px' }}>
+              <h4 className="portal-subheading-cyan">
                 Mandate Scope & Description
               </h4>
-              <div style={{ color: 'var(--theme-detail)', lineHeight: 1.6, background: 'rgba(var(--theme-contrast-rgb),0.02)', padding: '14px', borderRadius: '10px', fontSize: '14px', whiteSpace: 'pre-line' }}>
+              <div className="portal-box-desc">
                 {job?.description}
               </div>
             </div>
             <div>
-              <h4 style={{ color: 'var(--theme-link)', fontSize: '13px', textTransform: 'uppercase', marginBottom: '8px', fontWeight: 700, letterSpacing: '0.5px' }}>
+              <h4 className="portal-subheading-cyan">
                 Compliance & Statutory Requirements
               </h4>
-              <div style={{ color: 'var(--theme-detail)', lineHeight: 1.6, background: 'rgba(var(--theme-contrast-rgb),0.02)', padding: '14px', borderRadius: '10px', fontSize: '14px', whiteSpace: 'pre-line' }}>
+              <div className="portal-box-desc">
                 {job?.requirements}
               </div>
             </div>
           </div>
 
           {job?.skills?.length > 0 && (
-            <div style={{ marginTop: '20px' }}>
-              <h4 style={{ color: 'var(--theme-link)', fontSize: '13px', textTransform: 'uppercase', marginBottom: '8px', fontWeight: 700, letterSpacing: '0.5px' }}>
+            <div className="portal-mt-20">
+              <h4 className="portal-subheading-cyan">
                 Mandate Specialisations & Skills
               </h4>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              <div className="portal-flex-wrap-gap-8">
                 {job.skills.map(s => (
-                  <Tag key={s.skill.id} color="blue" style={{ padding: '4px 10px', borderRadius: '6px' }}>
+                  <Tag key={s.skill.id} color="blue" className="portal-tag-badge-rounded">
                     {s.skill.name}
                   </Tag>
                 ))}
@@ -419,12 +381,12 @@ const EmployerJobDetails = () => {
         </motion.div>
 
         {/* Bottom Section: Applied Candidates List */}
-        <div style={{ marginBottom: '18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="portal-applied-header">
           <div>
-            <h2 className="portal-section-title" style={{ fontSize: '24px', margin: 0 }}>
+            <h2 className="portal-section-title portal-text-24 m-0">
               Applied Candidates ({applicationsList.length})
             </h2>
-            <p className="portal-section-subtitle" style={{ fontSize: '14px', marginTop: '4px' }}>
+            <p className="portal-section-subtitle portal-text-14 mt-4">
               Review applicant qualifications, inspect complete CV portfolios, and schedule direct interviews.
             </p>
           </div>
@@ -433,8 +395,7 @@ const EmployerJobDetails = () => {
         <motion.div 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="portal-glass-card" 
-          style={{ padding: '20px' }}
+          className="portal-glass-card portal-p-20" 
         >
           <Table 
             columns={applicantColumns}
@@ -443,7 +404,7 @@ const EmployerJobDetails = () => {
             pagination={{ pageSize: 8 }}
             className="portal-table"
             locale={{
-              emptyText: <div style={{ padding: '30px', color: 'var(--theme-muted)' }}>No candidates have applied to this mandate yet.</div>
+              emptyText: <div className="portal-empty-table-text">No candidates have applied to this mandate yet.</div>
             }}
           />
         </motion.div>
@@ -451,41 +412,29 @@ const EmployerJobDetails = () => {
         {/* Candidate CV / Resume Preview Modal */}
         <Modal
           title={
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--theme-heading)', fontSize: '18px', fontWeight: 700 }}>
-              <FileTextOutlined style={{ color: 'var(--theme-link)' }} /> Candidate Curriculum Vitae — {selectedCandidate?.name}
+            <div className="portal-modal-title-row">
+              <FileTextOutlined className="portal-text-link" /> Candidate Curriculum Vitae — {selectedCandidate?.name}
             </div>
           }
           open={cvModalOpen}
           onCancel={() => setCvModalOpen(false)}
           footer={null}
           width={800}
-          styles={{
-            content: { background: 'var(--theme-surface)', border: '1px solid rgba(var(--theme-contrast-rgb), 0.12)', borderRadius: '20px' },
-            header: { background: 'var(--theme-surface)' },
-          }}
         >
           {selectedCandidate && (
-            <div style={{ color: 'var(--theme-secondary)', marginTop: '16px' }}>
+            <div className="portal-mt-16 text-secondary">
               
               {/* CV Header Banner */}
-              <div 
-                style={{
-                  padding: '20px',
-                  background: 'linear-gradient(135deg, rgba(14, 165, 233, 0.15) 0%, rgba(var(--theme-surface-rgb), 0.6) 100%)',
-                  border: '1px solid rgba(14, 165, 233, 0.3)',
-                  borderRadius: '14px',
-                  marginBottom: '20px'
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
+              <div className="portal-cv-header-banner">
+                <div className="portal-cv-header-row">
                   <div>
-                    <h3 style={{ margin: 0, color: 'var(--theme-heading)', fontSize: '24px', fontWeight: 800 }}>
+                    <h3 className="portal-cv-name">
                       {selectedCandidate.name}
                     </h3>
-                    <p style={{ margin: '4px 0 0', color: 'var(--theme-link)', fontSize: '15px', fontWeight: 600 }}>
+                    <p className="portal-cv-role">
                       {selectedCandidate.candidateProfile?.designation || 'Insolvency & Restructuring Professional'}
                     </p>
-                    <div style={{ display: 'flex', gap: '16px', marginTop: '8px', color: 'var(--theme-detail)', fontSize: '13px', flexWrap: 'wrap' }}>
+                    <div className="portal-cv-contact-row">
                       <span><MailOutlined /> {selectedCandidate.email}</span>
                       {selectedCandidate.candidateProfile?.phone && (
                         <span><PhoneOutlined /> {selectedCandidate.candidateProfile.phone}</span>
@@ -496,9 +445,9 @@ const EmployerJobDetails = () => {
                     </div>
                   </div>
 
-                  <div style={{ textAlign: 'right' }}>
+                  <div className="text-right">
                     {getStatusTag(selectedCandidate.status)}
-                    <div style={{ color: 'var(--theme-muted)', fontSize: '12px', marginTop: '6px' }}>
+                    <div className="portal-text-muted-xs mt-6">
                       Applied {new Date(selectedCandidate.appliedAt).toLocaleDateString()}
                     </div>
                   </div>
@@ -506,24 +455,24 @@ const EmployerJobDetails = () => {
               </div>
 
               {/* CV Sections */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <div className="portal-flex-col-gap-20">
                 
                 {/* Professional Experience Section */}
-                <div style={{ padding: '18px', background: 'rgba(var(--theme-contrast-rgb),0.02)', border: '1px solid rgba(var(--theme-contrast-rgb),0.06)', borderRadius: '12px' }}>
-                  <h4 style={{ color: 'var(--theme-link)', fontSize: '14px', textTransform: 'uppercase', marginBottom: '14px', fontWeight: 700, letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div className="portal-cv-section-card">
+                  <h4 className="portal-cv-section-title">
                     <SolutionOutlined /> Professional Insolvency & Restructuring Experience
                   </h4>
                   {selectedCandidate.candidateProfile?.experiences?.length > 0 ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                    <div className="portal-flex-col-gap-14">
                       {selectedCandidate.candidateProfile.experiences.map((exp) => (
-                        <div key={exp.id} style={{ borderLeft: '2px solid #0ea5e9', paddingLeft: '14px' }}>
-                          <div style={{ fontWeight: 700, color: 'var(--theme-heading)', fontSize: '15px' }}>{exp.designation}</div>
-                          <div style={{ color: 'var(--theme-link)', fontSize: '13px', fontWeight: 500 }}>{exp.organisation}</div>
-                          <div style={{ color: 'var(--theme-muted)', fontSize: '12px', marginTop: '2px' }}>
+                        <div key={exp.id} className="portal-cv-exp-item">
+                          <div className="portal-text-base-bold">{exp.designation}</div>
+                          <div className="portal-text-link-sm font-medium">{exp.organisation}</div>
+                          <div className="portal-text-muted-xs mt-2">
                             {exp.isCurrent ? 'Present' : 'Past Engagement'}
                           </div>
                           {exp.description && (
-                            <p style={{ color: 'var(--theme-detail)', fontSize: '13px', margin: '6px 0 0', lineHeight: 1.5 }}>
+                            <p className="portal-text-detail-sm mt-6 leading-relaxed">
                               {exp.description}
                             </p>
                           )}
@@ -531,43 +480,43 @@ const EmployerJobDetails = () => {
                       ))}
                     </div>
                   ) : (
-                    <p style={{ color: 'var(--theme-muted)', margin: 0, fontSize: '13px' }}>
+                    <p className="portal-text-muted-sm m-0">
                       Total Experience: {selectedCandidate.candidateProfile?.experience || 0} years in corporate restructuring and insolvency processes.
                     </p>
                   )}
                 </div>
 
                 {/* Education & IBBI Certifications */}
-                <div style={{ padding: '18px', background: 'rgba(var(--theme-contrast-rgb),0.02)', border: '1px solid rgba(var(--theme-contrast-rgb),0.06)', borderRadius: '12px' }}>
-                  <h4 style={{ color: 'var(--theme-link)', fontSize: '14px', textTransform: 'uppercase', marginBottom: '14px', fontWeight: 700, letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div className="portal-cv-section-card">
+                  <h4 className="portal-cv-section-title">
                     <BankOutlined /> Qualifications & Certifications
                   </h4>
                   {selectedCandidate.candidateProfile?.educations?.length > 0 ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <div className="portal-flex-col-gap-10">
                       {selectedCandidate.candidateProfile.educations.map((edu) => (
-                        <div key={edu.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px', color: 'var(--theme-secondary)' }}>
+                        <div key={edu.id} className="portal-cv-edu-row">
                           <div>
-                            <strong style={{ color: 'var(--theme-heading)', fontSize: '14px' }}>{edu.qualification}</strong> ({edu.degree})
-                            <div style={{ color: 'var(--theme-muted)', fontSize: '12px' }}>{edu.institution}</div>
+                            <strong className="portal-text-heading-sm">{edu.qualification}</strong> ({edu.degree})
+                            <div className="portal-text-muted-xs">{edu.institution}</div>
                           </div>
                           {edu.completionYear && <Tag color="blue">{edu.completionYear}</Tag>}
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <p style={{ color: 'var(--theme-muted)', margin: 0, fontSize: '13px' }}>Verified Professional Credentials recorded on portal.</p>
+                    <p className="portal-text-muted-sm m-0">Verified Professional Credentials recorded on portal.</p>
                   )}
                 </div>
 
                 {/* Skills Portfolio */}
                 {selectedCandidate.candidateProfile?.skills?.length > 0 && (
-                  <div style={{ padding: '18px', background: 'rgba(var(--theme-contrast-rgb),0.02)', border: '1px solid rgba(var(--theme-contrast-rgb),0.06)', borderRadius: '12px' }}>
-                    <h4 style={{ color: 'var(--theme-link)', fontSize: '14px', textTransform: 'uppercase', marginBottom: '12px', fontWeight: 700, letterSpacing: '0.5px' }}>
+                  <div className="portal-cv-section-card">
+                    <h4 className="portal-cv-section-title mb-12">
                       Competency & Domain Skills
                     </h4>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                    <div className="portal-flex-wrap-gap-8">
                       {selectedCandidate.candidateProfile.skills.map(s => (
-                        <Tag key={s.skill.id} color="cyan" style={{ padding: '5px 12px', fontSize: '13px', borderRadius: '8px' }}>
+                        <Tag key={s.skill.id} color="cyan" className="portal-tag-badge-rounded">
                           {s.skill.name}
                         </Tag>
                       ))}
@@ -577,27 +526,22 @@ const EmployerJobDetails = () => {
               </div>
 
               {/* Action Buttons in CV Modal */}
-              <div style={{ marginTop: '28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+              <div className="portal-cv-actions-row">
                 <Button 
                   onClick={() => setCvModalOpen(false)}
-                  style={{
-                    background: 'rgba(var(--theme-contrast-rgb), 0.08)',
-                    border: '1px solid rgba(var(--theme-contrast-rgb), 0.15)',
-                    color: 'var(--theme-heading)',
-                    borderRadius: '8px'
-                  }}
+                  className="portal-btn-neutral"
                 >
                   Close CV
                 </Button>
 
-                <div style={{ display: 'flex', gap: '10px' }}>
+                <div className="portal-flex-gap-10">
                   {selectedCandidate.status !== 'INTERVIEW' && (
                     <Button
                       type="primary"
                       icon={<SendOutlined />}
                       loading={actionLoadingId === selectedCandidate.appId}
                       onClick={() => handleSendInvite(selectedCandidate.appId)}
-                      style={{ background: '#0ea5e9', borderColor: '#0ea5e9', borderRadius: '8px' }}
+                      className="portal-btn-cyan font-medium"
                     >
                       Send Interview Invite
                     </Button>
@@ -607,7 +551,7 @@ const EmployerJobDetails = () => {
                       icon={<CheckCircleOutlined />}
                       loading={actionLoadingId === selectedCandidate.appId}
                       onClick={() => handleUpdateAppStatus(selectedCandidate.appId, 'SHORTLISTED')}
-                      style={{ background: 'rgba(245, 158, 11, 0.15)', borderColor: 'rgba(245, 158, 11, 0.4)', color: '#fde047', borderRadius: '8px' }}
+                      className="portal-btn-warning-soft"
                     >
                       Shortlist Candidate
                     </Button>
@@ -617,7 +561,7 @@ const EmployerJobDetails = () => {
                       icon={<CheckCircleOutlined />}
                       loading={actionLoadingId === selectedCandidate.appId}
                       onClick={() => handleUpdateAppStatus(selectedCandidate.appId, 'SELECTED')}
-                      style={{ background: '#10b981', borderColor: '#10b981', color: 'var(--theme-on-primary)', borderRadius: '8px' }}
+                      className="portal-btn-success"
                     >
                       Select / Hire
                     </Button>
@@ -632,68 +576,48 @@ const EmployerJobDetails = () => {
         {/* Candidate Profile Dossier Modal */}
         <Modal
           title={
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--theme-heading)', fontSize: '18px', fontWeight: 700 }}>
-              <UserOutlined style={{ color: 'var(--theme-link)' }} /> Candidate Profile Dossier
+            <div className="portal-modal-title-row">
+              <UserOutlined className="portal-text-link" /> Candidate Profile Dossier
             </div>
           }
           open={candidateModalOpen}
           onCancel={() => setCandidateModalOpen(false)}
           footer={null}
           width={720}
-          styles={{
-            content: { background: 'var(--theme-surface)', border: '1px solid rgba(var(--theme-contrast-rgb), 0.12)', borderRadius: '20px' },
-            header: { background: 'var(--theme-surface)' },
-          }}
         >
           {selectedCandidate && (
-            <div style={{ color: 'var(--theme-secondary)', marginTop: '16px' }}>
-              <div 
-                style={{
-                  padding: '16px',
-                  background: 'rgba(var(--theme-contrast-rgb), 0.04)',
-                  border: '1px solid rgba(var(--theme-contrast-rgb), 0.08)',
-                  borderRadius: '12px',
-                  marginBottom: '20px',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center'
-                }}
-              >
+            <div className="portal-mt-16 text-secondary">
+              <div className="portal-dossier-header-card">
                 <div>
-                  <h3 style={{ margin: 0, color: 'var(--theme-heading)', fontSize: '20px' }}>{selectedCandidate.name}</h3>
-                  <p style={{ margin: '4px 0 0', color: 'var(--theme-muted)', fontSize: '14px' }}>{selectedCandidate.email}</p>
+                  <h3 className="portal-text-20 m-0 font-bold portal-text-heading">{selectedCandidate.name}</h3>
+                  <p className="portal-text-muted-sm mt-4 m-0">{selectedCandidate.email}</p>
                 </div>
                 {getStatusTag(selectedCandidate.status)}
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '14px', marginBottom: '16px' }}>
-                <div style={{ padding: '12px', background: 'rgba(var(--theme-contrast-rgb),0.02)', borderRadius: '8px' }}>
-                  <span style={{ color: 'var(--theme-muted)', fontSize: '12px' }}>Current Designation</span>
-                  <div style={{ fontWeight: 600, color: 'var(--theme-heading)' }}>{selectedCandidate.candidateProfile?.designation || 'N/A'}</div>
+              <div className="portal-dossier-grid">
+                <div className="portal-dossier-box">
+                  <span className="portal-text-muted-xs">Current Designation</span>
+                  <div className="portal-text-heading font-semibold">{selectedCandidate.candidateProfile?.designation || 'N/A'}</div>
                 </div>
-                <div style={{ padding: '12px', background: 'rgba(var(--theme-contrast-rgb),0.02)', borderRadius: '8px' }}>
-                  <span style={{ color: 'var(--theme-muted)', fontSize: '12px' }}>Total Experience</span>
-                  <div style={{ fontWeight: 600, color: 'var(--theme-heading)' }}>{selectedCandidate.candidateProfile?.experience ? `${selectedCandidate.candidateProfile.experience} Years` : 'N/A'}</div>
+                <div className="portal-dossier-box">
+                  <span className="portal-text-muted-xs">Total Experience</span>
+                  <div className="portal-text-heading font-semibold">{selectedCandidate.candidateProfile?.experience ? `${selectedCandidate.candidateProfile.experience} Years` : 'N/A'}</div>
                 </div>
-                <div style={{ padding: '12px', background: 'rgba(var(--theme-contrast-rgb),0.02)', borderRadius: '8px' }}>
-                  <span style={{ color: 'var(--theme-muted)', fontSize: '12px' }}>City / Location</span>
-                  <div style={{ fontWeight: 600, color: 'var(--theme-heading)' }}>{selectedCandidate.candidateProfile?.city || 'N/A'}</div>
+                <div className="portal-dossier-box">
+                  <span className="portal-text-muted-xs">City / Location</span>
+                  <div className="portal-text-heading font-semibold">{selectedCandidate.candidateProfile?.city || 'N/A'}</div>
                 </div>
-                <div style={{ padding: '12px', background: 'rgba(var(--theme-contrast-rgb),0.02)', borderRadius: '8px' }}>
-                  <span style={{ color: 'var(--theme-muted)', fontSize: '12px' }}>Notice Period</span>
-                  <div style={{ fontWeight: 600, color: 'var(--theme-heading)' }}>{selectedCandidate.candidateProfile?.noticePeriod || 'N/A'}</div>
+                <div className="portal-dossier-box">
+                  <span className="portal-text-muted-xs">Notice Period</span>
+                  <div className="portal-text-heading font-semibold">{selectedCandidate.candidateProfile?.noticePeriod || 'N/A'}</div>
                 </div>
               </div>
 
-              <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'flex-end' }}>
+              <div className="portal-flex-end mt-24">
                 <Button 
                   onClick={() => setCandidateModalOpen(false)}
-                  style={{
-                    background: 'rgba(var(--theme-contrast-rgb), 0.08)',
-                    border: '1px solid rgba(var(--theme-contrast-rgb), 0.15)',
-                    color: 'var(--theme-heading)',
-                    borderRadius: '8px'
-                  }}
+                  className="portal-btn-neutral"
                 >
                   Close
                 </Button>

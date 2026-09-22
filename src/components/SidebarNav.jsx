@@ -68,6 +68,12 @@ const ROLE_NAV_CONFIGS = {
         items: [
           { path: '/employer/organisation', label: 'Organisation Profile', icon: <BankOutlined /> },
         ]
+      },
+      {
+        title: 'Account',
+        items: [
+          { path: '/employer/settings', label: 'Settings', icon: <SettingOutlined /> },
+        ]
       }
     ]
   },
@@ -91,9 +97,10 @@ const ROLE_NAV_CONFIGS = {
         ]
       },
       {
-        title: 'Safety',
+        title: 'System & Safety',
         items: [
           { path: '/admin/reports', label: 'Moderation Reports', icon: <AlertOutlined /> },
+          { path: '/admin/settings', label: 'Settings', icon: <SettingOutlined /> },
         ]
       }
     ]
@@ -199,7 +206,7 @@ const SidebarNav = ({ activeKey }) => {
             <span className="portal-sidebar-status-dot" />
             Portal Active
           </span>
-          <span style={{ opacity: 0.6, fontSize: '10px' }}>v2.4</span>
+          <span className="portal-sidebar-version">v2.4</span>
         </div>
       </div>
     </div>

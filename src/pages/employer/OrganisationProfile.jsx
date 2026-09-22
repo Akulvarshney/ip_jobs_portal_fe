@@ -133,19 +133,19 @@ const OrganisationProfile = () => {
   const currentValues = Form.useWatch([], form) || {};
 
   return (
-    <div style={{ width: '100%' }}>
+    <div className="portal-w-full">
       {/* Navigation Breadcrumb / Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', flexWrap: 'wrap', gap: '16px' }}>
+        <div className="portal-page-header-row portal-mb-32">
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-              <Link to="/employer" style={{ color: 'var(--theme-link)', fontSize: '13px', fontWeight: 500 }}>
+            <div className="portal-flex-center-gap-8 portal-mb-6">
+              <Link to="/employer" className="portal-text-link portal-text-13 font-medium">
                 ← Back to Employer Dashboard
               </Link>
             </div>
-            <h1 style={{ fontSize: '28px', fontWeight: 700, color: 'var(--theme-heading)', margin: 0 }}>
+            <h1 className="portal-text-28 font-bold portal-text-heading m-0">
               Organisation Profile & Branding
             </h1>
-            <p style={{ color: 'var(--theme-muted)', fontSize: '14px', margin: '4px 0 0' }}>
+            <p className="portal-text-muted-sm mt-4 m-0">
               Manage your company information, insolvency credentials, and branding visible to candidates.
             </p>
           </div>
@@ -154,7 +154,7 @@ const OrganisationProfile = () => {
             <Link to={`/companies/${orgData.id}`} target="_blank">
               <Button 
                 icon={<EyeOutlined />} 
-                style={{ borderRadius: '8px', background: 'rgba(56, 189, 248, 0.1)', borderColor: '#38bdf8', color: 'var(--theme-link)' }}
+                className="portal-btn-cyan-soft"
               >
                 View Public Profile ↗
               </Button>
@@ -163,54 +163,40 @@ const OrganisationProfile = () => {
         </div>
 
         {loading ? (
-          <div style={{ textAlign: 'center', padding: '80px 0' }}>
+          <div className="portal-loading-container portal-py-80">
             <Spin size="large" />
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.8fr) minmax(0, 1.2fr)', gap: '32px' }}>
+          <div className="portal-org-profile-layout">
             
             {/* Form Column */}
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="portal-glass-card"
-              style={{ padding: '32px' }}
+              className="portal-glass-card portal-p-32"
             >
               <Form
                 form={form}
                 layout="vertical"
                 onFinish={handleSave}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '24px', flexWrap: 'wrap' }}>
+                <div className="portal-flex-center-gap-20 portal-mb-24 flex-wrap">
                   <Avatar
                     size={72}
                     icon={<BankOutlined />}
                     src={getFileUrl(currentValues.logoUrl || orgData?.logoUrl)}
-                    style={{ backgroundColor: '#0ea5e9' }}
+                    className="portal-avatar-cyan"
                   />
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, minWidth: '240px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div className="portal-flex-col-gap-8 portal-flex-1 min-w-240">
+                    <div className="portal-flex-center-gap-10">
                       <label
-                        style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '6px',
-                          padding: '8px 16px',
-                          background: '#0ea5e9',
-                          borderRadius: '8px',
-                          color: 'var(--theme-on-primary)',
-                          cursor: uploadingLogo ? 'not-allowed' : 'pointer',
-                          fontSize: '13px',
-                          fontWeight: 600,
-                          boxShadow: '0 4px 12px rgba(14, 165, 233, 0.3)',
-                          opacity: uploadingLogo ? 0.6 : 1
-                        }}
+                        className={`portal-btn-upload-logo ${uploadingLogo ? 'disabled' : ''}`}
                       >
                         <PlusOutlined spin={uploadingLogo} /> {uploadingLogo ? 'Uploading...' : 'Upload Logo'}
                         <input
                           type="file"
                           accept="image/*"
-                          style={{ display: 'none' }}
+                          className="portal-display-none"
                           disabled={uploadingLogo}
                           onChange={handleLogoUpload}
                         />
@@ -220,7 +206,7 @@ const OrganisationProfile = () => {
                           size="small"
                           danger
                           onClick={() => form.setFieldsValue({ logoUrl: '' })}
-                          style={{ borderRadius: '6px' }}
+                          className="portal-rounded-6"
                         >
                           Remove
                         </Button>
@@ -229,8 +215,8 @@ const OrganisationProfile = () => {
                   </div>
                 </div>
 
-                <Divider style={{ borderColor: 'rgba(var(--theme-contrast-rgb), 0.08)' }} orientation="left">
-                  <span style={{ color: 'var(--theme-link)', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                <Divider className="portal-divider-subtle" orientation="left">
+                  <span className="portal-text-link portal-text-13 uppercase tracking-wider">
                     Entity Details
                   </span>
                 </Divider>
@@ -238,17 +224,17 @@ const OrganisationProfile = () => {
                 <Row gutter={20}>
                   <Col xs={24} sm={14}>
                     <Form.Item
-                      label={<span style={{ color: 'var(--theme-secondary)' }}>Organisation Name</span>}
+                      label={<span className="portal-form-label">Organisation Name</span>}
                       name="name"
                       rules={[{ required: true, message: 'Organisation name is required' }]}
                     >
-                      <Input placeholder="e.g. Resolution Advocates & Advisory IPE" style={{ background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.15)' }} />
+                      <Input placeholder="e.g. Resolution Advocates & Advisory IPE" className="portal-form-input" />
                     </Form.Item>
                   </Col>
 
                   <Col xs={24} sm={10}>
                     <Form.Item
-                      label={<span style={{ color: 'var(--theme-secondary)' }}>Organisation Type</span>}
+                      label={<span className="portal-form-label">Organisation Type</span>}
                       name="type"
                       rules={[{ required: true, message: 'Please select organisation type' }]}
                     >
@@ -262,32 +248,32 @@ const OrganisationProfile = () => {
 
                   <Col xs={24} sm={12}>
                     <Form.Item
-                      label={<span style={{ color: 'var(--theme-secondary)' }}>Headquarters / Location</span>}
+                      label={<span className="portal-form-label">Headquarters / Location</span>}
                       name="location"
                       rules={[{ required: true, message: 'Location is required' }]}
                     >
-                      <Input placeholder="e.g. New Delhi, Mumbai, Bengaluru" style={{ background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.15)' }} />
+                      <Input placeholder="e.g. New Delhi, Mumbai, Bengaluru" className="portal-form-input" />
                     </Form.Item>
                   </Col>
 
                   <Col xs={24} sm={12}>
                     <Form.Item
-                      label={<span style={{ color: 'var(--theme-secondary)' }}>Official Website</span>}
+                      label={<span className="portal-form-label">Official Website</span>}
                       name="website"
                     >
-                      <Input placeholder="https://www.example.com" style={{ background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.15)' }} />
+                      <Input placeholder="https://www.example.com" className="portal-form-input" />
                     </Form.Item>
                   </Col>
 
                   <Col xs={24}>
                     <Form.Item
-                      label={<span style={{ color: 'var(--theme-secondary)' }}>About Organisation & Insolvency Practice</span>}
+                      label={<span className="portal-form-label">About Organisation & Insolvency Practice</span>}
                       name="description"
                     >
                       <TextArea
                         rows={5}
                         placeholder="Describe your organisation, CIRP / liquidation track record, advisory sectors, and team culture..."
-                        style={{ background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.15)' }}
+                        className="portal-form-input"
                       />
                     </Form.Item>
                   </Col>
@@ -298,7 +284,7 @@ const OrganisationProfile = () => {
                   htmlType="submit"
                   icon={<SaveOutlined />}
                   loading={saving}
-                  style={{ background: '#0ea5e9', borderRadius: '8px', height: '40px', padding: '0 28px', marginTop: '12px' }}
+                  className="portal-btn-primary-compact"
                 >
                   Save Profile Details
                 </Button>
@@ -306,75 +292,59 @@ const OrganisationProfile = () => {
             </motion.div>
 
             {/* Live Preview Column */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-              <div className="portal-glass-card" style={{ padding: '28px' }}>
-                <div style={{ color: 'var(--theme-link)', fontSize: '12px', fontWeight: 600, textTransform: 'uppercase', marginBottom: '16px' }}>
+            <div className="portal-flex-col-gap-24">
+              <div className="portal-glass-card portal-p-28">
+                <div className="portal-text-link portal-text-12 font-semibold uppercase portal-mb-16">
                   Live Candidate View Preview
                 </div>
 
-                <div style={{
-                  background: 'rgba(var(--theme-contrast-rgb), 0.03)',
-                  border: '1px solid rgba(var(--theme-contrast-rgb), 0.08)',
-                  borderRadius: '16px',
-                  padding: '24px'
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
-                    <div style={{
-                      width: '54px',
-                      height: '54px',
-                      borderRadius: '14px',
-                      background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(56, 189, 248, 0.1))',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: '#a855f7',
-                      fontSize: '22px',
-                      fontWeight: 700
-                    }}>
+                <div className="portal-live-preview-box">
+                  <div className="portal-flex-center-gap-16 portal-mb-16">
+                    <div className="portal-live-avatar">
                       {currentValues.name ? currentValues.name.substring(0, 2).toUpperCase() : 'CO'}
                     </div>
                     <div>
-                      <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--theme-heading)' }}>
+                      <div className="portal-text-18 font-bold portal-text-heading">
                         {currentValues.name || 'Organisation Name'}
                       </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
-                        <Tag color="purple" style={{ borderRadius: '6px', fontSize: '11px', fontWeight: 600 }}>
+                      <div className="portal-flex-center-gap-8 mt-4">
+                        <Tag color="purple" className="portal-tag-badge-rounded font-semibold portal-text-11">
                           {currentValues.type || 'IPE'}
                         </Tag>
-                        <span style={{ color: 'var(--theme-muted)', fontSize: '13px' }}>
-                          <EnvironmentOutlined style={{ marginRight: '4px' }} />
+                        <span className="portal-text-muted portal-text-13">
+                          <EnvironmentOutlined className="mr-4" />
                           {currentValues.location || 'Location'}
                         </span>
                       </div>
                     </div>
                   </div>
 
-                  <p style={{ color: 'var(--theme-detail)', fontSize: '13px', lineHeight: '1.6', marginBottom: '16px' }}>
+                  <p className="portal-text-detail portal-text-13 leading-relaxed portal-mb-16">
                     {currentValues.description || 'No description provided yet.'}
                   </p>
 
                   {currentValues.website && (
-                    <div style={{ color: 'var(--theme-link)', fontSize: '13px' }}>
-                      <GlobalOutlined style={{ marginRight: '6px' }} />
-                      <a href={currentValues.website} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--theme-link)' }}>
+                    <div className="portal-text-link portal-text-13">
+                      <GlobalOutlined className="mr-6" />
+                      <a href={currentValues.website} target="_blank" rel="noopener noreferrer" className="portal-text-link">
                         {currentValues.website}
                       </a>
                     </div>
                   )}
                 </div>
 
-                <div style={{ marginTop: '20px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                  <div style={{ background: 'rgba(var(--theme-contrast-rgb), 0.03)', padding: '12px', borderRadius: '10px', textAlign: 'center' }}>
-                    <div style={{ fontSize: '20px', fontWeight: 700, color: 'var(--theme-heading)' }}>
+                <div className="portal-live-stats-grid">
+                  <div className="portal-live-stat-box">
+                    <div className="portal-text-20 font-bold portal-text-heading">
                       {orgData?._count?.jobs || 0}
                     </div>
-                    <div style={{ fontSize: '12px', color: 'var(--theme-muted)' }}>Active Mandates</div>
+                    <div className="portal-text-muted-xs">Active Mandates</div>
                   </div>
-                  <div style={{ background: 'rgba(var(--theme-contrast-rgb), 0.03)', padding: '12px', borderRadius: '10px', textAlign: 'center' }}>
-                    <div style={{ fontSize: '20px', fontWeight: 700, color: '#10b981' }}>
+                  <div className="portal-live-stat-box">
+                    <div className="portal-text-20 font-bold portal-text-success">
                       Verified
                     </div>
-                    <div style={{ fontSize: '12px', color: 'var(--theme-muted)' }}>Status</div>
+                    <div className="portal-text-muted-xs">Status</div>
                   </div>
                 </div>
               </div>

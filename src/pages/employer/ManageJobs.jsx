@@ -40,23 +40,23 @@ const ManageJobs = () => {
       key: 'title',
       render: (text, record) => (
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+          <div className="portal-flex-center-gap-8 portal-flex-wrap">
             <span 
-              style={{ fontWeight: 600, color: 'var(--theme-link)', cursor: 'pointer', fontSize: '15px' }}
+              className="portal-card-link-title"
               onClick={() => navigate(`/employer/jobs/${record.id}`)}
             >
               {text}
             </span>
-            <Tag color={getJobTypeColor(record.jobType)} style={{ borderRadius: '6px', fontSize: '11px', margin: 0 }}>
+            <Tag color={getJobTypeColor(record.jobType)} className="portal-tag-compact">
               {getJobTypeLabel(record.jobType)}
             </Tag>
-            <Tag color="geekblue" style={{ borderRadius: '6px', fontSize: '11px', margin: 0 }}>
+            <Tag color="geekblue" className="portal-tag-compact">
               {getExperienceLevelShortLabel(record.experienceLevel)}
             </Tag>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '12px', color: 'var(--theme-muted)', marginTop: '4px' }}>
+          <div className="portal-flex-center-gap-12 portal-text-12 portal-color-muted portal-mt-4">
             <span>Listed on {new Date(record.createdAt).toLocaleDateString()}</span>
-            <span style={{ color: 'var(--theme-success)', fontWeight: 500 }}>
+            <span className="portal-color-success portal-font-medium">
               <DollarOutlined /> {getSalaryRangeLabel(record.salaryRange)}
             </span>
           </div>
@@ -85,22 +85,21 @@ const ManageJobs = () => {
       key: 'action',
       render: (_, record) => (
         <button 
-          className="portal-btn-primary"
-          style={{ padding: '6px 14px', fontSize: '13px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+          className="portal-btn-primary portal-btn-compact-apply portal-inline-flex-center-gap-6"
           onClick={() => navigate(`/employer/jobs/${record.id}`)}
         >
           <span>View Candidates & Details</span>
-          <ArrowRightOutlined style={{ fontSize: '11px' }} />
+          <ArrowRightOutlined className="portal-icon-11" />
         </button>
       )
     }
   ];
 
   return (
-    <div style={{ width: '100%' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px', flexWrap: 'wrap', gap: '16px' }}>
+    <div className="portal-w-full">
+      <div className="portal-page-header portal-mb-28">
         <div>
-          <h1 className="portal-section-title" style={{ fontSize: '30px' }}>Active Mandates</h1>
+          <h1 className="portal-section-title portal-text-30">Active Mandates</h1>
           <p className="portal-section-subtitle">Manage your listed CIRP & Liquidation roles and review candidate submissions.</p>
         </div>
         <button className="portal-btn-primary" onClick={() => navigate('/employer')}>
@@ -112,8 +111,7 @@ const ManageJobs = () => {
       <motion.div 
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
-        className="portal-glass-card" 
-        style={{ padding: '24px' }}
+        className="portal-glass-card portal-p-24"
       >
         <Table 
           dataSource={jobs}

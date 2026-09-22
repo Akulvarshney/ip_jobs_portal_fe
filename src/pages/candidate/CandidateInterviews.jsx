@@ -55,47 +55,30 @@ const CandidateInterviews = () => {
       key={interview.id}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="portal-glass-card"
-      style={{
-        padding: '24px',
-        marginBottom: '20px',
-        border: '1px solid rgba(234, 179, 8, 0.25)',
-        background: 'linear-gradient(135deg, rgba(234, 179, 8, 0.04) 0%, rgba(var(--theme-surface-rgb), 0.7) 100%)'
-      }}
+      className="portal-glass-card portal-interview-card"
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
+      <div className="portal-interview-card-header">
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
-            <span style={{ fontSize: '18px', fontWeight: 700, color: 'var(--theme-heading)' }}>
+          <div className="portal-interview-card-title-wrap">
+            <span className="portal-interview-card-title">
               {interview.job?.title || 'Mandate Discussion'}
             </span>
-            <Tag color="gold" icon={getInterviewTypeIcon(interview.interviewType)} style={{ borderRadius: '6px' }}>
+            <Tag color="gold" icon={getInterviewTypeIcon(interview.interviewType)} className="portal-interview-tag">
               {interview.interviewType}
             </Tag>
           </div>
-          <div style={{ color: 'var(--theme-link)', fontSize: '14px', fontWeight: 500 }}>
+          <div className="portal-interview-employer">
             {interview.employer?.name || 'Insolvency Entity'}
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+        <div>
           {interview.meetingLink && (
             <a
               href={interview.meetingLink.startsWith('http') ? interview.meetingLink : `https://${interview.meetingLink}`}
               target="_blank"
               rel="noopener noreferrer"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '8px 18px',
-                background: '#eab308',
-                color: '#0f172a',
-                fontWeight: 600,
-                borderRadius: '8px',
-                textDecoration: 'none',
-                fontSize: '13px'
-              }}
+              className="portal-interview-join-btn"
             >
               <VideoCameraOutlined /> Join Interview Call
             </a>
@@ -103,42 +86,33 @@ const CandidateInterviews = () => {
         </div>
       </div>
 
-      <Divider style={{ borderColor: 'rgba(var(--theme-contrast-rgb), 0.08)', margin: '16px 0' }} />
+      <Divider className="portal-drawer-divider" />
 
       <Row gutter={[20, 12]}>
         <Col xs={24} sm={8}>
-          <div style={{ color: 'var(--theme-subtle)', fontSize: '12px' }}>Date & Schedule</div>
-          <div style={{ color: 'var(--theme-heading)', fontSize: '14px', fontWeight: 500, marginTop: '2px' }}>
+          <div className="portal-interview-col-label">Date & Schedule</div>
+          <div className="portal-interview-col-val">
             📅 {new Date(interview.interviewDate).toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}
           </div>
         </Col>
 
         <Col xs={24} sm={8}>
-          <div style={{ color: 'var(--theme-subtle)', fontSize: '12px' }}>Time Slot</div>
-          <div style={{ color: 'var(--theme-heading)', fontSize: '14px', fontWeight: 500, marginTop: '2px' }}>
+          <div className="portal-interview-col-label">Time Slot</div>
+          <div className="portal-interview-col-val">
             ⏰ {interview.interviewTime || 'As per meeting link'}
           </div>
         </Col>
 
         <Col xs={24} sm={8}>
-          <div style={{ color: 'var(--theme-subtle)', fontSize: '12px' }}>Interviewer / Panel</div>
-          <div style={{ color: 'var(--theme-heading)', fontSize: '14px', fontWeight: 500, marginTop: '2px' }}>
+          <div className="portal-interview-col-label">Interviewer / Panel</div>
+          <div className="portal-interview-col-val">
             👤 {interview.interviewer || 'Hiring Manager / Partner'}
           </div>
         </Col>
       </Row>
 
       {interview.notes && (
-        <div style={{
-          marginTop: '16px',
-          background: 'rgba(var(--theme-contrast-rgb), 0.03)',
-          border: '1px solid rgba(var(--theme-contrast-rgb), 0.06)',
-          padding: '12px 16px',
-          borderRadius: '8px',
-          color: 'var(--theme-detail)',
-          fontSize: '13px',
-          lineHeight: '1.5'
-        }}>
+        <div className="portal-interview-notes-box">
           <strong>Instructions / Agenda:</strong> {interview.notes}
         </div>
       )}
@@ -153,10 +127,10 @@ const CandidateInterviews = () => {
         <div>
           {upcomingInterviews.map(renderInterviewCard)}
           {upcomingInterviews.length === 0 && !loading && (
-            <div className="portal-glass-card" style={{ padding: '60px', textAlign: 'center' }}>
-              <CalendarOutlined style={{ fontSize: '48px', color: '#eab308', marginBottom: '16px', opacity: 0.6 }} />
-              <h3 style={{ color: 'var(--theme-heading)', fontSize: '20px', margin: 0 }}>No upcoming interviews scheduled</h3>
-              <p style={{ color: 'var(--theme-muted)', marginTop: '8px' }}>
+            <div className="portal-glass-card portal-empty-state-card">
+              <CalendarOutlined className="portal-interview-empty-calendar" />
+              <h3 className="portal-empty-state-title">No upcoming interviews scheduled</h3>
+              <p className="portal-empty-state-desc">
                 When employers shortlist your profile and invite you for an interview, the meeting details will appear here.
               </p>
             </div>
@@ -171,10 +145,10 @@ const CandidateInterviews = () => {
         <div>
           {pastInterviews.map(renderInterviewCard)}
           {pastInterviews.length === 0 && !loading && (
-            <div className="portal-glass-card" style={{ padding: '60px', textAlign: 'center' }}>
-              <CheckCircleOutlined style={{ fontSize: '48px', color: '#10b981', marginBottom: '16px', opacity: 0.6 }} />
-              <h3 style={{ color: 'var(--theme-heading)', fontSize: '20px', margin: 0 }}>No past interview history</h3>
-              <p style={{ color: 'var(--theme-muted)', marginTop: '8px' }}>Your completed interview records will be archived here.</p>
+            <div className="portal-glass-card portal-empty-state-card">
+              <CheckCircleOutlined className="portal-empty-state-icon" />
+              <h3 className="portal-empty-state-title">No past interview history</h3>
+              <p className="portal-empty-state-desc">Your completed interview records will be archived here.</p>
             </div>
           )}
         </div>
@@ -184,9 +158,9 @@ const CandidateInterviews = () => {
 
   return (
     <div>
-      <div style={{ marginBottom: '28px' }}>
-        <h1 style={{ fontSize: '28px', fontWeight: 700, color: 'var(--theme-heading)', margin: 0 }}>Interview Schedule</h1>
-        <p style={{ color: 'var(--theme-muted)', fontSize: '14px', margin: '4px 0 0' }}>
+      <div className="portal-page-header">
+        <h1 className="portal-page-title">Interview Schedule</h1>
+        <p className="portal-page-subtitle">
           Direct access to scheduled video meetings, discussion agendas, and interviewer instructions.
         </p>
       </div>

@@ -94,8 +94,8 @@ const CandidateApplications = () => {
       key: 'jobTitle',
       render: (text, record) => (
         <div>
-          <div style={{ fontWeight: 600, color: 'var(--theme-heading)', fontSize: '15px' }}>{text}</div>
-          <div style={{ color: 'var(--theme-subtle)', fontSize: '13px', marginTop: '2px' }}>
+          <div className="portal-app-title">{text}</div>
+          <div className="portal-app-employer">
             {record.job?.employer?.name || 'Insolvency Entity'}
           </div>
         </div>
@@ -106,7 +106,7 @@ const CandidateApplications = () => {
       dataIndex: ['job', 'employer', 'type'],
       key: 'orgType',
       render: (type) => (
-        <Tag color="cyan" style={{ borderRadius: '6px', fontSize: '11px', fontWeight: 600 }}>
+        <Tag color="cyan" className="portal-tag-org">
           {type || 'VERIFIED'}
         </Tag>
       ),
@@ -116,7 +116,7 @@ const CandidateApplications = () => {
       dataIndex: 'createdAt',
       key: 'createdAt',
       render: (date) => (
-        <span style={{ color: 'var(--theme-detail)', fontSize: '13px' }}>
+        <span className="portal-app-date">
           {new Date(date).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
         </span>
       ),
@@ -132,7 +132,6 @@ const CandidateApplications = () => {
       key: 'interview',
       render: (_, record) => {
         if (record.status === 'INTERVIEW' || record.interviews?.length > 0) {
-          const latest = record.interviews?.[0];
           return (
             <Button
               size="small"
@@ -142,7 +141,7 @@ const CandidateApplications = () => {
                 setSelectedAppModal(record);
                 setDetailsModalVisible(true);
               }}
-              style={{ background: '#eab308', color: '#0f172a', fontWeight: 600, borderRadius: '6px' }}
+              className="portal-btn-interview"
             >
               View Interview
             </Button>
@@ -156,7 +155,7 @@ const CandidateApplications = () => {
               setSelectedAppModal(record);
               setDetailsModalVisible(true);
             }}
-            style={{ borderRadius: '6px', background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-detail)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.1)' }}
+            className="portal-btn-review"
           >
             Review Details
           </Button>
@@ -167,9 +166,9 @@ const CandidateApplications = () => {
       title: 'Actions',
       key: 'actions',
       render: (_, record) => (
-        <div style={{ display: 'flex', gap: '8px' }}>
+        <div className="portal-app-actions-wrap">
           <Link to={`/jobs/${record.jobId}`}>
-            <Button size="small" type="link" style={{ color: 'var(--theme-link)', padding: 0 }}>
+            <Button size="small" type="link" className="portal-app-action-link">
               Job Details
             </Button>
           </Link>
@@ -181,7 +180,7 @@ const CandidateApplications = () => {
               okText="Withdraw"
               cancelText="Cancel"
             >
-              <Button size="small" type="link" danger style={{ padding: 0, marginLeft: '8px' }}>
+              <Button size="small" type="link" danger className="portal-app-withdraw-btn">
                 Withdraw
               </Button>
             </Popconfirm>
@@ -206,54 +205,53 @@ const CandidateApplications = () => {
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="portal-glass-card"
-        style={{ padding: '32px' }}
+        className="portal-glass-card portal-settings-card"
       >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
-            <div>
-              <h1 style={{ fontSize: '28px', fontWeight: 700, color: 'var(--theme-heading)', margin: 0 }}>Application Tracker</h1>
-              <p style={{ color: 'var(--theme-muted)', fontSize: '14px', margin: '4px 0 0' }}>
-                Monitor the status of your submitted IBC and restructuring applications.
-              </p>
-            </div>
-
-            <div style={{ width: '280px' }}>
-              <Input
-                prefix={<SearchOutlined style={{ color: 'var(--theme-link)' }} />}
-                placeholder="Search role or employer..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                style={{ background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)', borderRadius: '10px' }}
-              />
-            </div>
+        <div className="portal-tracker-header">
+          <div>
+            <h1 className="portal-page-title">Application Tracker</h1>
+            <p className="portal-page-subtitle">
+              Monitor the status of your submitted IBC and restructuring applications.
+            </p>
           </div>
 
-          <Tabs
-            activeKey={activeTab}
-            onChange={(key) => {
-              setActiveTab(key);
-              setSearchParams(key === 'ALL' ? {} : { status: key });
-            }}
-            items={tabItems}
-            style={{ marginBottom: '16px' }}
-          />
+          <div className="portal-search-box-wrap">
+            <Input
+              prefix={<SearchOutlined className="portal-search-prefix-icon" />}
+              placeholder="Search role or employer..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="portal-search-input"
+            />
+          </div>
+        </div>
 
-          <Table
-            dataSource={filteredApplications}
-            columns={columns}
-            rowKey="id"
-            loading={loading}
-            pagination={{ pageSize: 8, showTotal: (total) => `Total ${total} applications` }}
-            locale={{
-              emptyText: (
-                <div style={{ padding: '40px', textAlign: 'center', color: 'var(--theme-muted)' }}>
-                  <SendOutlined style={{ fontSize: '36px', color: 'var(--theme-link)', marginBottom: '12px', opacity: 0.5 }} />
-                  <p>No applications match the selected criteria.</p>
-                </div>
-              )
-            }}
-          />
-        </motion.div>
+        <Tabs
+          activeKey={activeTab}
+          onChange={(key) => {
+            setActiveTab(key);
+            setSearchParams(key === 'ALL' ? {} : { status: key });
+          }}
+          items={tabItems}
+          className="portal-tabs-wrap"
+        />
+
+        <Table
+          dataSource={filteredApplications}
+          columns={columns}
+          rowKey="id"
+          loading={loading}
+          pagination={{ pageSize: 8, showTotal: (total) => `Total ${total} applications` }}
+          locale={{
+            emptyText: (
+              <div className="portal-table-empty">
+                <SendOutlined className="portal-table-empty-icon" />
+                <p>No applications match the selected criteria.</p>
+              </div>
+            )
+          }}
+        />
+      </motion.div>
 
       {/* Details / Interview Modal */}
       <Modal
@@ -261,74 +259,57 @@ const CandidateApplications = () => {
         open={detailsModalVisible}
         onCancel={() => setDetailsModalVisible(false)}
         footer={[
-          <Button key="close" type="primary" onClick={() => setDetailsModalVisible(false)} style={{ background: '#0ea5e9' }}>
+          <Button key="close" type="primary" onClick={() => setDetailsModalVisible(false)} className="portal-btn-theme-primary">
             Close
           </Button>
         ]}
         width={650}
       >
         {selectedAppModal && (
-          <div style={{ marginTop: '16px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <div className="portal-modal-app-details">
+            <div className="portal-modal-app-header">
               <div>
-                <h3 style={{ color: 'var(--theme-heading)', margin: 0, fontSize: '18px' }}>{selectedAppModal.job?.title}</h3>
-                <div style={{ color: 'var(--theme-link)', fontSize: '14px', marginTop: '2px' }}>
+                <h3 className="portal-modal-app-title">{selectedAppModal.job?.title}</h3>
+                <div className="portal-modal-app-employer">
                   {selectedAppModal.job?.employer?.name}
                 </div>
               </div>
               <div>{getStatusTag(selectedAppModal.status)}</div>
             </div>
 
-            <Divider style={{ borderColor: 'rgba(var(--theme-contrast-rgb), 0.08)' }} />
+            <Divider className="portal-settings-divider" />
 
             {/* Scheduled Interview Section if available */}
             {selectedAppModal.interviews?.length > 0 && (
-              <div style={{
-                background: 'rgba(234, 179, 8, 0.08)',
-                border: '1px solid rgba(234, 179, 8, 0.3)',
-                borderRadius: '12px',
-                padding: '18px',
-                marginBottom: '20px'
-              }}>
-                <div style={{ color: '#fde047', fontWeight: 600, fontSize: '15px', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div className="portal-interview-alert-box">
+                <div className="portal-interview-alert-title">
                   <CalendarOutlined /> Scheduled Interview Details
                 </div>
                 {selectedAppModal.interviews.map((interview) => (
-                  <div key={interview.id} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <div style={{ color: 'var(--theme-detail)', fontSize: '13px' }}>
+                  <div key={interview.id} className="portal-interview-content">
+                    <div className="portal-interview-row">
                       <strong>Date & Time:</strong> {new Date(interview.interviewDate).toLocaleDateString()} at {interview.interviewTime || 'Scheduled Time'}
                     </div>
-                    <div style={{ color: 'var(--theme-detail)', fontSize: '13px' }}>
+                    <div className="portal-interview-row">
                       <strong>Type:</strong> {interview.interviewType}
                     </div>
                     {interview.interviewer && (
-                      <div style={{ color: 'var(--theme-detail)', fontSize: '13px' }}>
+                      <div className="portal-interview-row">
                         <strong>Interviewer:</strong> {interview.interviewer}
                       </div>
                     )}
                     {interview.notes && (
-                      <div style={{ color: 'var(--theme-detail)', fontSize: '13px' }}>
+                      <div className="portal-interview-row">
                         <strong>Instructions:</strong> {interview.notes}
                       </div>
                     )}
                     {interview.meetingLink && (
-                      <div style={{ marginTop: '8px' }}>
+                      <div className="portal-mt-8">
                         <a
                           href={interview.meetingLink.startsWith('http') ? interview.meetingLink : `https://${interview.meetingLink}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '6px',
-                            padding: '8px 16px',
-                            background: '#eab308',
-                            color: '#0f172a',
-                            fontWeight: 600,
-                            borderRadius: '8px',
-                            textDecoration: 'none',
-                            fontSize: '13px'
-                          }}
+                          className="portal-interview-join-btn"
                         >
                           <VideoCameraOutlined /> Join Interview Call
                         </a>
@@ -341,17 +322,17 @@ const CandidateApplications = () => {
 
             {/* Application Cover Note if provided */}
             {selectedAppModal.coverNote && (
-              <div style={{ marginBottom: '16px' }}>
-                <div style={{ fontSize: '13px', color: 'var(--theme-subtle)', fontWeight: 600, marginBottom: '6px' }}>
+              <div className="portal-modal-cover-note-wrap">
+                <div className="portal-modal-cover-note-title">
                   Your Submitted Cover Note:
                 </div>
-                <div style={{ background: 'rgba(var(--theme-contrast-rgb), 0.03)', padding: '12px 16px', borderRadius: '8px', color: 'var(--theme-detail)', fontSize: '13px', lineHeight: '1.6' }}>
+                <div className="portal-modal-cover-note-box">
                   {selectedAppModal.coverNote}
                 </div>
               </div>
             )}
 
-            <div style={{ fontSize: '12px', color: '#64748b' }}>
+            <div className="portal-modal-applied-time">
               Applied on {new Date(selectedAppModal.createdAt).toLocaleString()}
             </div>
           </div>

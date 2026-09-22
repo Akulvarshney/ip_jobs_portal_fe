@@ -103,30 +103,16 @@ const ManageEmployers = () => {
       title: 'Organisation Name',
       key: 'name',
       render: (_, record) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div 
-            style={{
-              width: '42px',
-              height: '42px',
-              borderRadius: '12px',
-              background: 'rgba(14, 165, 233, 0.12)',
-              border: '1px solid rgba(56, 189, 248, 0.3)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'var(--theme-link)',
-              fontWeight: 700,
-              fontSize: '18px'
-            }}
-          >
+        <div className="portal-flex-center-gap-12">
+          <div className="portal-avatar-init">
             <BankOutlined />
           </div>
           <div>
-            <div style={{ fontWeight: 600, color: 'var(--theme-heading)', fontSize: '15px' }}>{record.name}</div>
-            <div style={{ fontSize: '12px', color: 'var(--theme-muted)', display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
+            <div className="portal-candidate-name">{record.name}</div>
+            <div className="portal-text-muted-xs portal-flex-center-gap-6 mt-2">
               <EnvironmentOutlined /> {record.location || 'India'}
               {record.website && (
-                <a href={record.website} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--theme-link)', marginLeft: '6px' }}>
+                <a href={record.website} target="_blank" rel="noopener noreferrer" className="portal-text-link ml-6">
                   <GlobalOutlined /> Website
                 </a>
               )}
@@ -140,7 +126,7 @@ const ManageEmployers = () => {
       dataIndex: 'type',
       key: 'type',
       render: (type) => (
-        <Tag style={{ background: 'rgba(var(--theme-contrast-rgb), 0.06)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.15)', color: 'var(--theme-detail)', fontWeight: 600 }}>
+        <Tag className="portal-tag-more font-semibold">
           {type || 'OTHER'}
         </Tag>
       ),
@@ -149,7 +135,7 @@ const ManageEmployers = () => {
       title: 'Jobs Posted',
       key: 'jobs',
       render: (_, record) => (
-        <Tag color="cyan" style={{ fontWeight: 600, padding: '2px 8px' }}>
+        <Tag color="cyan" className="font-semibold portal-p-2-8">
           {record._count?.jobs || 0} Mandates
         </Tag>
       ),
@@ -158,7 +144,7 @@ const ManageEmployers = () => {
       title: 'Members',
       key: 'members',
       render: (_, record) => (
-        <span style={{ color: 'var(--theme-detail)', fontSize: '13px' }}>
+        <span className="portal-text-detail-sm">
           <TeamOutlined /> {record.members?.length || 0} User(s)
         </span>
       ),
@@ -171,7 +157,7 @@ const ManageEmployers = () => {
         let color = 'green';
         if (status === 'PENDING') color = 'gold';
         if (status === 'SUSPENDED') color = 'red';
-        return <Tag color={color} style={{ fontWeight: 600 }}>{status}</Tag>;
+        return <Tag color={color} className="font-semibold">{status}</Tag>;
       },
     },
     {
@@ -183,12 +169,7 @@ const ManageEmployers = () => {
             size="small" 
             icon={<EyeOutlined />}
             onClick={() => openDossier(record)}
-            style={{ 
-              background: 'rgba(var(--theme-contrast-rgb), 0.08)', 
-              borderColor: 'rgba(var(--theme-contrast-rgb), 0.15)', 
-              color: '#e0f2fe',
-              borderRadius: '6px'
-            }}
+            className="portal-btn-neutral"
           >
             Dossier
           </Button>
@@ -200,12 +181,7 @@ const ManageEmployers = () => {
               loading={actionLoadingId === record.id}
               icon={<CheckCircleOutlined />}
               onClick={() => handleUpdateStatus(record.id, 'APPROVED')}
-              style={{
-                borderRadius: '6px',
-                background: '#10b981',
-                borderColor: '#10b981',
-                color: 'var(--theme-on-primary)'
-              }}
+              className="portal-btn-success font-medium"
             >
               Approve
             </Button>
@@ -218,12 +194,7 @@ const ManageEmployers = () => {
               loading={actionLoadingId === record.id}
               icon={<StopOutlined />}
               onClick={() => handleUpdateStatus(record.id, 'SUSPENDED')}
-              style={{
-                borderRadius: '6px',
-                background: 'rgba(239, 68, 68, 0.15)',
-                borderColor: 'rgba(239, 68, 68, 0.4)',
-                color: 'var(--theme-danger)'
-              }}
+              className="portal-btn-danger-soft"
             >
               Suspend
             </Button>
@@ -234,7 +205,7 @@ const ManageEmployers = () => {
   ];
 
   return (
-    <div style={{ width: '100%' }}>
+    <div className="portal-w-full">
       <AdminHeader 
           title="Employer Organisation Management" 
           subtitle="Review, approve, and govern Banks, ARCs, Law Firms, CA Firms, and Insolvency Entities."
@@ -251,34 +222,22 @@ const ManageEmployers = () => {
         />
 
         {/* Clean Search & Filter Bar */}
-        <div 
-          className="portal-glass-card" 
-          style={{ 
-            padding: '16px 20px', 
-            marginBottom: '24px'
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-            <div style={{ flex: '1 1 300px', display: 'flex', gap: '8px' }}>
+        <div className="portal-glass-card portal-p-16-20 portal-mb-24">
+          <div className="portal-flex-center-gap-12 flex-wrap">
+            <div className="portal-admin-search-form">
               <Input 
-                prefix={<SearchOutlined style={{ color: 'var(--theme-muted)' }} />}
+                prefix={<SearchOutlined className="portal-text-muted" />}
                 placeholder="Search organisation name, bench location, description..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 onPressEnter={fetchEmployers}
-                style={{
-                  background: 'rgba(var(--theme-contrast-rgb), 0.05)',
-                  borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)',
-                  color: 'var(--theme-heading)',
-                  borderRadius: '10px',
-                  height: '44px'
-                }}
+                className="portal-search-toolbar-input"
                 allowClear
               />
               <Button 
                 type="primary" 
                 onClick={fetchEmployers} 
-                style={{ background: '#0ea5e9', borderColor: '#0ea5e9', borderRadius: '10px', height: '44px', fontWeight: 600 }}
+                className="portal-btn-cyan-h44"
               >
                 Search
               </Button>
@@ -289,18 +248,10 @@ const ManageEmployers = () => {
               className={`portal-filter-trigger-btn ${activeFiltersCount > 0 ? 'active' : ''}`}
               onClick={() => setDrawerOpen(true)}
             >
-              <FilterOutlined style={{ color: activeFiltersCount > 0 ? '#38bdf8' : 'inherit' }} />
+              <FilterOutlined className={activeFiltersCount > 0 ? 'portal-text-cyan' : ''} />
               <span>Filters</span>
               {activeFiltersCount > 0 && (
-                <span style={{
-                  background: '#0ea5e9',
-                  color: 'var(--theme-on-primary)',
-                  fontSize: '11px',
-                  fontWeight: 700,
-                  borderRadius: '10px',
-                  padding: '1px 7px',
-                  marginLeft: '2px'
-                }}>
+                <span className="portal-badge-counter">
                   {activeFiltersCount}
                 </span>
               )}
@@ -314,17 +265,7 @@ const ManageEmployers = () => {
                     handleResetFilters();
                     fetchEmployers();
                   }}
-                  style={{ 
-                    height: '44px', 
-                    width: '44px',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    borderRadius: '10px', 
-                    background: 'rgba(var(--theme-contrast-rgb), 0.06)', 
-                    color: 'var(--theme-muted)', 
-                    borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)' 
-                  }}
+                  className="portal-btn-reset-filters"
                 />
               </Tooltip>
             )}
@@ -355,8 +296,8 @@ const ManageEmployers = () => {
         {/* Filter Drawer */}
         <Drawer
           title={
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <FilterOutlined style={{ color: 'var(--theme-link)' }} />
+            <div className="portal-drawer-title-row">
+              <FilterOutlined className="portal-text-link" />
               <span>Filter Organisations</span>
             </div>
           }
@@ -365,14 +306,14 @@ const ManageEmployers = () => {
           open={drawerOpen}
           onClose={() => setDrawerOpen(false)}
           footer={
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="portal-flex-between-center">
               <Button 
                 onClick={() => {
                   handleResetFilters();
                   setDrawerOpen(false);
                 }}
                 disabled={activeFiltersCount === 0 && !search}
-                style={{ borderRadius: '8px', background: 'transparent', color: 'var(--theme-subtle)', border: '1px solid rgba(var(--theme-contrast-rgb),0.15)' }}
+                className="portal-btn-ghost"
               >
                 Reset All
               </Button>
@@ -382,7 +323,7 @@ const ManageEmployers = () => {
                   setDrawerOpen(false);
                   fetchEmployers();
                 }}
-                style={{ borderRadius: '8px', background: '#0ea5e9', borderColor: '#0ea5e9', fontWeight: 600 }}
+                className="portal-btn-cyan-apply"
               >
                 Apply & View ({employers.length})
               </Button>
@@ -396,7 +337,7 @@ const ManageEmployers = () => {
             <Select 
               value={statusFilter} 
               onChange={setStatusFilter}
-              style={{ width: '100%' }}
+              className="portal-w-full"
               size="large"
             >
               <Option value="ALL">All Statuses</Option>
@@ -406,7 +347,7 @@ const ManageEmployers = () => {
             </Select>
           </div>
 
-          <Divider style={{ borderColor: 'rgba(var(--theme-contrast-rgb),0.08)', margin: '18px 0' }} />
+          <Divider className="portal-divider-subtle portal-my-18" />
 
           <div className="portal-filter-section">
             <div className="portal-filter-section-title">
@@ -415,7 +356,7 @@ const ManageEmployers = () => {
             <Select 
               value={typeFilter} 
               onChange={setTypeFilter}
-              style={{ width: '100%' }}
+              className="portal-w-full"
               size="large"
             >
               <Option value="ALL">All Entity Types</Option>
@@ -437,8 +378,7 @@ const ManageEmployers = () => {
         <motion.div 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="portal-glass-card" 
-          style={{ padding: '20px' }}
+          className="portal-glass-card portal-p-20" 
         >
           <Table 
             columns={columns}
@@ -453,39 +393,25 @@ const ManageEmployers = () => {
         {/* Organisation Dossier Modal */}
         <Modal
           title={
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--theme-heading)', fontSize: '18px', fontWeight: 700 }}>
-              <BankOutlined style={{ color: '#c084fc' }} /> Organisation Dossier #{selectedEmployer?.id}
+            <div className="portal-modal-title-row">
+              <BankOutlined className="portal-text-purple" /> Organisation Dossier #{selectedEmployer?.id}
             </div>
           }
           open={modalOpen}
           onCancel={() => setModalOpen(false)}
           footer={null}
           width={700}
-          styles={{
-            content: { background: 'var(--theme-surface)', border: '1px solid rgba(var(--theme-contrast-rgb), 0.12)', borderRadius: '20px' },
-            header: { background: 'var(--theme-surface)' },
-          }}
         >
           {selectedEmployer && (
-            <div style={{ color: 'var(--theme-secondary)', marginTop: '16px' }}>
-              <div 
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  padding: '16px',
-                  background: 'rgba(var(--theme-contrast-rgb), 0.04)',
-                  borderRadius: '12px',
-                  marginBottom: '20px'
-                }}
-              >
+            <div className="portal-mt-16 text-secondary">
+              <div className="portal-dossier-header-card">
                 <div>
-                  <h3 style={{ margin: 0, color: 'var(--theme-heading)', fontSize: '20px' }}>{selectedEmployer.name}</h3>
-                  <p style={{ margin: '4px 0 0', color: 'var(--theme-muted)', fontSize: '14px' }}>
+                  <h3 className="portal-text-20 font-bold portal-text-heading m-0">{selectedEmployer.name}</h3>
+                  <p className="portal-text-muted-sm mt-4 m-0">
                     {selectedEmployer.location || 'India'}
                   </p>
                 </div>
-                <div style={{ display: 'flex', gap: '8px' }}>
+                <div className="portal-flex-gap-8">
                   <Tag color="purple">{selectedEmployer.type || 'N/A'}</Tag>
                   <Tag color={selectedEmployer.status === 'APPROVED' ? 'green' : (selectedEmployer.status === 'PENDING' ? 'gold' : 'red')}>
                     {selectedEmployer.status}
@@ -493,26 +419,26 @@ const ManageEmployers = () => {
                 </div>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div className="portal-flex-col-gap-16">
                 <div>
-                  <h4 style={{ color: 'var(--theme-link-soft)', fontSize: '13px', textTransform: 'uppercase', marginBottom: '6px' }}>
+                  <h4 className="portal-text-link-soft portal-text-13 uppercase portal-mb-6 font-semibold">
                     Entity Overview & Mandate Scope
                   </h4>
-                  <p style={{ color: 'var(--theme-detail)', lineHeight: 1.6, margin: 0 }}>
+                  <p className="portal-text-detail leading-relaxed m-0">
                     {selectedEmployer.description || 'No detailed description provided by entity.'}
                   </p>
                 </div>
 
                 {selectedEmployer.website && (
                   <div>
-                    <h4 style={{ color: 'var(--theme-link-soft)', fontSize: '13px', textTransform: 'uppercase', marginBottom: '6px' }}>
+                    <h4 className="portal-text-link-soft portal-text-13 uppercase portal-mb-6 font-semibold">
                       Official Website
                     </h4>
                     <a 
                       href={selectedEmployer.website} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      style={{ color: 'var(--theme-link)', wordBreak: 'break-all' }}
+                      className="portal-text-link break-all"
                     >
                       {selectedEmployer.website}
                     </a>
@@ -521,26 +447,18 @@ const ManageEmployers = () => {
 
                 {selectedEmployer.members?.length > 0 && (
                   <div>
-                    <h4 style={{ color: 'var(--theme-link-soft)', fontSize: '13px', textTransform: 'uppercase', marginBottom: '8px' }}>
+                    <h4 className="portal-text-link-soft portal-text-13 uppercase portal-mb-8 font-semibold">
                       Key Registered Representatives ({selectedEmployer.members.length})
                     </h4>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div className="portal-flex-col-gap-8">
                       {selectedEmployer.members.map((m) => (
                         <div 
                           key={m.id}
-                          style={{
-                            padding: '10px 12px',
-                            background: 'rgba(var(--theme-contrast-rgb),0.02)',
-                            border: '1px solid rgba(var(--theme-contrast-rgb),0.06)',
-                            borderRadius: '8px',
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center'
-                          }}
+                          className="portal-admin-list-item portal-p-10-12"
                         >
                           <div>
-                            <span style={{ fontWeight: 600, color: 'var(--theme-heading)' }}>{m.user?.name}</span>
-                            <span style={{ color: 'var(--theme-muted)', marginLeft: '8px', fontSize: '12px' }}>{m.user?.email}</span>
+                            <span className="portal-text-heading font-semibold">{m.user?.name}</span>
+                            <span className="portal-text-muted portal-text-12 ml-8">{m.user?.email}</span>
                           </div>
                           <Tag color="cyan">{m.role || 'MEMBER'}</Tag>
                         </div>
@@ -551,13 +469,13 @@ const ManageEmployers = () => {
 
                 {selectedEmployer.jobs?.length > 0 && (
                   <div>
-                    <h4 style={{ color: 'var(--theme-link-soft)', fontSize: '13px', textTransform: 'uppercase', marginBottom: '8px' }}>
+                    <h4 className="portal-text-link-soft portal-text-13 uppercase portal-mb-8 font-semibold">
                       Active Mandates ({selectedEmployer.jobs.length})
                     </h4>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <div className="portal-flex-col-gap-6">
                       {selectedEmployer.jobs.map((j) => (
-                        <div key={j.id} style={{ fontSize: '13px', color: 'var(--theme-detail)' }}>
-                          • <strong>{j.title}</strong> — <Tag color={j.status === 'ACTIVE' ? 'blue' : 'default'} style={{ fontSize: '11px' }}>{j.status}</Tag>
+                        <div key={j.id} className="portal-text-detail-sm">
+                          • <strong>{j.title}</strong> — <Tag color={j.status === 'ACTIVE' ? 'blue' : 'default'} className="portal-text-11">{j.status}</Tag>
                         </div>
                       ))}
                     </div>
@@ -565,12 +483,12 @@ const ManageEmployers = () => {
                 )}
               </div>
 
-              <div style={{ marginTop: '28px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+              <div className="portal-flex-end-gap-10 mt-28">
                 <Button onClick={() => setModalOpen(false)}>Close</Button>
                 {selectedEmployer.status !== 'APPROVED' && (
                   <Button
                     type="primary"
-                    style={{ background: '#10b981', borderColor: '#10b981' }}
+                    className="portal-btn-success"
                     onClick={() => handleUpdateStatus(selectedEmployer.id, 'APPROVED')}
                     loading={actionLoadingId === selectedEmployer.id}
                   >

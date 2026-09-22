@@ -2,30 +2,22 @@ import React from 'react';
 
 const AdminHeader = ({ title, subtitle, stats, actions }) => {
   return (
-    <div style={{ marginBottom: '28px' }}>
+    <div className="portal-admin-header-wrap">
       {/* Top Banner / Breadcrumb Bar */}
-      <div 
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '16px',
-        }}
-      >
+      <div className="portal-admin-header-banner">
         <div>
-          <h1 className="portal-section-title" style={{ fontSize: '30px', margin: 0 }}>
+          <h1 className="portal-section-title portal-admin-header-title">
             {title}
           </h1>
           {subtitle && (
-            <p className="portal-section-subtitle" style={{ marginTop: '6px', fontSize: '14px' }}>
+            <p className="portal-section-subtitle portal-admin-header-subtitle">
               {subtitle}
             </p>
           )}
         </div>
 
         {actions && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div className="portal-admin-header-actions">
             {actions}
           </div>
         )}

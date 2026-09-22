@@ -71,9 +71,9 @@ function App() {
       }}
     >
       <BrowserRouter>
-        <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '100%', overflowX: 'hidden' }}>
+        <div className="portal-app-layout">
           <Navbar />
-          <main style={{ flex: 1, width: '100%', minWidth: 0 }}>
+          <main className="portal-main-content">
             <Routes>
               {/* Public Routes */}
               <Route path="/" element={<Home />} />
@@ -109,6 +109,7 @@ function App() {
                 <Route path="/employer/jobs" element={<ManageJobs />} />
                 <Route path="/employer/jobs/:id" element={<EmployerJobDetails />} />
                 <Route path="/employer/applications" element={<ManageApplications />} />
+                <Route path="/employer/settings" element={<CandidateSettings />} />
 
                 {/* Admin Routes */}
                 <Route path="/admin" element={<AdminDashboard />} />
@@ -118,8 +119,10 @@ function App() {
                 <Route path="/admin/jobs" element={<AdminManageJobs />} />
                 <Route path="/admin/applications" element={<AdminManageApplications />} />
                 <Route path="/admin/reports" element={<AdminManageReports />} />
+                <Route path="/admin/settings" element={<CandidateSettings />} />
               </Route>
 
+              <Route path="/settings" element={<Navigate to="/candidate/settings" replace />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </main>

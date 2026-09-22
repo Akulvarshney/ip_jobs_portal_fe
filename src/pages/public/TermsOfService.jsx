@@ -12,7 +12,7 @@ import {
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
-const { Title, Paragraph, Text } = Typography;
+const { Title, Paragraph } = Typography;
 
 const TermsOfService = () => {
   const lastUpdated = "September 17, 2026";
@@ -22,41 +22,41 @@ const TermsOfService = () => {
   const sections = [
     {
       id: "acceptance",
-      icon: <FileTextOutlined style={{ color: 'var(--theme-link)' }} />,
+      icon: <FileTextOutlined className="portal-legal-icon-link" />,
       title: "1. Acceptance of Terms",
       content: (
-        <Paragraph style={{ color: 'var(--theme-detail)', fontSize: '15px', lineHeight: 1.8 }}>
-          By creating an account, browsing listings, submitting applications, or publishing mandates on <strong>Resolve Portal</strong>, you agree to be bound by these Terms of Service. If you are accepting on behalf of an Insolvency Professional Entity (IPE), Asset Reconstruction Company (ARC), Financial Institution, or Law Firm, you represent that you possess the requisite legal authority to bind said entity.
+        <Paragraph className="portal-legal-paragraph">
+          By creating an account, browsing listings, submitting applications, or publishing mandates on <strong className="portal-legal-strong">Resolve Portal</strong>, you agree to be bound by these Terms of Service. If you are accepting on behalf of an Insolvency Professional Entity (IPE), Asset Reconstruction Company (ARC), Financial Institution, or Law Firm, you represent that you possess the requisite legal authority to bind said entity.
         </Paragraph>
       )
     },
     {
       id: "eligibility",
-      icon: <CheckCircleOutlined style={{ color: '#10b981' }} />,
+      icon: <CheckCircleOutlined className="portal-legal-icon-emerald" />,
       title: "2. Eligibility & Statutory Verification",
       content: (
         <>
-          <Paragraph style={{ color: 'var(--theme-detail)', fontSize: '15px', lineHeight: 1.8 }}>
+          <Paragraph className="portal-legal-paragraph">
             Resolve is a specialized professional network for corporate turnaround, stressed debt, valuation, and legal practitioners. All users agree to maintain accurate credentials:
           </Paragraph>
-          <ul style={{ color: 'var(--theme-subtle)', fontSize: '14px', lineHeight: 1.8, paddingLeft: '20px' }}>
-            <li><strong style={{ color: 'var(--theme-text)' }}>Insolvency Professionals (IPs):</strong> Must hold valid registration with the Insolvency and Bankruptcy Board of India (IBBI) and active membership with an Insolvency Professional Agency (IPA).</li>
-            <li><strong style={{ color: 'var(--theme-text)' }}>Registered Valuers (RVs):</strong> Must hold valid registration under the Companies (Registered Valuers and Valuation) Rules, 2017.</li>
-            <li><strong style={{ color: 'var(--theme-text)' }}>Hiring Entities:</strong> Must represent legitimate corporate bodies, ARCs, banks, resolution applicants, or advisory firms with statutory standing.</li>
+          <ul className="portal-legal-list">
+            <li><strong className="portal-legal-strong">Insolvency Professionals (IPs):</strong> Must hold valid registration with the Insolvency and Bankruptcy Board of India (IBBI) and active membership with an Insolvency Professional Agency (IPA).</li>
+            <li><strong className="portal-legal-strong">Registered Valuers (RVs):</strong> Must hold valid registration under the Companies (Registered Valuers and Valuation) Rules, 2017.</li>
+            <li><strong className="portal-legal-strong">Hiring Entities:</strong> Must represent legitimate corporate bodies, ARCs, banks, resolution applicants, or advisory firms with statutory standing.</li>
           </ul>
         </>
       )
     },
     {
       id: "employer-rules",
-      icon: <BankOutlined style={{ color: '#f59e0b' }} />,
+      icon: <BankOutlined className="portal-legal-icon-amber" />,
       title: "3. Employer & Recruiter Obligations",
       content: (
         <>
-          <Paragraph style={{ color: 'var(--theme-detail)', fontSize: '15px', lineHeight: 1.8 }}>
+          <Paragraph className="portal-legal-paragraph">
             Employers publishing job mandates or assigning CIRP / liquidation advisory roles must adhere to the following standards:
           </Paragraph>
-          <ul style={{ color: 'var(--theme-subtle)', fontSize: '14px', lineHeight: 1.8, paddingLeft: '20px' }}>
+          <ul className="portal-legal-list">
             <li>Post only bona fide, active career opportunities or mandate assignments.</li>
             <li>Do not request unlawful candidate fees, security deposits, or non-refundable application charges.</li>
             <li>Maintain confidentiality regarding candidate resumes, non-public valuations, and corporate claims.</li>
@@ -67,18 +67,18 @@ const TermsOfService = () => {
     },
     {
       id: "candidate-rules",
-      icon: <SafetyOutlined style={{ color: '#ec4899' }} />,
+      icon: <SafetyOutlined className="portal-legal-icon-pink" />,
       title: "4. Candidate Representations & Code of Conduct",
       content: (
         <>
-          <Paragraph style={{ color: 'var(--theme-detail)', fontSize: '15px', lineHeight: 1.8 }}>
+          <Paragraph className="portal-legal-paragraph">
             Candidate users warrant that all information submitted in their profiles, education, certifications, and experience track record is accurate, genuine, and uninflated.
           </Paragraph>
-          <div style={{ background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.25)', padding: '16px', borderRadius: '12px', marginTop: '12px' }}>
-            <div style={{ color: 'var(--theme-danger)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div className="portal-legal-warning-box">
+            <div className="portal-legal-warning-title">
               <ExclamationCircleOutlined /> Prohibition on Misrepresentation
             </div>
-            <div style={{ color: 'var(--theme-detail)', fontSize: '13px', marginTop: '4px' }}>
+            <div className="portal-legal-warning-desc">
               Falsifying IBBI registration numbers, Section 29A eligibility declarations, or experience mandates will result in immediate permanent suspension and referral to regulatory authorities.
             </div>
           </div>
@@ -87,24 +87,24 @@ const TermsOfService = () => {
     },
     {
       id: "ip-rights",
-      icon: <AuditOutlined style={{ color: '#8b5cf6' }} />,
+      icon: <AuditOutlined className="portal-legal-icon-purple" />,
       title: "5. Intellectual Property & Portal Access",
       content: (
-        <Paragraph style={{ color: 'var(--theme-detail)', fontSize: '15px', lineHeight: 1.8 }}>
+        <Paragraph className="portal-legal-paragraph">
           All software, UI design components, proprietary algorithms, database schemas, and branding elements associated with Resolve Portal are the exclusive intellectual property of Resolve Platform Technologies Pvt. Ltd. Scraping, harvesting recruiter databases, automated bot indexing, or reverse engineering of APIs is strictly prohibited.
         </Paragraph>
       )
     },
     {
       id: "jurisdiction",
-      icon: <FileTextOutlined style={{ color: '#06b6d4' }} />,
+      icon: <FileTextOutlined className="portal-legal-icon-cyan" />,
       title: "6. Limitation of Liability & Governing Law",
       content: (
         <>
-          <Paragraph style={{ color: 'var(--theme-detail)', fontSize: '15px', lineHeight: 1.8 }}>
+          <Paragraph className="portal-legal-paragraph">
             Resolve serves as an enabling technological facilitator and matching infrastructure. We do not guarantee employment outcomes or act as a legal guarantor for insolvency assignments.
           </Paragraph>
-          <Paragraph style={{ color: 'var(--theme-subtle)', fontSize: '14px', lineHeight: 1.8 }}>
+          <Paragraph className="portal-legal-paragraph portal-color-subtle portal-fs-14">
             These Terms are governed by and construed under the laws of the Republic of India. Any disputes arising out of portal usage shall be subject to the exclusive jurisdiction of the competent courts in New Delhi, India.
           </Paragraph>
         </>
@@ -112,18 +112,18 @@ const TermsOfService = () => {
     },
     {
       id: "contact",
-      icon: <FileTextOutlined style={{ color: '#f59e0b' }} />,
+      icon: <FileTextOutlined className="portal-legal-icon-amber" />,
       title: "7. Inquiries & Legal Counsel Contact",
       content: (
         <>
-          <Paragraph style={{ color: 'var(--theme-detail)', fontSize: '15px', lineHeight: 1.8 }}>
+          <Paragraph className="portal-legal-paragraph">
             For contractual questions, bilateral enterprise agreements, or support inquiries regarding these terms, please contact:
           </Paragraph>
-          <div style={{ background: 'rgba(56, 189, 248, 0.08)', border: '1px solid rgba(56, 189, 248, 0.2)', padding: '16px 20px', borderRadius: '12px' }}>
-            <div style={{ color: 'var(--theme-link)', fontWeight: 600 }}>Legal & Support Desk</div>
-            <div style={{ color: 'var(--theme-text)', fontSize: '14px', marginTop: '4px' }}>Legal Inquiries: <a href={`mailto:${legalEmail}`} style={{ color: 'var(--theme-link)' }}>{legalEmail}</a></div>
-            <div style={{ color: 'var(--theme-text)', fontSize: '14px', marginTop: '4px' }}>General Support: <a href={`mailto:${supportEmail}`} style={{ color: 'var(--theme-link)' }}>{supportEmail}</a></div>
-            <div style={{ color: 'var(--theme-subtle)', fontSize: '13px', marginTop: '4px' }}>Resolve Platform Technologies Pvt. Ltd., Level 12, Cyber City, Gurugram, India</div>
+          <div className="portal-legal-contact-box">
+            <div className="portal-legal-contact-title">Legal & Support Desk</div>
+            <div className="portal-legal-contact-line">Legal Inquiries: <a href={`mailto:${legalEmail}`} className="portal-legal-contact-link">{legalEmail}</a></div>
+            <div className="portal-legal-contact-line">General Support: <a href={`mailto:${supportEmail}`} className="portal-legal-contact-link">{supportEmail}</a></div>
+            <div className="portal-legal-contact-sub">Resolve Platform Technologies Pvt. Ltd., Level 12, Cyber City, Gurugram, India</div>
           </div>
         </>
       )
@@ -137,15 +137,14 @@ const TermsOfService = () => {
         <div className="portal-bg-blob-2"></div>
       </div>
 
-      <div style={{ maxWidth: '960px', margin: '0 auto', padding: '40px 24px 80px', position: 'relative', zIndex: 10 }}>
-        
+      <div className="portal-static-container-960">
         {/* Breadcrumb */}
         <Breadcrumb
           items={[
-            { title: <Link to="/" style={{ color: 'var(--theme-muted)' }}><HomeOutlined /> Home</Link> },
-            { title: <span style={{ color: 'var(--theme-link)' }}>Terms of Service</span> },
+            { title: <Link to="/" className="portal-color-muted"><HomeOutlined /> Home</Link> },
+            { title: <span className="portal-color-link">Terms of Service</span> },
           ]}
-          style={{ marginBottom: '24px' }}
+          className="portal-mb-24"
         />
 
         {/* Hero Header */}
@@ -153,20 +152,20 @@ const TermsOfService = () => {
           initial={{ opacity: 0, y: 15 }} 
           animate={{ opacity: 1, y: 0 }} 
           transition={{ duration: 0.3 }}
-          style={{ marginBottom: '32px', textAlign: 'center' }}
+          className="portal-legal-hero"
         >
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(56, 189, 248, 0.1)', border: '1px solid rgba(56, 189, 248, 0.25)', padding: '6px 16px', borderRadius: '50px', marginBottom: '12px' }}>
-            <FileTextOutlined style={{ color: 'var(--theme-link)', fontSize: '15px' }} />
-            <span style={{ color: 'var(--theme-link)', fontWeight: 600, fontSize: '12px', letterSpacing: '0.5px' }}>PLATFORM TERMS & CONDITIONS</span>
+          <div className="portal-legal-hero-badge">
+            <FileTextOutlined className="portal-legal-hero-badge-icon" />
+            <span className="portal-legal-hero-badge-text">PLATFORM TERMS & CONDITIONS</span>
           </div>
 
-          <Title level={1} style={{ color: 'var(--theme-heading)', margin: 0, fontWeight: 800, fontSize: '34px' }}>
+          <Title level={1} className="portal-legal-hero-title">
             Terms of Service
           </Title>
-          <Paragraph style={{ color: 'var(--theme-subtle)', fontSize: '15px', marginTop: '8px', maxWidth: '720px', margin: '8px auto 0' }}>
+          <Paragraph className="portal-legal-hero-desc">
             The operational framework, rights, and regulatory responsibilities governing practitioners and hiring institutions across Resolve Portal.
           </Paragraph>
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '12px', marginTop: '14px', flexWrap: 'wrap' }}>
+          <div className="portal-legal-hero-tags">
             <Tag color="cyan">Last Updated: {lastUpdated}</Tag>
             <Tag color="blue">IBC & IBBI Code Aligned</Tag>
           </div>
@@ -177,31 +176,29 @@ const TermsOfService = () => {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35 }}
-          className="portal-glass-card"
-          style={{ padding: '36px 40px' }}
+          className="portal-glass-card portal-legal-card-p36"
         >
           {sections.map((sec, idx) => (
             <div key={sec.id}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                <div style={{ fontSize: '20px', background: 'rgba(var(--theme-contrast-rgb), 0.05)', padding: '8px', borderRadius: '10px', display: 'flex' }}>
+              <div className="portal-legal-section-header">
+                <div className="portal-legal-icon-box">
                   {sec.icon}
                 </div>
-                <Title level={3} style={{ color: 'var(--theme-heading)', margin: 0, fontSize: '20px', fontWeight: 700 }}>
+                <Title level={3} className="portal-legal-section-title">
                   {sec.title}
                 </Title>
               </div>
 
-              <div style={{ marginBottom: idx === sections.length - 1 ? '0' : '28px' }}>
+              <div className={idx === sections.length - 1 ? '' : 'portal-mb-28'}>
                 {sec.content}
               </div>
 
               {idx < sections.length - 1 && (
-                <Divider style={{ borderColor: 'rgba(var(--theme-contrast-rgb), 0.08)', margin: '28px 0' }} />
+                <Divider className="portal-legal-divider" />
               )}
             </div>
           ))}
         </motion.div>
-
       </div>
     </div>
   );

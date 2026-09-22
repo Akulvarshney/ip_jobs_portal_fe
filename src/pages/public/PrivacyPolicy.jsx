@@ -8,13 +8,12 @@ import {
   FileProtectOutlined, 
   AuditOutlined,
   GlobalOutlined,
-  CheckCircleFilled,
   HomeOutlined
 } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
-const { Title, Paragraph, Text } = Typography;
+const { Title, Paragraph } = Typography;
 
 const PrivacyPolicy = () => {
   const lastUpdated = "September 17, 2026";
@@ -23,43 +22,43 @@ const PrivacyPolicy = () => {
   const sections = [
     {
       id: "collection",
-      icon: <DatabaseOutlined style={{ color: 'var(--theme-link)' }} />,
+      icon: <DatabaseOutlined className="portal-legal-icon-link" />,
       title: "1. Information We Collect",
       content: (
         <>
-          <Paragraph style={{ color: 'var(--theme-detail)', fontSize: '15px', lineHeight: 1.8 }}>
+          <Paragraph className="portal-legal-paragraph">
             Resolve Platform collects personal and professional data to deliver verified insolvency, valuation, and legal recruitment services. We collect information through:
           </Paragraph>
-          <ul style={{ color: 'var(--theme-subtle)', fontSize: '14px', lineHeight: 1.8, paddingLeft: '20px' }}>
-            <li><strong style={{ color: 'var(--theme-text)' }}>Account Credentials:</strong> Name, verified email address, hashed passwords, and OAuth identifiers (Google OAuth UID).</li>
-            <li><strong style={{ color: 'var(--theme-text)' }}>Professional Profiles:</strong> IBBI Registration Numbers, ICAI/ICSI/ICMAI memberships, educational records, employment track record, and uploaded resume PDFs.</li>
-            <li><strong style={{ color: 'var(--theme-text)' }}>Employer & Entity Information:</strong> Corporate identity, authorized recruiter credentials, company PAN/GSTIN, and job mandate descriptions.</li>
-            <li><strong style={{ color: 'var(--theme-text)' }}>System & Analytics Data:</strong> IP address, device fingerprints, browser telemetry, access timestamps, and session security cookies.</li>
+          <ul className="portal-legal-list">
+            <li><strong className="portal-legal-strong">Account Credentials:</strong> Name, verified email address, hashed passwords, and OAuth identifiers (Google OAuth UID).</li>
+            <li><strong className="portal-legal-strong">Professional Profiles:</strong> IBBI Registration Numbers, ICAI/ICSI/ICMAI memberships, educational records, employment track record, and uploaded resume PDFs.</li>
+            <li><strong className="portal-legal-strong">Employer & Entity Information:</strong> Corporate identity, authorized recruiter credentials, company PAN/GSTIN, and job mandate descriptions.</li>
+            <li><strong className="portal-legal-strong">System & Analytics Data:</strong> IP address, device fingerprints, browser telemetry, access timestamps, and session security cookies.</li>
           </ul>
         </>
       )
     },
     {
       id: "usage",
-      icon: <EyeOutlined style={{ color: '#10b981' }} />,
+      icon: <EyeOutlined className="portal-legal-icon-emerald" />,
       title: "2. How We Use Your Information",
       content: (
         <>
-          <Paragraph style={{ color: 'var(--theme-detail)', fontSize: '15px', lineHeight: 1.8 }}>
+          <Paragraph className="portal-legal-paragraph">
             Your information is processed strictly for legitimate recruitment, statutory validation, and operational purposes under applicable data privacy frameworks:
           </Paragraph>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '14px', marginTop: '14px' }}>
-            <div style={{ background: 'rgba(var(--theme-contrast-rgb), 0.03)', padding: '16px', borderRadius: '12px', border: '1px solid rgba(var(--theme-contrast-rgb), 0.08)' }}>
-              <div style={{ color: 'var(--theme-link)', fontWeight: 600, marginBottom: '6px' }}>Mandate Matching</div>
-              <div style={{ color: 'var(--theme-subtle)', fontSize: '13px' }}>Matching certified Insolvency Professionals (IPs) & Valuers with active CIRP and liquidation mandates.</div>
+          <div className="portal-legal-grid-3">
+            <div className="portal-legal-info-card">
+              <div className="portal-legal-info-title">Mandate Matching</div>
+              <div className="portal-legal-info-desc">Matching certified Insolvency Professionals (IPs) & Valuers with active CIRP and liquidation mandates.</div>
             </div>
-            <div style={{ background: 'rgba(var(--theme-contrast-rgb), 0.03)', padding: '16px', borderRadius: '12px', border: '1px solid rgba(var(--theme-contrast-rgb), 0.08)' }}>
-              <div style={{ color: '#10b981', fontWeight: 600, marginBottom: '6px' }}>Identity & Credential Verification</div>
-              <div style={{ color: 'var(--theme-subtle)', fontSize: '13px' }}>Validating statutory regulatory status against public directories to ensure professional authenticity.</div>
+            <div className="portal-legal-info-card">
+              <div className="portal-legal-info-title portal-legal-icon-emerald">Identity & Credential Verification</div>
+              <div className="portal-legal-info-desc">Validating statutory regulatory status against public directories to ensure professional authenticity.</div>
             </div>
-            <div style={{ background: 'rgba(var(--theme-contrast-rgb), 0.03)', padding: '16px', borderRadius: '12px', border: '1px solid rgba(var(--theme-contrast-rgb), 0.08)' }}>
-              <div style={{ color: '#f59e0b', fontWeight: 600, marginBottom: '6px' }}>Security & Fraud Prevention</div>
-              <div style={{ color: 'var(--theme-subtle)', fontSize: '13px' }}>Detecting suspicious authentication attempts, preventing unauthorized account takeover, and maintaining audit trails.</div>
+            <div className="portal-legal-info-card">
+              <div className="portal-legal-info-title portal-legal-icon-amber">Security & Fraud Prevention</div>
+              <div className="portal-legal-info-desc">Detecting suspicious authentication attempts, preventing unauthorized account takeover, and maintaining audit trails.</div>
             </div>
           </div>
         </>
@@ -67,70 +66,70 @@ const PrivacyPolicy = () => {
     },
     {
       id: "privacy-controls",
-      icon: <LockOutlined style={{ color: '#f59e0b' }} />,
+      icon: <LockOutlined className="portal-legal-icon-amber" />,
       title: "3. Candidate Privacy & Discovery Controls",
       content: (
         <>
-          <Paragraph style={{ color: 'var(--theme-detail)', fontSize: '15px', lineHeight: 1.8 }}>
+          <Paragraph className="portal-legal-paragraph">
             We empower professionals with granular profile visibility options configured directly in your Candidate Settings:
           </Paragraph>
-          <ul style={{ color: 'var(--theme-subtle)', fontSize: '14px', lineHeight: 1.8, paddingLeft: '20px' }}>
-            <li><strong style={{ color: 'var(--theme-text)' }}>Public Mode:</strong> Profile and resume are discoverable by verified hiring entities, IPEs, and banks.</li>
-            <li><strong style={{ color: 'var(--theme-text)' }}>Confidential Mode:</strong> Your name and current employer remain masked until you explicitly consent to an employer's mandate invitation.</li>
-            <li><strong style={{ color: 'var(--theme-text)' }}>Private Mode:</strong> Profile is completely hidden from recruiter searches and only visible when you submit an application directly.</li>
+          <ul className="portal-legal-list">
+            <li><strong className="portal-legal-strong">Public Mode:</strong> Profile and resume are discoverable by verified hiring entities, IPEs, and banks.</li>
+            <li><strong className="portal-legal-strong">Confidential Mode:</strong> Your name and current employer remain masked until you explicitly consent to an employer's mandate invitation.</li>
+            <li><strong className="portal-legal-strong">Private Mode:</strong> Profile is completely hidden from recruiter searches and only visible when you submit an application directly.</li>
           </ul>
         </>
       )
     },
     {
       id: "sharing",
-      icon: <FileProtectOutlined style={{ color: '#ec4899' }} />,
+      icon: <FileProtectOutlined className="portal-legal-icon-pink" />,
       title: "4. Information Sharing & Third Parties",
       content: (
         <>
-          <Paragraph style={{ color: 'var(--theme-detail)', fontSize: '15px', lineHeight: 1.8 }}>
+          <Paragraph className="portal-legal-paragraph">
             Resolve does not sell, rent, or trade your personal data to third-party advertising networks. We only share information with:
           </Paragraph>
-          <ul style={{ color: 'var(--theme-subtle)', fontSize: '14px', lineHeight: 1.8, paddingLeft: '20px' }}>
-            <li><strong style={{ color: 'var(--theme-text)' }}>Authorized Employers:</strong> When you apply for a job or accept an interview schedule.</li>
-            <li><strong style={{ color: 'var(--theme-text)' }}>Infrastructure Providers:</strong> Encrypted hosting and mail transport providers (e.g., PostgreSQL Cloud DB, Nodemailer SMTP, Google Cloud OAuth).</li>
-            <li><strong style={{ color: 'var(--theme-text)' }}>Regulatory Authorities:</strong> Where legally mandated under the Insolvency and Bankruptcy Code (IBC) 2016 or judicial orders.</li>
+          <ul className="portal-legal-list">
+            <li><strong className="portal-legal-strong">Authorized Employers:</strong> When you apply for a job or accept an interview schedule.</li>
+            <li><strong className="portal-legal-strong">Infrastructure Providers:</strong> Encrypted hosting and mail transport providers (e.g., PostgreSQL Cloud DB, Nodemailer SMTP, Google Cloud OAuth).</li>
+            <li><strong className="portal-legal-strong">Regulatory Authorities:</strong> Where legally mandated under the Insolvency and Bankruptcy Code (IBC) 2016 or judicial orders.</li>
           </ul>
         </>
       )
     },
     {
       id: "compliance",
-      icon: <AuditOutlined style={{ color: '#8b5cf6' }} />,
+      icon: <AuditOutlined className="portal-legal-icon-purple" />,
       title: "5. Data Protection Rights (DPDP Act & GDPR)",
       content: (
         <>
-          <Paragraph style={{ color: 'var(--theme-detail)', fontSize: '15px', lineHeight: 1.8 }}>
+          <Paragraph className="portal-legal-paragraph">
             In accordance with India’s Digital Personal Data Protection (DPDP) Act 2023 and global privacy standards, you maintain the right to:
           </Paragraph>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '10px' }}>
-            <Tag color="blue" style={{ padding: '6px 12px', borderRadius: '8px' }}>Right to Access Data</Tag>
-            <Tag color="cyan" style={{ padding: '6px 12px', borderRadius: '8px' }}>Right to Rectification</Tag>
-            <Tag color="green" style={{ padding: '6px 12px', borderRadius: '8px' }}>Right to Erasure (Right to be Forgotten)</Tag>
-            <Tag color="purple" style={{ padding: '6px 12px', borderRadius: '8px' }}>Right to Data Portability</Tag>
-            <Tag color="magenta" style={{ padding: '6px 12px', borderRadius: '8px' }}>Right to Withdraw Consent</Tag>
+          <div className="portal-legal-tags-row">
+            <Tag color="blue" className="portal-legal-tag-item">Right to Access Data</Tag>
+            <Tag color="cyan" className="portal-legal-tag-item">Right to Rectification</Tag>
+            <Tag color="green" className="portal-legal-tag-item">Right to Erasure (Right to be Forgotten)</Tag>
+            <Tag color="purple" className="portal-legal-tag-item">Right to Data Portability</Tag>
+            <Tag color="magenta" className="portal-legal-tag-item">Right to Withdraw Consent</Tag>
           </div>
         </>
       )
     },
     {
       id: "contact",
-      icon: <GlobalOutlined style={{ color: '#06b6d4' }} />,
+      icon: <GlobalOutlined className="portal-legal-icon-cyan" />,
       title: "6. Data Protection Officer & Inquiries",
       content: (
         <>
-          <Paragraph style={{ color: 'var(--theme-detail)', fontSize: '15px', lineHeight: 1.8 }}>
+          <Paragraph className="portal-legal-paragraph">
             For privacy inquiries, data subject access requests, or regulatory questions, please contact our designated Data Protection Officer (DPO):
           </Paragraph>
-          <div style={{ background: 'rgba(56, 189, 248, 0.08)', border: '1px solid rgba(56, 189, 248, 0.2)', padding: '16px 20px', borderRadius: '12px' }}>
-            <div style={{ color: 'var(--theme-link)', fontWeight: 600 }}>Privacy & Compliance Desk</div>
-            <div style={{ color: 'var(--theme-text)', fontSize: '14px', marginTop: '4px' }}>Email: <a href={`mailto:${privacyEmail}`} style={{ color: 'var(--theme-link)' }}>{privacyEmail}</a></div>
-            <div style={{ color: 'var(--theme-subtle)', fontSize: '13px', marginTop: '2px' }}>Resolve Platform Technologies Pvt. Ltd., Level 12, Cyber City, Gurugram, India</div>
+          <div className="portal-legal-contact-box">
+            <div className="portal-legal-contact-title">Privacy & Compliance Desk</div>
+            <div className="portal-legal-contact-line">Email: <a href={`mailto:${privacyEmail}`} className="portal-legal-contact-link">{privacyEmail}</a></div>
+            <div className="portal-legal-contact-sub">Resolve Platform Technologies Pvt. Ltd., Level 12, Cyber City, Gurugram, India</div>
           </div>
         </>
       )
@@ -144,15 +143,14 @@ const PrivacyPolicy = () => {
         <div className="portal-bg-blob-2"></div>
       </div>
 
-      <div style={{ maxWidth: '960px', margin: '0 auto', padding: '40px 24px 80px', position: 'relative', zIndex: 10 }}>
-        
+      <div className="portal-static-container-960">
         {/* Breadcrumb */}
         <Breadcrumb
           items={[
-            { title: <Link to="/" style={{ color: 'var(--theme-muted)' }}><HomeOutlined /> Home</Link> },
-            { title: <span style={{ color: 'var(--theme-link)' }}>Privacy Policy</span> },
+            { title: <Link to="/" className="portal-color-muted"><HomeOutlined /> Home</Link> },
+            { title: <span className="portal-color-link">Privacy Policy</span> },
           ]}
-          style={{ marginBottom: '24px' }}
+          className="portal-mb-24"
         />
 
         {/* Hero Header */}
@@ -160,20 +158,20 @@ const PrivacyPolicy = () => {
           initial={{ opacity: 0, y: 15 }} 
           animate={{ opacity: 1, y: 0 }} 
           transition={{ duration: 0.3 }}
-          style={{ marginBottom: '32px', textAlign: 'center' }}
+          className="portal-legal-hero"
         >
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(56, 189, 248, 0.1)', border: '1px solid rgba(56, 189, 248, 0.25)', padding: '6px 16px', borderRadius: '50px', marginBottom: '12px' }}>
-            <SafetyCertificateOutlined style={{ color: 'var(--theme-link)', fontSize: '15px' }} />
-            <span style={{ color: 'var(--theme-link)', fontWeight: 600, fontSize: '12px', letterSpacing: '0.5px' }}>LEGAL & DATA PROTECTION</span>
+          <div className="portal-legal-hero-badge">
+            <SafetyCertificateOutlined className="portal-legal-hero-badge-icon" />
+            <span className="portal-legal-hero-badge-text">LEGAL & DATA PROTECTION</span>
           </div>
 
-          <Title level={1} style={{ color: 'var(--theme-heading)', margin: 0, fontWeight: 800, fontSize: '34px' }}>
+          <Title level={1} className="portal-legal-hero-title">
             Privacy Policy
           </Title>
-          <Paragraph style={{ color: 'var(--theme-subtle)', fontSize: '15px', marginTop: '8px', maxWidth: '720px', margin: '8px auto 0' }}>
+          <Paragraph className="portal-legal-hero-desc">
             Learn how Resolve Platform protects, processes, and respects the confidential data of insolvency professionals, registered valuers, and hiring organizations.
           </Paragraph>
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '12px', marginTop: '14px', flexWrap: 'wrap' }}>
+          <div className="portal-legal-hero-tags">
             <Tag color="cyan">Last Updated: {lastUpdated}</Tag>
             <Tag color="blue">DPDP Act 2023 Compliant</Tag>
             <Tag color="geekblue">ISO 27001 Aligned</Tag>
@@ -185,31 +183,29 @@ const PrivacyPolicy = () => {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35 }}
-          className="portal-glass-card"
-          style={{ padding: '36px 40px' }}
+          className="portal-glass-card portal-legal-card-p36"
         >
           {sections.map((sec, idx) => (
             <div key={sec.id}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                <div style={{ fontSize: '20px', background: 'rgba(var(--theme-contrast-rgb), 0.05)', padding: '8px', borderRadius: '10px', display: 'flex' }}>
+              <div className="portal-legal-section-header">
+                <div className="portal-legal-icon-box">
                   {sec.icon}
                 </div>
-                <Title level={3} style={{ color: 'var(--theme-heading)', margin: 0, fontSize: '20px', fontWeight: 700 }}>
+                <Title level={3} className="portal-legal-section-title">
                   {sec.title}
                 </Title>
               </div>
 
-              <div style={{ marginBottom: idx === sections.length - 1 ? '0' : '28px' }}>
+              <div className={idx === sections.length - 1 ? '' : 'portal-mb-28'}>
                 {sec.content}
               </div>
 
               {idx < sections.length - 1 && (
-                <Divider style={{ borderColor: 'rgba(var(--theme-contrast-rgb), 0.08)', margin: '28px 0' }} />
+                <Divider className="portal-legal-divider" />
               )}
             </div>
           ))}
         </motion.div>
-
       </div>
     </div>
   );

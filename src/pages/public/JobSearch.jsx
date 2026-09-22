@@ -4,11 +4,8 @@ import {
   Select,
   Button,
   Tag,
-  Row,
-  Col,
   Modal,
   Drawer,
-  Badge,
   message,
   Spin,
   Tooltip,
@@ -18,18 +15,14 @@ import {
   SearchOutlined,
   EnvironmentOutlined,
   DollarOutlined,
-  CalendarOutlined,
   CheckCircleOutlined,
   HeartOutlined,
   HeartFilled,
-  EyeOutlined,
   ClearOutlined,
   BankOutlined,
-  RocketOutlined,
   FilterOutlined,
   CloseOutlined,
   CompassOutlined,
-  AppstoreOutlined,
   ClockCircleOutlined,
   UserOutlined,
   AuditOutlined
@@ -46,7 +39,6 @@ import {
   getJobTypeLabel, 
   getJobTypeColor, 
   getSalaryRangeLabel, 
-  getExperienceLevelLabel, 
   getExperienceLevelShortLabel 
 } from '../../utils/jobEnums';
 
@@ -71,7 +63,7 @@ const JobSearch = () => {
   const initialLocation = searchParams.get('location') || undefined;
 
   const dispatch = useDispatch();
-  const { jobsList, loading: jobsLoading } = useSelector((state) => state.jobs);
+  const { jobsList } = useSelector((state) => state.jobs);
   const { isAuthenticated, user } = useSelector((state) => state.auth);
 
   const [loading, setLoading] = useState(true);
@@ -233,41 +225,30 @@ const JobSearch = () => {
         <div className="portal-bg-blob-3"></div>
       </div>
 
-      <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '40px 24px 80px', position: 'relative', zIndex: 1 }}>
+      <div className="portal-public-container-1240">
 
         {/* Header Hero */}
-        <div style={{ textAlign: 'center', maxWidth: '800px', margin: '0 auto 36px' }}>
-          {/* <Tag color="cyan" style={{ borderRadius: '12px', padding: '2px 12px', fontSize: '12px', fontWeight: 600, marginBottom: '12px' }}>
-            National Insolvency Mandates Directory
-          </Tag> */}
-          <h1 style={{ fontSize: '36px', fontWeight: 800, color: 'var(--theme-heading)', margin: '0 0 12px' }}>
+        <div className="portal-search-hero-box">
+          <h1 className="portal-search-hero-title">
             Explore Verified Insolvency & Restructuring Roles
           </h1>
-
         </div>
 
         {/* Clean Search & Filter Bar */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="portal-glass-card"
-          style={{ padding: '16px 20px', marginBottom: '24px' }}
+          className="portal-glass-card portal-search-bar-card"
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-            <div style={{ flex: '1 1 300px' }}>
+          <div className="portal-search-bar-flex">
+            <div className="portal-search-input-col">
               <Input
-                prefix={<SearchOutlined style={{ color: 'var(--theme-link)' }} />}
+                prefix={<SearchOutlined className="portal-company-meta-icon" />}
                 placeholder="Search keywords, CIRP, IBC, role, or entity name..."
                 value={searchKeyword}
                 onChange={(e) => setSearchKeyword(e.target.value)}
                 allowClear
-                style={{
-                  background: 'rgba(var(--theme-contrast-rgb), 0.05)',
-                  color: 'var(--theme-heading)',
-                  borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)',
-                  height: '44px',
-                  borderRadius: '10px'
-                }}
+                className="portal-search-main-input"
               />
             </div>
 
@@ -276,18 +257,10 @@ const JobSearch = () => {
               className={`portal-filter-trigger-btn ${activeFiltersCount > 0 ? 'active' : ''}`}
               onClick={() => setDrawerOpen(true)}
             >
-              <FilterOutlined style={{ color: activeFiltersCount > 0 ? '#38bdf8' : 'inherit' }} />
+              <FilterOutlined className={activeFiltersCount > 0 ? 'portal-color-link' : ''} />
               <span>Filters</span>
               {activeFiltersCount > 0 && (
-                <span style={{
-                  background: '#0ea5e9',
-                  color: 'var(--theme-on-primary)',
-                  fontSize: '11px',
-                  fontWeight: 700,
-                  borderRadius: '10px',
-                  padding: '1px 7px',
-                  marginLeft: '2px'
-                }}>
+                <span className="portal-search-filter-badge">
                   {activeFiltersCount}
                 </span>
               )}
@@ -298,17 +271,7 @@ const JobSearch = () => {
                 <Button
                   icon={<ClearOutlined />}
                   onClick={handleResetFilters}
-                  style={{
-                    height: '44px',
-                    width: '44px',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    borderRadius: '10px',
-                    background: 'rgba(var(--theme-contrast-rgb), 0.06)',
-                    color: 'var(--theme-muted)',
-                    borderColor: 'rgba(var(--theme-contrast-rgb), 0.12)'
-                  }}
+                  className="portal-btn-round-action"
                 />
               </Tooltip>
             )}
@@ -365,15 +328,15 @@ const JobSearch = () => {
         </motion.div>
 
         {/* Counter */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', color: 'var(--theme-subtle)', fontSize: '14px' }}>
-          <span>Showing <strong>{filteredJobs.length}</strong> available positions</span>
+        <div className="portal-search-results-header">
+          <span>Showing <strong className="portal-search-results-count">{filteredJobs.length}</strong> available positions</span>
         </div>
 
         {/* Filter Drawer */}
         <Drawer
           title={
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <FilterOutlined style={{ color: 'var(--theme-link)' }} />
+            <div className="portal-flex-center-gap-8">
+              <FilterOutlined className="portal-color-link" />
               <span>Filter Opportunities</span>
             </div>
           }
@@ -382,18 +345,18 @@ const JobSearch = () => {
           open={drawerOpen}
           onClose={() => setDrawerOpen(false)}
           footer={
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="portal-search-drawer-header">
               <Button
                 onClick={handleResetFilters}
                 disabled={activeFiltersCount === 0 && !searchKeyword}
-                style={{ borderRadius: '8px', background: 'transparent', color: 'var(--theme-subtle)', border: '1px solid rgba(var(--theme-contrast-rgb),0.15)' }}
+                className="portal-search-drawer-reset"
               >
                 Reset All
               </Button>
               <Button
                 type="primary"
                 onClick={() => setDrawerOpen(false)}
-                style={{ borderRadius: '8px', background: '#0ea5e9', borderColor: '#0ea5e9', fontWeight: 600 }}
+                className="portal-search-drawer-apply"
               >
                 Apply & View ({filteredJobs.length})
               </Button>
@@ -409,7 +372,7 @@ const JobSearch = () => {
               allowClear
               value={selectedJobType}
               onChange={setSelectedJobType}
-              style={{ width: '100%' }}
+              className="portal-w-full"
               size="large"
             >
               {JOB_TYPES.map(jt => (
@@ -418,7 +381,7 @@ const JobSearch = () => {
             </Select>
           </div>
 
-          <Divider style={{ borderColor: 'rgba(var(--theme-contrast-rgb),0.08)', margin: '18px 0' }} />
+          <Divider className="portal-legal-divider" />
 
           <div className="portal-filter-section">
             <div className="portal-filter-section-title">
@@ -429,7 +392,7 @@ const JobSearch = () => {
               allowClear
               value={selectedExpLevel}
               onChange={setSelectedExpLevel}
-              style={{ width: '100%' }}
+              className="portal-w-full"
               size="large"
             >
               {EXPERIENCE_LEVELS.map(el => (
@@ -438,7 +401,7 @@ const JobSearch = () => {
             </Select>
           </div>
 
-          <Divider style={{ borderColor: 'rgba(var(--theme-contrast-rgb),0.08)', margin: '18px 0' }} />
+          <Divider className="portal-legal-divider" />
 
           <div className="portal-filter-section">
             <div className="portal-filter-section-title">
@@ -449,7 +412,7 @@ const JobSearch = () => {
               allowClear
               value={selectedSalaryRange}
               onChange={setSelectedSalaryRange}
-              style={{ width: '100%' }}
+              className="portal-w-full"
               size="large"
             >
               {SALARY_RANGES.map(sr => (
@@ -458,7 +421,7 @@ const JobSearch = () => {
             </Select>
           </div>
 
-          <Divider style={{ borderColor: 'rgba(var(--theme-contrast-rgb),0.08)', margin: '18px 0' }} />
+          <Divider className="portal-legal-divider" />
 
           <div className="portal-filter-section">
             <div className="portal-filter-section-title">
@@ -469,7 +432,7 @@ const JobSearch = () => {
               allowClear
               value={selectedLocation}
               onChange={setSelectedLocation}
-              style={{ width: '100%' }}
+              className="portal-w-full"
               size="large"
             >
               <Option value="Delhi NCR">Delhi NCR / Principal Bench</Option>
@@ -482,7 +445,7 @@ const JobSearch = () => {
             </Select>
           </div>
 
-          <Divider style={{ borderColor: 'rgba(var(--theme-contrast-rgb),0.08)', margin: '18px 0' }} />
+          <Divider className="portal-legal-divider" />
 
           <div className="portal-filter-section">
             <div className="portal-filter-section-title">
@@ -493,7 +456,7 @@ const JobSearch = () => {
               allowClear
               value={selectedCategory}
               onChange={setSelectedCategory}
-              style={{ width: '100%' }}
+              className="portal-w-full"
               size="large"
             >
               {professionalCategories.map(cat => (
@@ -502,7 +465,7 @@ const JobSearch = () => {
             </Select>
           </div>
 
-          <Divider style={{ borderColor: 'rgba(var(--theme-contrast-rgb),0.08)', margin: '18px 0' }} />
+          <Divider className="portal-legal-divider" />
 
           <div className="portal-filter-section">
             <div className="portal-filter-section-title">
@@ -513,7 +476,7 @@ const JobSearch = () => {
               allowClear
               value={selectedOrgType}
               onChange={setSelectedOrgType}
-              style={{ width: '100%' }}
+              className="portal-w-full"
               size="large"
             >
               <Option value="BANK">Bank</Option>
@@ -529,11 +492,11 @@ const JobSearch = () => {
 
         {/* Jobs Grid */}
         {loading ? (
-          <div style={{ textAlign: 'center', padding: '60px 0' }}>
+          <div className="portal-loading-center">
             <Spin size="large" />
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '24px' }}>
+          <div className="portal-company-jobs-grid">
             <AnimatePresence>
               {filteredJobs.map((job) => {
                 const isSaved = Boolean(savedJobsMap[job.id]);
@@ -547,42 +510,24 @@ const JobSearch = () => {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.9 }}
                     whileHover={{ y: -5 }}
-                    className="portal-glass-card"
-                    style={{
-                      padding: '24px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'space-between',
-                      border: '1px solid rgba(var(--theme-contrast-rgb), 0.1)'
-                    }}
+                    className="portal-glass-card portal-company-job-card"
                   >
                     <div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '14px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                          <div style={{
-                            width: '44px',
-                            height: '44px',
-                            borderRadius: '10px',
-                            background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(14, 165, 233, 0.05))',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontWeight: 700,
-                            color: 'var(--theme-link)',
-                            fontSize: '16px'
-                          }}>
+                      <div className="portal-company-job-header">
+                        <div className="portal-details-avatar-group">
+                          <div className="portal-company-avatar-box-sm">
                             {job.employer?.name ? job.employer.name.substring(0, 2).toUpperCase() : 'CO'}
                           </div>
                           <div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
-                              <span style={{ fontSize: '11px', color: 'var(--theme-link)', fontWeight: 600 }}>
+                            <div className="portal-details-tags-row">
+                              <span className="portal-job-employer-type">
                                 {job.employer?.type || 'VERIFIED ORG'}
                               </span>
-                              <Tag color={getJobTypeColor(job.jobType)} style={{ borderRadius: '6px', fontSize: '10px', padding: '0 6px', margin: 0, lineHeight: '18px' }}>
+                              <Tag color={getJobTypeColor(job.jobType)} className="portal-tag-pill-10">
                                 {getJobTypeLabel(job.jobType)}
                               </Tag>
                             </div>
-                            <Link to={`/companies/${job.employer?.id}`} style={{ fontSize: '14px', color: 'var(--theme-detail)', fontWeight: 500 }}>
+                            <Link to={`/companies/${job.employer?.id}`} className="portal-job-employer-link">
                               {job.employer?.name || 'Insolvency Entity'}
                             </Link>
                           </div>
@@ -590,74 +535,46 @@ const JobSearch = () => {
 
                         <button
                           onClick={() => handleToggleSave(job.id)}
-                          style={{
-                            background: 'rgba(var(--theme-contrast-rgb), 0.05)',
-                            border: '1px solid rgba(var(--theme-contrast-rgb), 0.1)',
-                            width: '36px',
-                            height: '36px',
-                            borderRadius: '8px',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            color: isSaved ? '#ef4444' : 'var(--theme-muted)',
-                            fontSize: '16px'
-                          }}
+                          className={`portal-btn-bookmark ${isSaved ? 'portal-btn-bookmark-saved' : 'portal-btn-bookmark-unsaved'}`}
+                          aria-label="Save Job"
                         >
                           {isSaved ? <HeartFilled /> : <HeartOutlined />}
                         </button>
                       </div>
 
-                      <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--theme-heading)', margin: '0 0 6px' }}>
+                      <h3 className="portal-company-job-title">
                         {job.title}
                       </h3>
 
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                          <span style={{ color: 'var(--theme-success)', fontSize: '13px', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                      <div className="portal-search-card-meta">
+                        <div className="portal-flex-center-wrap-gap-8">
+                          <span className="portal-search-card-sal-badge">
                             <DollarOutlined /> {getSalaryRangeLabel(job.salaryRange)}
                           </span>
-                          <Tag color="geekblue" style={{ borderRadius: '6px', fontSize: '11px', margin: 0 }}>
+                          <Tag color="geekblue" className="portal-search-card-exp-tag">
                             {getExperienceLevelShortLabel(job.experienceLevel)}
                           </Tag>
                         </div>
                         {job.employer?.location && (
-                          <span style={{ color: 'var(--theme-subtle)', fontSize: '12px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                          <span className="portal-search-card-loc">
                             <EnvironmentOutlined /> {job.employer.location}
                           </span>
                         )}
                       </div>
 
-                      <p style={{
-                        color: 'var(--theme-subtle)',
-                        fontSize: '13px',
-                        lineHeight: '1.5',
-                        marginBottom: '16px',
-                        display: '-webkit-box',
-                        WebkitLineClamp: 3,
-                        WebkitBoxOrient: 'vertical',
-                        overflow: 'hidden'
-                      }}>
+                      <p className="portal-company-job-desc">
                         {job.description}
                       </p>
 
                       {job.requirements && (
-                        <div style={{
-                          background: 'rgba(var(--theme-contrast-rgb), 0.03)',
-                          border: '1px solid rgba(var(--theme-contrast-rgb), 0.06)',
-                          padding: '10px 12px',
-                          borderRadius: '8px',
-                          fontSize: '12px',
-                          color: 'var(--theme-detail)',
-                          marginBottom: '16px'
-                        }}>
-                          <strong>Requirements:</strong> {job.requirements}
+                        <div className="portal-search-card-reqs">
+                          <strong className="portal-legal-strong">Requirements:</strong> {job.requirements}
                         </div>
                       )}
                     </div>
 
-                    <div style={{ paddingTop: '16px', borderTop: '1px solid rgba(var(--theme-contrast-rgb), 0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <Link to={`/jobs/${job.id}`} style={{ fontSize: '13px', color: 'var(--theme-link)', fontWeight: 500 }}>
+                    <div className="portal-company-job-footer">
+                      <Link to={`/jobs/${job.id}`} className="portal-company-view-link">
                         View Mandate ↗
                       </Link>
 
@@ -665,14 +582,13 @@ const JobSearch = () => {
                         <Tag
                           color={applicationStatus === 'SHORTLISTED' ? 'purple' : 'cyan'}
                           icon={<CheckCircleOutlined />}
-                          style={{ padding: '4px 10px', borderRadius: '8px', fontSize: '12px' }}
+                          className="portal-app-status-tag"
                         >
                           {applicationStatus}
                         </Tag>
                       ) : (
                         <button
-                          className="portal-btn-primary"
-                          style={{ padding: '7px 16px', fontSize: '13px' }}
+                          className="portal-btn-primary portal-company-apply-btn"
                           onClick={() => handleOpenApplyModal(job)}
                         >
                           Apply Now
@@ -687,11 +603,11 @@ const JobSearch = () => {
         )}
 
         {filteredJobs.length === 0 && !loading && (
-          <div className="portal-glass-card" style={{ padding: '60px', textAlign: 'center', marginTop: '20px' }}>
-            <SearchOutlined style={{ fontSize: '48px', color: 'var(--theme-link)', marginBottom: '16px', opacity: 0.6 }} />
-            <h3 style={{ color: 'var(--theme-heading)', fontSize: '20px', margin: 0 }}>No matching mandates found</h3>
-            <p style={{ color: 'var(--theme-muted)', marginTop: '8px' }}>Try adjusting your filters or search keywords.</p>
-            <Button type="primary" onClick={handleResetFilters} style={{ marginTop: '12px', borderRadius: '8px' }}>
+          <div className="portal-glass-card portal-company-empty-box portal-mt-20">
+            <SearchOutlined className="portal-company-empty-icon" />
+            <h3 className="portal-company-empty-title">No matching mandates found</h3>
+            <p className="portal-company-empty-desc">Try adjusting your filters or search keywords.</p>
+            <Button type="primary" onClick={handleResetFilters} className="portal-btn-primary-reset">
               Clear All Filters
             </Button>
           </div>
@@ -713,18 +629,18 @@ const JobSearch = () => {
             type="primary"
             loading={submittingApply}
             onClick={handleConfirmApply}
-            style={{ background: '#0ea5e9' }}
+            className="portal-btn-sky"
           >
             Submit Application
           </Button>,
         ]}
       >
-        <div style={{ padding: '8px 0' }}>
-          <p style={{ color: 'var(--theme-detail)', fontSize: '14px' }}>
-            Organisation: <strong>{selectedJobForApply?.employer?.name}</strong>
+        <div className="portal-apply-modal-body">
+          <p className="portal-apply-modal-org">
+            Organisation: <strong className="portal-legal-strong">{selectedJobForApply?.employer?.name}</strong>
           </p>
-          <div style={{ marginTop: '16px', marginBottom: '8px' }}>
-            <label style={{ display: 'block', fontSize: '13px', color: 'var(--theme-subtle)', marginBottom: '6px' }}>
+          <div className="portal-mt-16 portal-mb-8">
+            <label className="portal-apply-modal-label">
               Cover Note & Insolvency Experience Summary (Optional):
             </label>
             <Input.TextArea
@@ -732,10 +648,10 @@ const JobSearch = () => {
               value={coverNote}
               onChange={(e) => setCoverNote(e.target.value)}
               placeholder="Highlight relevant CIRP, liquidation, resolution plan, or forensic assignments..."
-              style={{ borderRadius: '8px', background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.15)' }}
+              className="portal-apply-modal-textarea"
             />
           </div>
-          <div style={{ fontSize: '12px', color: 'var(--theme-subtle)', background: 'rgba(56, 189, 248, 0.08)', padding: '10px 12px', borderRadius: '8px', marginTop: '12px' }}>
+          <div className="portal-apply-modal-note">
             ℹ️ Your profile details and active resume will be submitted to the recruiter.
           </div>
         </div>

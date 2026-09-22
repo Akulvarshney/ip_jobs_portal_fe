@@ -110,66 +110,49 @@ const CandidateResume = () => {
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.8fr) minmax(0, 1.2fr)', gap: '32px' }}
+        className="portal-resume-layout"
       >
-          
           {/* Main Resume Card */}
-          <div className="portal-glass-card" style={{ padding: '32px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-              <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(56, 189, 248, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--theme-link)', fontSize: '20px' }}>
+          <div className="portal-glass-card portal-settings-card">
+            <div className="portal-interview-card-title-wrap">
+              <div className="portal-resume-header-icon">
                 <FileTextOutlined />
               </div>
               <div>
-                <h1 style={{ fontSize: '24px', fontWeight: 700, color: 'var(--theme-heading)', margin: 0 }}>Candidate Resume</h1>
-                <p style={{ color: 'var(--theme-muted)', fontSize: '13px', margin: '2px 0 0' }}>Manage your primary CV for applications</p>
+                <h1 className="portal-page-title">Candidate Resume</h1>
+                <p className="portal-page-subtitle">Manage your primary CV for applications</p>
               </div>
             </div>
 
             {resumeUrl ? (
-              <div style={{
-                marginTop: '28px',
-                background: 'rgba(56, 189, 248, 0.05)',
-                border: '1px solid rgba(56, 189, 248, 0.25)',
-                borderRadius: '16px',
-                padding: '24px'
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
-                  <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                    <div style={{
-                      width: '54px',
-                      height: '54px',
-                      borderRadius: '12px',
-                      background: '#0ea5e9',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: 'var(--theme-on-primary)',
-                      fontSize: '26px'
-                    }}>
+              <div className="portal-resume-active-box">
+                <div className="portal-saved-card-header">
+                  <div className="portal-saved-company-group">
+                    <div className="portal-resume-active-icon">
                       <FileTextOutlined />
                     </div>
                     <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <span style={{ fontSize: '16px', fontWeight: 600, color: 'var(--theme-heading)' }}>Active Resume Document</span>
+                      <div className="portal-interview-card-title-wrap">
+                        <span className="portal-job-card-title">Active Resume Document</span>
                         <Tag color="cyan" icon={<CheckCircleOutlined />}>Current</Tag>
                       </div>
-                      <div style={{ color: 'var(--theme-subtle)', fontSize: '13px', marginTop: '4px' }}>
+                      <div className="portal-page-subtitle">
                         Shared automatically with employers when applying
                       </div>
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', gap: '10px' }}>
+                  <div className="portal-app-actions-wrap">
                     <Button 
                       type="primary" 
                       icon={<EyeOutlined />} 
                       onClick={() => setPreviewVisible(true)}
-                      style={{ background: '#0ea5e9', borderRadius: '8px' }}
+                      className="portal-btn-theme-primary"
                     >
                       View
                     </Button>
                     <a href={getFileUrl(resumeUrl)} target="_blank" rel="noopener noreferrer" download="Resume.pdf">
-                      <Button icon={<DownloadOutlined />} style={{ borderRadius: '8px', background: 'rgba(var(--theme-contrast-rgb), 0.06)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.15)' }}>
+                      <Button icon={<DownloadOutlined />} className="portal-btn-review">
                         Download
                       </Button>
                     </a>
@@ -179,36 +162,21 @@ const CandidateResume = () => {
                       okText="Remove"
                       cancelText="Cancel"
                     >
-                      <Button danger icon={<DeleteOutlined />} style={{ borderRadius: '8px' }} />
+                      <Button danger icon={<DeleteOutlined />} className="portal-delete-btn" />
                     </Popconfirm>
                   </div>
                 </div>
 
-                <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px solid rgba(var(--theme-contrast-rgb), 0.08)' }}>
-                  <div style={{ color: 'var(--theme-detail)', fontSize: '13px', fontWeight: 500, marginBottom: '8px' }}>
+                <div className="portal-resume-replace-bar">
+                  <div className="portal-modal-cover-note-title">
                     Replace Existing Resume:
                   </div>
-                  <label
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      padding: '10px 18px',
-                      background: 'rgba(var(--theme-contrast-rgb), 0.06)',
-                      border: '1px dashed rgba(var(--theme-contrast-rgb), 0.2)',
-                      borderRadius: '8px',
-                      color: 'var(--theme-link)',
-                      cursor: uploading ? 'not-allowed' : 'pointer',
-                      fontSize: '13px',
-                      fontWeight: 500,
-                      opacity: uploading ? 0.6 : 1
-                    }}
-                  >
+                  <label className={`portal-resume-replace-label ${uploading ? 'disabled' : ''}`}>
                     <SyncOutlined spin={uploading} /> {uploading ? 'Uploading...' : 'Replace File (PDF, DOCX)'}
                     <input
                       type="file"
                       accept=".pdf,.doc,.docx"
-                      style={{ display: 'none' }}
+                      className="portal-hidden-file-input"
                       disabled={uploading}
                       onChange={handleFileUpload}
                     />
@@ -216,64 +184,42 @@ const CandidateResume = () => {
                 </div>
               </div>
             ) : (
-              <div style={{
-                marginTop: '28px',
-                border: '2px dashed rgba(56, 189, 248, 0.3)',
-                borderRadius: '16px',
-                padding: '40px 24px',
-                textAlign: 'center',
-                background: 'rgba(var(--theme-contrast-rgb), 0.02)'
-              }}>
-                <CloudUploadOutlined style={{ fontSize: '48px', color: 'var(--theme-link)', marginBottom: '16px' }} />
-                <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--theme-heading)', margin: 0 }}>
+              <div className="portal-resume-upload-dropzone">
+                <CloudUploadOutlined className="portal-empty-state-icon" />
+                <h3 className="portal-empty-state-title">
                   Upload Your Latest Resume
                 </h3>
-                <p style={{ color: 'var(--theme-muted)', fontSize: '14px', margin: '6px 0 20px' }}>
+                <p className="portal-empty-state-desc">
                   Supports PDF, DOC, DOCX up to 3MB.
                 </p>
 
-                <label
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    padding: '12px 24px',
-                    background: '#0ea5e9',
-                    borderRadius: '10px',
-                    color: 'var(--theme-on-primary)',
-                    cursor: uploading ? 'not-allowed' : 'pointer',
-                    fontSize: '14px',
-                    fontWeight: 600,
-                    boxShadow: '0 4px 14px rgba(14, 165, 233, 0.4)',
-                    opacity: uploading ? 0.6 : 1
-                  }}
-                >
+                <label className={`portal-resume-upload-btn-label ${uploading ? 'disabled' : ''}`}>
                   <UploadOutlined spin={uploading} /> {uploading ? 'Uploading...' : 'Select File to Upload'}
                   <input
                     type="file"
                     accept=".pdf,.doc,.docx"
-                    style={{ display: 'none' }}
+                    className="portal-hidden-file-input"
                     disabled={uploading}
                     onChange={handleFileUpload}
                   />
                 </label>
 
-                <div style={{ margin: '24px auto 0', maxWidth: '460px', color: '#64748b', fontSize: '13px' }}>
+                <div className="portal-resume-or-divider">
                   — OR provide a document link below —
                 </div>
 
-                <div style={{ display: 'flex', gap: '10px', maxWidth: '480px', margin: '14px auto 0' }}>
+                <div className="portal-resume-link-form">
                   <Input
                     placeholder="https://drive.google.com/... or cloud document link"
                     value={inputUrl}
                     onChange={(e) => setInputUrl(e.target.value)}
-                    style={{ background: 'rgba(var(--theme-contrast-rgb), 0.05)', color: 'var(--theme-heading)', borderColor: 'rgba(var(--theme-contrast-rgb), 0.15)' }}
+                    className="portal-search-input"
                   />
                   <Button
                     type="primary"
                     loading={saving}
                     onClick={handleSaveResumeUrl}
-                    style={{ background: '#0ea5e9' }}
+                    className="portal-btn-theme-primary"
                   >
                     Save
                   </Button>
@@ -283,37 +229,37 @@ const CandidateResume = () => {
           </div>
 
           {/* Right Column: Guidance & Best Practices */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            <div className="portal-glass-card" style={{ padding: '28px' }}>
-              <h2 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--theme-heading)', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <SafetyCertificateOutlined style={{ color: 'var(--theme-link)' }} />
-                IBC Resume Guidance
+          <div className="portal-resume-sidebar-guidance">
+            <div className="portal-glass-card portal-settings-card">
+              <h2 className="portal-interview-card-title-wrap">
+                <SafetyCertificateOutlined className="portal-icon-theme-link" />
+                <span className="portal-job-card-title">IBC Resume Guidance</span>
               </h2>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                <div style={{ background: 'rgba(var(--theme-contrast-rgb), 0.03)', padding: '14px', borderRadius: '10px', border: '1px solid rgba(var(--theme-contrast-rgb), 0.06)' }}>
-                  <div style={{ fontWeight: 600, color: 'var(--theme-link)', fontSize: '13px', marginBottom: '4px' }}>
+              <div className="portal-resume-sidebar-guidance">
+                <div className="portal-resume-tip-card">
+                  <div className="portal-resume-tip-title">
                     1. Highlight Mandate Values & CIRP Stages
                   </div>
-                  <div style={{ color: 'var(--theme-subtle)', fontSize: '12px', lineHeight: '1.5' }}>
+                  <div className="portal-resume-tip-desc">
                     Mention verified claim amounts, liquidation valuations, and NCLT bench jurisdictions (e.g. Principal Bench, Mumbai, NCLAT).
                   </div>
                 </div>
 
-                <div style={{ background: 'rgba(var(--theme-contrast-rgb), 0.03)', padding: '14px', borderRadius: '10px', border: '1px solid rgba(var(--theme-contrast-rgb), 0.06)' }}>
-                  <div style={{ fontWeight: 600, color: 'var(--theme-link)', fontSize: '13px', marginBottom: '4px' }}>
+                <div className="portal-resume-tip-card">
+                  <div className="portal-resume-tip-title">
                     2. Section 29A Due Diligence & CoC Experience
                   </div>
-                  <div style={{ color: 'var(--theme-subtle)', fontSize: '12px', lineHeight: '1.5' }}>
+                  <div className="portal-resume-tip-desc">
                     State experience in prospective resolution applicant vetting and drafting evaluation matrices.
                   </div>
                 </div>
 
-                <div style={{ background: 'rgba(var(--theme-contrast-rgb), 0.03)', padding: '14px', borderRadius: '10px', border: '1px solid rgba(var(--theme-contrast-rgb), 0.06)' }}>
-                  <div style={{ fontWeight: 600, color: 'var(--theme-link)', fontSize: '13px', marginBottom: '4px' }}>
+                <div className="portal-resume-tip-card">
+                  <div className="portal-resume-tip-title">
                     3. Statutory Registrations
                   </div>
-                  <div style={{ color: 'var(--theme-subtle)', fontSize: '12px', lineHeight: '1.5' }}>
+                  <div className="portal-resume-tip-desc">
                     Include IBBI registration number, ICAI/ICSI/Bar Council enrolment ID explicitly.
                   </div>
                 </div>
@@ -334,26 +280,26 @@ const CandidateResume = () => {
             Close
           </Button>,
           <a key="dl" href={getFileUrl(resumeUrl)} target="_blank" rel="noopener noreferrer">
-            <Button type="primary" style={{ background: '#0ea5e9' }}>
+            <Button type="primary" className="portal-btn-theme-primary">
               Open in New Window ↗
             </Button>
           </a>
         ]}
       >
-        <div style={{ height: '550px', background: 'var(--theme-bg)', borderRadius: '8px', overflow: 'hidden' }}>
+        <div className="portal-resume-preview-container">
           {resumeUrl?.startsWith('data:') || resumeUrl?.includes('.pdf') || resumeUrl?.includes('resumes/') ? (
             <iframe
               src={getFileUrl(resumeUrl)}
               title="Resume Preview"
-              style={{ width: '100%', height: '100%', border: 'none' }}
+              className="portal-resume-iframe"
             />
           ) : (
-            <div style={{ padding: '40px', textAlign: 'center', color: 'var(--theme-subtle)' }}>
-              <FileTextOutlined style={{ fontSize: '48px', color: 'var(--theme-link)', marginBottom: '16px' }} />
-              <h3 style={{ color: 'var(--theme-heading)' }}>Document Link Preview</h3>
+            <div className="portal-table-empty">
+              <FileTextOutlined className="portal-empty-state-icon" />
+              <h3 className="portal-empty-state-title">Document Link Preview</h3>
               <p>{resumeUrl}</p>
               <a href={getFileUrl(resumeUrl)} target="_blank" rel="noopener noreferrer">
-                <Button type="primary" style={{ marginTop: '12px' }}>Open External Document Link</Button>
+                <Button type="primary" className="portal-empty-state-btn">Open External Document Link</Button>
               </a>
             </div>
           )}

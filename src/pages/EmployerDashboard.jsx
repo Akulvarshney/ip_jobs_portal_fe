@@ -84,21 +84,21 @@ const EmployerDashboard = () => {
       key: 'title',
       render: (text, record) => (
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
+          <div className="portal-flex-center-gap-8 portal-mb-4 portal-flex-wrap">
             <span 
-              style={{ fontWeight: 600, color: 'var(--theme-link)', cursor: 'pointer', fontSize: '15px' }}
+              className="portal-card-link-title"
               onClick={() => navigate(`/employer/jobs/${record.id}`)}
             >
               {text}
             </span>
-            <Tag color={getJobTypeColor(record.jobType)} style={{ borderRadius: '6px', fontSize: '11px', margin: 0 }}>
+            <Tag color={getJobTypeColor(record.jobType)} className="portal-tag-compact">
               {getJobTypeLabel(record.jobType)}
             </Tag>
-            <Tag color="geekblue" style={{ borderRadius: '6px', fontSize: '11px', margin: 0 }}>
+            <Tag color="geekblue" className="portal-tag-compact">
               {getExperienceLevelShortLabel(record.experienceLevel)}
             </Tag>
           </div>
-          <div style={{ fontSize: '12px', color: 'var(--theme-success)', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
+          <div className="portal-salary-row-meta">
             <DollarOutlined /> {getSalaryRangeLabel(record.salaryRange)}
           </div>
         </div>
@@ -108,7 +108,7 @@ const EmployerDashboard = () => {
       title: 'Listed Date', 
       dataIndex: 'createdAt', 
       key: 'createdAt', 
-      render: (date) => <span style={{ color: 'var(--theme-muted)' }}>{new Date(date).toLocaleDateString()}</span>
+      render: (date) => <span className="portal-color-muted">{new Date(date).toLocaleDateString()}</span>
     },
     { 
       title: 'Candidates Matched', 
@@ -122,8 +122,7 @@ const EmployerDashboard = () => {
       key: 'action', 
       render: (_, record) => (
         <button 
-          className="portal-btn-primary" 
-          style={{ padding: '6px 14px', fontSize: '13px' }}
+          className="portal-btn-primary portal-btn-compact-apply" 
           onClick={() => navigate(`/employer/jobs/${record.id}`)}
         >
           View Mandate & Applicants
@@ -133,15 +132,15 @@ const EmployerDashboard = () => {
   ];
 
   return (
-    <div style={{ width: '100%' }}>
+    <div className="portal-w-full">
       <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', flexWrap: 'wrap', gap: '16px' }}
+          className="portal-page-header"
         >
           <div>
-            <h1 className="portal-section-title" style={{ fontSize: '36px' }}>Entity Dashboard</h1>
+            <h1 className="portal-section-title portal-text-36">Entity Dashboard</h1>
             <p className="portal-section-subtitle">Manage mandates, review IBBI verified candidates, and send direct interview invitations.</p>
           </div>
 
@@ -155,7 +154,7 @@ const EmployerDashboard = () => {
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.4, delay: 0.1 }}
-          className="portal-glass-card" style={{ padding: '24px' }}
+          className="portal-glass-card portal-p-24"
         >
           <Table 
             dataSource={jobs} 
@@ -168,7 +167,7 @@ const EmployerDashboard = () => {
 
         {/* Post Job Modal */}
         <Modal 
-          title={<span style={{ color: 'var(--theme-heading)', fontSize: '20px', fontWeight: 700 }}>List a New Mandate/Role</span>} 
+          title={<span className="portal-modal-title">List a New Mandate/Role</span>} 
           open={isModalVisible} 
           onCancel={() => {
             setIsModalVisible(false);
@@ -176,7 +175,7 @@ const EmployerDashboard = () => {
           }} 
           footer={null}
           width={640}
-          style={{ top: 30 }}
+          className="portal-modal-top-30"
         >
           <Form 
             form={form} 
@@ -187,13 +186,13 @@ const EmployerDashboard = () => {
               salaryRange: 'NEGOTIABLE',
               experienceLevel: 'MID_LEVEL'
             }} 
-            style={{ marginTop: '16px' }}
+            className="portal-modal-form"
           >
             <Form.Item label="Role Title" name="title" rules={[{ required: true, message: 'Please enter job title' }]}>
               <Input placeholder="e.g. Resolution Professional for MSME" size="large" />
             </Form.Item>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
+            <div className="portal-grid-3col-gap-12">
               <Form.Item label="Job Type" name="jobType" rules={[{ required: true, message: 'Required' }]}>
                 <Select size="large" placeholder="Job type">
                   {JOB_TYPES.map(jt => (
@@ -225,8 +224,8 @@ const EmployerDashboard = () => {
             <Form.Item label="Eligibility & Compliance Requirements" name="requirements" rules={[{ required: true, message: 'Please enter requirements' }]}>
               <TextArea rows={3} placeholder="e.g. 5+ years experience, Valid AFA, past NCLT experience in real estate..." />
             </Form.Item>
-            <Form.Item style={{ marginBottom: 0, marginTop: '24px' }}>
-              <button className="portal-btn-primary" type="submit" style={{ width: '100%', padding: '12px', fontSize: '15px' }}>
+            <Form.Item className="portal-mb-0 portal-mt-24">
+              <button className="portal-btn-primary portal-w-full portal-p-12 portal-text-15" type="submit">
                 Publish Listing
               </button>
             </Form.Item>
@@ -235,7 +234,7 @@ const EmployerDashboard = () => {
 
         {/* Applicants Modal */}
         <Modal 
-          title={<span style={{ color: 'var(--theme-heading)', fontSize: '20px', fontWeight: 700 }}>Candidates for "{selectedJob?.title}"</span>} 
+          title={<span className="portal-modal-title">Candidates for "{selectedJob?.title}"</span>} 
           open={applicantsModalVisible} 
           onCancel={() => setApplicantsModalVisible(false)} 
           footer={null} 
@@ -245,7 +244,7 @@ const EmployerDashboard = () => {
             dataSource={selectedJob?.applications || []} 
             rowKey="id"
             columns={[
-              { title: 'Candidate Name', key: 'name', render: (_, record) => <span style={{ fontWeight: 600 }}>{record.candidate?.name || 'Candidate'}</span> },
+              { title: 'Candidate Name', key: 'name', render: (_, record) => <span className="portal-font-semibold">{record.candidate?.name || 'Candidate'}</span> },
               { title: 'Email', key: 'email', render: (_, record) => <span>{record.candidate?.email || 'N/A'}</span> },
               { 
                 title: 'Status', 
@@ -263,11 +262,11 @@ const EmployerDashboard = () => {
                 key: 'action', 
                 render: (_, record) => (
                   record.status !== 'INVITED' ? (
-                    <Button type="primary" size="small" icon={<SendOutlined />} onClick={() => handleInvite(record.id)} style={{ background: '#0ea5e9', borderColor: '#0ea5e9', borderRadius: '8px' }}>
+                    <Button type="primary" size="small" icon={<SendOutlined />} onClick={() => handleInvite(record.id)} className="portal-btn-cyan">
                       Send Interview Invite
                     </Button>
                   ) : (
-                    <span style={{ color: 'var(--theme-success)', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                    <span className="portal-color-success portal-font-semibold portal-inline-flex-center-gap-4">
                       <CheckCircleOutlined /> Invited
                     </span>
                   )
