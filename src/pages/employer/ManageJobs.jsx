@@ -97,7 +97,7 @@ const ManageJobs = () => {
 
   return (
     <div className="portal-w-full">
-      <div className="portal-page-header portal-mb-28">
+      <div className="portal-page-header-row portal-mb-28">
         <div>
           <h1 className="portal-section-title portal-text-30">Active Mandates</h1>
           <p className="portal-section-subtitle">Manage your listed CIRP & Liquidation roles and review candidate submissions.</p>

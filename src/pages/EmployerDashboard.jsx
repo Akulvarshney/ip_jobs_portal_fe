@@ -138,7 +138,7 @@ const EmployerDashboard = () => {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="portal-page-header"
+          className="portal-page-header-row portal-mb-32"
         >
           <div>
             <h1 className="portal-section-title portal-text-36">Entity Dashboard</h1>

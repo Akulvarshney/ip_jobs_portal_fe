@@ -173,7 +173,7 @@ const CandidateDashboard = () => {
                 + Add Experience / Skills
               </Link>
             )}
-            <Link to="/candidate/profile" className="portal-text-subtle-12">
+            <Link to="/candidate/profile" className="portal-text-subtle-12 portal-whitespace-nowrap portal-flex-shrink-0">
               Edit Profile →
             </Link>
           </div>
@@ -336,10 +336,10 @@ const CandidateDashboard = () => {
                     className="portal-cand-rec-job-card"
                   >
                     <div>
-                      <div className="portal-flex-between-center portal-mb-12">
-                        <div className="portal-flex-center-gap-6">
+                      <div className="portal-flex-between-start portal-mb-12">
+                        <div className="portal-flex-wrap-gap-6 portal-flex-1">
                           <div className="portal-employer-type-badge">
-                            {job.employer?.type || 'VERIFIED'}
+                            {job.employer?.type?.replace(/_/g, ' ') || 'VERIFIED'}
                           </div>
                           <Tag color={getJobTypeColor(job.jobType)} className="portal-tag-compact">
                             {getJobTypeLabel(job.jobType)}
@@ -350,7 +350,8 @@ const CandidateDashboard = () => {
                         </div>
                         <button
                           onClick={() => handleToggleSave(job.id)}
-                          className={`portal-heart-btn ${savedStatus[job.id] ? 'active' : ''}`}
+                          className={`portal-heart-btn portal-ml-8 ${savedStatus[job.id] ? 'active' : ''}`}
+                          title={savedStatus[job.id] ? 'Unsave mandate' : 'Save mandate'}
                         >
                           {savedStatus[job.id] ? <HeartFilled /> : <HeartOutlined />}
                         </button>

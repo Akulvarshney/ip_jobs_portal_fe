@@ -336,7 +336,7 @@ const ManageApplications = () => {
   return (
     <div className="portal-w-full">
       {/* Page Header */}
-        <div className="portal-page-header portal-mb-28">
+        <div className="portal-page-header-row portal-mb-28">
           <div>
             <div className="portal-flex-center-gap-8 portal-mb-6">
               <Link to="/employer" className="portal-tag-link portal-text-13 portal-font-medium">
@@ -441,7 +441,7 @@ const ManageApplications = () => {
             </div>
           }
           placement="right"
-          width={380}
+          size={380}
           open={drawerOpen}
           onClose={() => setDrawerOpen(false)}
           footer={
