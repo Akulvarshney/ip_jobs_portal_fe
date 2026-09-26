@@ -4,7 +4,7 @@ export const JOB_TYPES = [
   { value: 'PART_TIME', label: 'Part-time', color: 'cyan' },
   { value: 'CONTRACT', label: 'Contract', color: 'orange' },
   { value: 'INTERNSHIP', label: 'Internship', color: 'green' },
-  { value: 'MANDATE_BASED', label: 'Mandate / Assignment', color: 'purple' },
+  { value: 'ASSIGNMENT_BASED', label: 'Assignment', color: 'purple' },
 ];
 
 export const getJobTypeLabel = (type) => {
