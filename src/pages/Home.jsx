@@ -3,12 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchAllJobs } from '../store/jobsSlice';
 import { motion } from 'framer-motion';
-import { 
-  SearchOutlined, 
-  RocketOutlined, 
-  ThunderboltOutlined, 
-  SafetyCertificateOutlined, 
-  TeamOutlined, 
+import {
+  SearchOutlined,
+  RocketOutlined,
+  ThunderboltOutlined,
+  SafetyCertificateOutlined,
+  TeamOutlined,
   ArrowRightOutlined,
   EnvironmentOutlined,
   DollarOutlined,
@@ -101,7 +101,7 @@ const Home = () => {
     const searchLower = searchTerm.toLowerCase().trim();
     const tagLower = activeFilterTag.toLowerCase().trim();
 
-    const matchesSearch = !searchLower || 
+    const matchesSearch = !searchLower ||
       job.title?.toLowerCase().includes(searchLower) ||
       job.description?.toLowerCase().includes(searchLower) ||
       job.requirements?.toLowerCase().includes(searchLower) ||
@@ -110,9 +110,9 @@ const Home = () => {
       (job.tags && job.tags.some(t => t.toLowerCase().includes(searchLower))) ||
       (job.skills && job.skills.some(s => (s.skill?.name || s.name || '').toLowerCase().includes(searchLower)));
 
-    const matchesTag = !activeFilterTag || tagLower === 'all' || 
-      job.title?.toLowerCase().includes(tagLower) || 
-      job.requirements?.toLowerCase().includes(tagLower) || 
+    const matchesTag = !activeFilterTag || tagLower === 'all' ||
+      job.title?.toLowerCase().includes(tagLower) ||
+      job.requirements?.toLowerCase().includes(tagLower) ||
       job.description?.toLowerCase().includes(tagLower) ||
       (job.employer?.type && job.employer.type.toLowerCase().includes(tagLower)) ||
       (job.tags && job.tags.some(t => t.toLowerCase().includes(tagLower))) ||
@@ -145,7 +145,7 @@ const Home = () => {
       </div>
 
       {/* Hero Section */}
-      <motion.section 
+      <motion.section
         className="portal-hero"
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
@@ -166,7 +166,7 @@ const Home = () => {
         </p>
 
         {/* Live Search Box */}
-        <motion.form 
+        <motion.form
           className="portal-search-box"
           onSubmit={handleSearchSubmit}
           initial={{ scale: 0.9, opacity: 0 }}
@@ -175,9 +175,9 @@ const Home = () => {
         >
           <div className="portal-search-input-wrapper">
             <SearchOutlined className="portal-search-prefix-icon" />
-            <input 
-              type="text" 
-              placeholder="Search by role (e.g. Liquidator), skill (e.g. NCLT), or company..." 
+            <input
+              type="text"
+              placeholder="Search by role (e.g. Liquidator), skill (e.g. NCLT), or company..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -189,7 +189,7 @@ const Home = () => {
         </motion.form>
 
         {/* Popular Tags */}
-        <motion.div 
+        <motion.div
           className="portal-popular-tags"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -197,8 +197,8 @@ const Home = () => {
         >
           <span>Popular:</span>
           {['All', 'CIRP', 'Liquidation', 'IBBI Registered', 'CA', 'NCLT', 'Legal'].map((tag) => (
-            <span 
-              key={tag} 
+            <span
+              key={tag}
               className={`portal-tag-pill ${activeFilterTag === tag ? 'active' : ''}`}
               onClick={() => setActiveFilterTag(tag)}
             >
@@ -234,8 +234,8 @@ const Home = () => {
           <div>
             <h2 className="portal-section-title">Featured Opportunities</h2>
             <p className="portal-section-subtitle">
-              {activeFilterTag !== 'All' 
-                ? `Showing opportunities matching "${activeFilterTag}"` 
+              {activeFilterTag !== 'All'
+                ? `Showing opportunities matching "${activeFilterTag}"`
                 : 'Handpicked insolvency, legal, and financial positions available right now'}
             </p>
           </div>
@@ -249,8 +249,8 @@ const Home = () => {
             <p className="portal-empty-text-16">
               No featured opportunities found matching "{activeFilterTag}".
             </p>
-            <Button 
-              type="primary" 
+            <Button
+              type="primary"
               onClick={() => { setActiveFilterTag('All'); setSearchTerm(''); }}
               className="portal-btn-cyan-apply"
             >
@@ -260,9 +260,9 @@ const Home = () => {
         ) : (
           <div className="portal-jobs-grid">
             {filteredJobs.slice(0, 6).map((job) => (
-              <div 
-                key={job.id} 
-                className="portal-job-card portal-glass-card portal-cursor-pointer" 
+              <div
+                key={job.id}
+                className="portal-job-card portal-glass-card portal-cursor-pointer"
                 onClick={() => handleJobClick(job.id)}
               >
                 <div>
@@ -275,7 +275,7 @@ const Home = () => {
                   <h3 className="portal-job-title">{job.title}</h3>
                   <div className="portal-company-name">{job.employer?.name || 'Insolvency Entity'}</div>
                   <p className="portal-job-desc">{job.description}</p>
-                  
+
                   <div className="portal-job-tags">
                     {job.skills && job.skills.length > 0 ? (
                       job.skills.slice(0, 3).map((s, idx) => (
@@ -296,8 +296,8 @@ const Home = () => {
 
                 <div className="portal-job-footer">
                   <div className="portal-job-salary">{job.salary || 'Competitive Mandate'}</div>
-                  <button 
-                    className="portal-btn-primary portal-btn-sm-13" 
+                  <button
+                    className="portal-btn-primary portal-btn-sm-13"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleJobClick(job.id);
@@ -353,7 +353,7 @@ const Home = () => {
             </div>
             <h3 className="portal-feature-title">AI-Powered Matching</h3>
             <p className="portal-feature-desc">
-              Our vector search matches exact NCLT bench experience, ticket sizes, and IBC expertise so you don't sift through irrelevant resumes.
+              Our vector search matches exact experience, ticket sizes, and IBC expertise so you don't sift through irrelevant resumes.
             </p>
           </div>
 

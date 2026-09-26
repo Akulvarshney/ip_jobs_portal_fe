@@ -669,6 +669,7 @@
 .portal-hero-title-gradient {
   background: linear-gradient(135deg, #bae6fd 0%, #38bdf8 40%, #7dd3fc 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
@@ -776,6 +777,7 @@
   margin-bottom: 6px;
   background: linear-gradient(135deg, var(--theme-heading) 0%, #e0f2fe 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
@@ -1776,6 +1778,7 @@
 }
 
 .ant-input-number-input {
+  appearance: textfield !important;
   -moz-appearance: textfield !important;
 }
 
@@ -1792,6 +1795,7 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 input[type="number"] {
+  appearance: textfield !important;
   -moz-appearance: textfield !important;
 }
 
@@ -2536,6 +2540,7 @@ input[type="number"] {
   margin-bottom: 14px;
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -3020,6 +3025,7 @@ input[type="number"] {
   margin-bottom: 16px;
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -3771,7 +3777,7 @@ input[type="number"] {
 
 .portal-exp-period {
   color: var(--theme-subtle);
-  fontSize: 13px;
+  font-size: 13px;
   margin-bottom: 10px;
 }
 
@@ -4199,7 +4205,7 @@ input[type="number"] {
   box-shadow: 0 8px 24px -4px rgba(var(--theme-shadow-rgb), 0.3);
 }
 
-.portal-cand-rec-job-card > div:first-child {
+.portal-cand-rec-job-card>div:first-child {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -5790,7 +5796,7 @@ input[type="number"] {
 .portal-verified-email-text {
   color: var(--theme-heading);
   font-weight: 600;
-  fontSize: 14px;
+  font-size: 14px;
 }
 
 .portal-form-label-bold {
@@ -6780,6 +6786,7 @@ input[type="number"] {
   margin-bottom: 16px;
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

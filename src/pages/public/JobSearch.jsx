@@ -32,14 +32,14 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchAllJobs } from '../../store/jobsSlice';
 import { fetchSavedJobs, fetchCandidateApplications, toggleSaveJob, applyToJob } from '../../store/candidateSlice';
-import { 
-  JOB_TYPES, 
-  SALARY_RANGES, 
-  EXPERIENCE_LEVELS, 
-  getJobTypeLabel, 
-  getJobTypeColor, 
-  getSalaryRangeLabel, 
-  getExperienceLevelShortLabel 
+import {
+  JOB_TYPES,
+  SALARY_RANGES,
+  EXPERIENCE_LEVELS,
+  getJobTypeLabel,
+  getJobTypeColor,
+  getSalaryRangeLabel,
+  getExperienceLevelShortLabel
 } from '../../utils/jobEnums';
 
 const { Option } = Select;
@@ -425,7 +425,7 @@ const JobSearch = () => {
 
           <div className="portal-filter-section">
             <div className="portal-filter-section-title">
-              <CompassOutlined /> NCLT Bench / Location
+              <CompassOutlined /> Location
             </div>
             <Select
               placeholder="All Locations & Benches"

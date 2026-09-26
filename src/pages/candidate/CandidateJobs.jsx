@@ -1,30 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Input, 
-  Select, 
-  Button, 
-  Tag, 
-  Row, 
-  Col, 
-  Modal, 
+import {
+  Input,
+  Select,
+  Button,
+  Tag,
+  Row,
+  Col,
+  Modal,
   Drawer,
   Badge,
   Divider,
-  message, 
-  Typography, 
-  Empty, 
-  Tooltip 
+  message,
+  Typography,
+  Empty,
+  Tooltip
 } from 'antd';
-import { 
-  SearchOutlined, 
-  EnvironmentOutlined, 
-  DollarOutlined, 
-  CalendarOutlined, 
-  CheckCircleOutlined, 
-  BookOutlined, 
-  HeartOutlined, 
-  HeartFilled, 
-  EyeOutlined, 
+import {
+  SearchOutlined,
+  EnvironmentOutlined,
+  DollarOutlined,
+  CalendarOutlined,
+  CheckCircleOutlined,
+  BookOutlined,
+  HeartOutlined,
+  HeartFilled,
+  EyeOutlined,
   FilterOutlined,
   ClearOutlined,
   SendOutlined,
@@ -171,13 +171,13 @@ const CandidateJobs = () => {
       if (statusFilter === 'APPLIED' && !isApplied) return false;
       if (statusFilter === 'SAVED' && !isSaved) return false;
 
-      const matchesKeyword = !searchKeyword || 
+      const matchesKeyword = !searchKeyword ||
         job.title.toLowerCase().includes(searchKeyword.toLowerCase()) ||
         job.description?.toLowerCase().includes(searchKeyword.toLowerCase()) ||
         job.requirements?.toLowerCase().includes(searchKeyword.toLowerCase()) ||
         (job.employer?.name && job.employer.name.toLowerCase().includes(searchKeyword.toLowerCase()));
 
-      const matchesLocation = !selectedLocation || 
+      const matchesLocation = !selectedLocation ||
         (job.employer?.location && job.employer.location.toLowerCase().includes(selectedLocation.toLowerCase()));
 
       const matchesCategory = !selectedCategory ||
@@ -232,7 +232,7 @@ const CandidateJobs = () => {
             />
           </div>
 
-          <button 
+          <button
             type="button"
             className={`portal-filter-trigger-btn ${activeFiltersCount > 0 ? 'active' : ''}`}
             onClick={() => setDrawerOpen(true)}
@@ -248,8 +248,8 @@ const CandidateJobs = () => {
 
           {(activeFiltersCount > 0 || searchKeyword) && (
             <Tooltip title="Reset all filters">
-              <Button 
-                icon={<ClearOutlined />} 
+              <Button
+                icon={<ClearOutlined />}
                 onClick={handleResetFilters}
                 className="portal-reset-filter-btn"
               />
@@ -261,7 +261,7 @@ const CandidateJobs = () => {
         {(activeFiltersCount > 0 || selectedLocation || selectedCategory || selectedOrgType || statusFilter !== 'ALL') && (
           <div className="portal-active-filters-bar">
             <span className="portal-active-filters-label">Active Filters:</span>
-            
+
             {statusFilter !== 'ALL' && (
               <span className="portal-filter-tag">
                 <TagOutlined /> Status: {statusFilter}
@@ -341,15 +341,15 @@ const CandidateJobs = () => {
         onClose={() => setDrawerOpen(false)}
         footer={
           <div className="portal-drawer-footer-wrap">
-            <Button 
+            <Button
               onClick={handleResetFilters}
               disabled={activeFiltersCount === 0 && !searchKeyword}
               className="portal-drawer-reset-btn"
             >
               Reset All
             </Button>
-            <Button 
-              type="primary" 
+            <Button
+              type="primary"
               onClick={() => setDrawerOpen(false)}
               className="portal-drawer-apply-btn"
             >
@@ -379,7 +379,7 @@ const CandidateJobs = () => {
 
         <div className="portal-filter-section">
           <div className="portal-filter-section-title">
-            <CompassOutlined /> NCLT Bench / Location
+            <CompassOutlined /> Location
           </div>
           <Select
             placeholder="All Locations & Benches"
@@ -506,8 +506,8 @@ const CandidateJobs = () => {
                   </Link>
 
                   {applicationStatus ? (
-                    <Tag 
-                      color={applicationStatus === 'SHORTLISTED' ? 'purple' : 'cyan'} 
+                    <Tag
+                      color={applicationStatus === 'SHORTLISTED' ? 'purple' : 'cyan'}
                       icon={<CheckCircleOutlined />}
                       className="portal-job-status-tag"
                     >
@@ -548,10 +548,10 @@ const CandidateJobs = () => {
           <Button key="back" onClick={() => setApplyModalOpen(false)}>
             Cancel
           </Button>,
-          <Button 
-            key="submit" 
-            type="primary" 
-            loading={submittingApply} 
+          <Button
+            key="submit"
+            type="primary"
+            loading={submittingApply}
             onClick={handleConfirmApply}
             className="portal-btn-theme-primary"
           >
