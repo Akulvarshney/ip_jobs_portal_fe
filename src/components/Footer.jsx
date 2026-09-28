@@ -4,6 +4,7 @@ import { RocketOutlined, GithubOutlined, TwitterOutlined, LinkedinOutlined, Send
 import { Input, Button, Tag, message } from 'antd';
 import { useSelector } from 'react-redux';
 import api from '../api';
+import logoWithName from '../assets/logo_with_name.png';
 
 const Footer = () => {
   const supportEmail = import.meta.env.VITE_SUPPORT_EMAIL || 'support@resolveportal.com';
@@ -81,11 +82,8 @@ const Footer = () => {
     <footer className="portal-footer">
       <div className="portal-footer-container">
         <div className="portal-footer-brand">
-          <Link to="/" className="portal-logo">
-            <div className="portal-logo-icon">
-              <RocketOutlined />
-            </div>
-            <span>Res<span className="portal-logo-highlight">olve</span></span>
+          <Link to="/" className="portal-logo" style={{ textDecoration: 'none' }}>
+            <img src={logoWithName} alt="Resolve Logo" style={{ height: '32px', display: 'block' }} />
           </Link>
           <p>
             Connecting world-class insolvency, restructuring, and legal professionals with premier advisory firms and corporate debtors.

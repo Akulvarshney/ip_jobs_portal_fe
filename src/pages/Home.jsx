@@ -15,9 +15,12 @@ import {
   DollarOutlined,
   CheckCircleOutlined,
   UserSwitchOutlined,
-  BankOutlined
+  BankOutlined,
+  UserOutlined,
+  ClockCircleOutlined
 } from '@ant-design/icons';
 import { Tag, Button } from 'antd';
+import { getSalaryRangeLabel, getExperienceLevelLabel } from '../utils/jobType';
 
 const sampleJobs = [
   {
@@ -82,6 +85,14 @@ const containerVariants = {
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
   show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 100 } }
+};
+
+const getRelativeTime = (dateString) => {
+  const diffTime = Math.abs(new Date() - new Date(dateString));
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  if (diffDays === 0) return 'Today';
+  if (diffDays === 1) return '1 day ago';
+  return `${diffDays} days ago`;
 };
 
 const Home = () => {
@@ -197,7 +208,7 @@ const Home = () => {
           transition={{ delay: 0.5 }}
         >
           <span>Popular:</span>
-          {['All', 'CIRP', 'Liquidation', 'IBBI Registered', 'CA', 'NCLT', 'Legal'].map((tag) => (
+          {['All', 'Insolvency', 'Liquidation', 'Registered IP', 'CA / CS', 'NCLT', 'Lawyer'].map((tag) => (
             <span
               key={tag}
               className={`portal-tag-pill ${activeFilterTag === tag ? 'active' : ''}`}
@@ -267,38 +278,78 @@ const Home = () => {
                 onClick={() => handleJobClick(job.id)}
               >
                 <div>
-                  <div className="portal-job-header">
-                    <div className="portal-company-avatar">
-                      {job.employer?.logoUrl ? <img src={getFileUrl(job.employer?.logoUrl)} alt="logo" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "inherit" }} /> : (job.employer?.name ? job.employer.name.substring(0, 2).toUpperCase() : "IP")}
+                  <div className="portal-saved-card-header">
+                    <div className="portal-saved-company-group">
+                      <div className="portal-job-avatar">
+                        {job.employer?.logoUrl ? <img src={getFileUrl(job.employer?.logoUrl)} alt="logo" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "inherit" }} /> : (job.employer?.name ? job.employer.name.substring(0, 2).toUpperCase() : "CO")}
+                      </div>
+                      <div>
+                        <div className="portal-job-org-type">
+                          {job.employer?.type || 'VERIFIED ORG'}
+                        </div>
+                        <div className="portal-job-org-name">
+                          {job.employer?.name || 'Insolvency Entity'}
+                        </div>
+                      </div>
                     </div>
-                    <span className="portal-job-badge">Verified Listing</span>
                   </div>
-                  <h3 className="portal-job-title">{job.title}</h3>
-                  <div className="portal-company-name">{job.employer?.name || 'Insolvency Entity'}</div>
-                  <p className="portal-job-desc">{job.description}</p>
 
-                  <div className="portal-job-tags">
-                    {job.skills && job.skills.length > 0 ? (
-                      job.skills.slice(0, 3).map((s, idx) => (
-                        <span key={idx} className="portal-job-tag">{s.skill?.name || s.name}</span>
-                      ))
-                    ) : job.tags && job.tags.length > 0 ? (
-                      job.tags.slice(0, 3).map((t, idx) => (
-                        <span key={idx} className="portal-job-tag">{t}</span>
-                      ))
-                    ) : (
-                      <>
-                        <span className="portal-job-tag">Insolvency</span>
-                        {job.employer?.type && <span className="portal-job-tag">{job.employer.type}</span>}
-                      </>
+                  <h3 className="portal-job-card-title">
+                    {job.title}
+                  </h3>
+
+                  <div className="portal-job-card-meta-grid" style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginTop: '12px', marginBottom: '16px', color: '#64748b', fontSize: '13px' }}>
+                    {(job.salaryRange || job.salary) && (
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <DollarOutlined /> {job.salaryRange ? getSalaryRangeLabel(job.salaryRange) : job.salary}
+                      </span>
+                    )}
+                    {job.experienceLevel && (
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <UserOutlined /> {getExperienceLevelLabel(job.experienceLevel)}
+                      </span>
+                    )}
+                    {(job.employer?.location || job.location) && (
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <EnvironmentOutlined /> {job.employer?.location || job.location}
+                      </span>
+                    )}
+                    {job.createdAt && (
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <ClockCircleOutlined /> {getRelativeTime(job.createdAt)}
+                      </span>
                     )}
                   </div>
+
+                  {job.skills?.length > 0 ? (
+                    <div style={{ marginBottom: '16px', display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                      {job.skills.slice(0, 4).map((s, idx) => (
+                        <Tag key={idx} color="blue" style={{ borderRadius: '4px' }}>
+                          {s.skill?.name || s.name}
+                        </Tag>
+                      ))}
+                      {job.skills.length > 4 && (
+                        <Tag style={{ borderRadius: '4px', borderStyle: 'dashed' }}>
+                          +{job.skills.length - 4} more
+                        </Tag>
+                      )}
+                    </div>
+                  ) : job.tags?.length > 0 && (
+                    <div style={{ marginBottom: '16px', display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                      {job.tags.slice(0, 4).map((t, idx) => (
+                        <Tag key={idx} color="blue" style={{ borderRadius: '4px' }}>
+                          {t}
+                        </Tag>
+                      ))}
+                    </div>
+                  )}
+
                 </div>
 
-                <div className="portal-job-footer">
-                  <div className="portal-job-salary">{job.salary || 'Competitive Job'}</div>
+                <div className="portal-saved-card-footer">
                   <button
                     className="portal-btn-primary portal-btn-sm-13"
+                    style={{ width: '100%', marginTop: 'auto' }}
                     onClick={(e) => {
                       e.stopPropagation();
                       handleJobClick(job.id);

@@ -13,9 +13,9 @@ import {
   BankOutlined,
   TeamOutlined,
   SolutionOutlined,
-  AlertOutlined,
-  CompassOutlined
+  AlertOutlined
 } from '@ant-design/icons';
+import { getFileUrl } from '../utils/fileUrl';
 
 const ROLE_NAV_CONFIGS = {
   CANDIDATE: {
@@ -151,7 +151,15 @@ const SidebarNav = ({ activeKey }) => {
       {/* Sidebar Role Profile Header */}
       <div className="portal-sidebar-user">
         <div className="portal-sidebar-user-avatar">
-          {getUserInitials()}
+          {(user?.profilePhoto || user?.candidateProfile?.profilePhoto) ? (
+            <img
+              src={getFileUrl(user?.profilePhoto || user?.candidateProfile?.profilePhoto)}
+              alt="Profile"
+              style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
+            />
+          ) : (
+            getUserInitials()
+          )}
         </div>
         <div className="portal-sidebar-user-info">
           <div className="portal-sidebar-user-name" title={user?.name || config.portalLabel}>
@@ -188,25 +196,6 @@ const SidebarNav = ({ activeKey }) => {
             })}
           </React.Fragment>
         ))}
-      </div>
-
-      {/* Sidebar Secondary Navigation / Quick Links & Status */}
-      <div className="portal-sidebar-footer">
-        <Link
-          to="/candidate/jobs"
-          className="portal-sidebar-link portal-sidebar-sublink"
-        >
-          <span className="portal-sidebar-icon"><CompassOutlined /></span>
-          <span className="portal-sidebar-text">Jobs Directory</span>
-        </Link>
-
-        <div className="portal-sidebar-status-card">
-          <span>
-            <span className="portal-sidebar-status-dot" />
-            Portal Active
-          </span>
-          <span className="portal-sidebar-version">v2.4</span>
-        </div>
       </div>
     </div>
   );

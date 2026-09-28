@@ -67,6 +67,18 @@ const professionalCategories = [
   'Insolvency analyst'
 ];
 
+const getRelativeTime = (dateString) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffTime = Math.abs(now - date);
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  
+  if (diffDays === 0) return 'Today';
+  if (diffDays === 1) return '1 day ago';
+  return `${diffDays} days ago`;
+};
+
 const CandidateJobs = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -102,10 +114,8 @@ const CandidateJobs = () => {
   const [selectedJobType, setSelectedJobType] = useState(() => getInitialFilter('selectedJobType', 'jobType'));
   const [selectedSalaryRange, setSelectedSalaryRange] = useState(() => getInitialFilter('selectedSalaryRange', 'salaryRange'));
   const [selectedExpLevel, setSelectedExpLevel] = useState(() => getInitialFilter('selectedExpLevel', 'experienceLevel'));
-  const [statusFilter, setStatusFilter] = useState('ALL'); // 'ALL' | 'UNAPPLIED' | 'APPLIED' | 'SAVED'
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  // Sync state if user's saved filters arrive after initial mount
   useEffect(() => {
     if (user?.savedFilters) {
       if (user.savedFilters.searchKeyword !== undefined) setSearchKeyword(user.savedFilters.searchKeyword);
@@ -219,7 +229,6 @@ const CandidateJobs = () => {
     setSelectedJobType(undefined);
     setSelectedSalaryRange(undefined);
     setSelectedExpLevel(undefined);
-    setStatusFilter('ALL');
   };
 
   const activeFiltersCount = [
@@ -228,19 +237,15 @@ const CandidateJobs = () => {
     selectedOrgType,
     selectedJobType,
     selectedSalaryRange,
-    selectedExpLevel,
-    statusFilter !== 'ALL' ? statusFilter : null
+    selectedExpLevel
   ].filter(Boolean).length;
 
   // Filter jobs logic with unapplied-first priority sorting
   const filteredJobs = jobs
     .filter(job => {
       const isApplied = Boolean(appliedJobsMap[job.id]);
-      const isSaved = Boolean(savedJobsMap[job.id]);
 
-      if (statusFilter === 'UNAPPLIED' && isApplied) return false;
-      if (statusFilter === 'APPLIED' && !isApplied) return false;
-      if (statusFilter === 'SAVED' && !isSaved) return false;
+      if (isApplied) return false;
 
       const matchesKeyword = !searchKeyword ||
         job.title.toLowerCase().includes(searchKeyword.toLowerCase()) ||
@@ -265,14 +270,6 @@ const CandidateJobs = () => {
       return matchesKeyword && matchesLocation && matchesCategory && matchesOrgType && matchesJobType && matchesSalary && matchesExp;
     })
     .sort((a, b) => {
-      const aApplied = Boolean(appliedJobsMap[a.id]);
-      const bApplied = Boolean(appliedJobsMap[b.id]);
-
-      // Unapplied jobs always come first
-      if (aApplied !== bApplied) {
-        return aApplied ? 1 : -1;
-      }
-
       // Then newest first
       return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
     });
@@ -282,11 +279,8 @@ const CandidateJobs = () => {
       {/* Page Header */}
       <div className="portal-page-header">
         <h1 className="portal-page-title">
-          Insolvency & Restructuring Jobs
+          Recommended jobs for you
         </h1>
-        <p className="portal-page-subtitle">
-          Browse open opportunities posted by verified Insolvency Professional Entities (IPEs), Banks, ARCs, and Consulting Firms.
-        </p>
       </div>
 
       {/* Search & Filter Toolbar */}
@@ -328,13 +322,6 @@ const CandidateJobs = () => {
         {activeFiltersCount > 0 && (
           <div className="portal-active-filters-bar">
             <span className="portal-active-filters-label">Active Filters:</span>
-
-            {statusFilter !== 'ALL' && (
-              <span className="portal-filter-tag">
-                <TagOutlined /> Status: {statusFilter}
-                <CloseOutlined onClick={() => setStatusFilter('ALL')} />
-              </span>
-            )}
 
             {selectedJobType && (
               <span className="portal-filter-tag">
@@ -382,38 +369,11 @@ const CandidateJobs = () => {
       </motion.div>
 
       {/* Results Counter & Quick Status Tabs */}
-      <div className="portal-jobs-results-header">
+      {/* <div className="portal-jobs-results-header">
         <div>
-          Showing <strong>{filteredJobs.length}</strong> {statusFilter === 'UNAPPLIED' ? 'unapplied' : (statusFilter === 'APPLIED' ? 'applied' : (statusFilter === 'SAVED' ? 'saved' : 'active'))} jobs
+          Showing <strong>{filteredJobs.length}</strong> jobs
         </div>
-
-        <div className="portal-quick-tabs-wrap">
-          <button
-            onClick={() => setStatusFilter('ALL')}
-            className={`portal-quick-tab-btn ${statusFilter === 'ALL' ? 'active' : ''}`}
-          >
-            All Jobs ({jobs.length})
-          </button>
-          <button
-            onClick={() => setStatusFilter('UNAPPLIED')}
-            className={`portal-quick-tab-btn ${statusFilter === 'UNAPPLIED' ? 'active' : ''}`}
-          >
-            Unapplied ({jobs.filter(j => !appliedJobsMap[j.id]).length})
-          </button>
-          <button
-            onClick={() => setStatusFilter('SAVED')}
-            className={`portal-quick-tab-btn ${statusFilter === 'SAVED' ? 'active' : ''}`}
-          >
-            Saved ({jobs.filter(j => savedJobsMap[j.id]).length})
-          </button>
-          <button
-            onClick={() => setStatusFilter('APPLIED')}
-            className={`portal-quick-tab-btn ${statusFilter === 'APPLIED' ? 'active' : ''}`}
-          >
-            Applied ({jobs.filter(j => appliedJobsMap[j.id]).length})
-          </button>
-        </div>
-      </div>
+      </div> */}
 
       {/* Filter Drawer */}
       <Drawer
@@ -446,25 +406,6 @@ const CandidateJobs = () => {
           </div>
         }
       >
-        <div className="portal-filter-section">
-          <div className="portal-filter-section-title">
-            <TagOutlined /> Application Status
-          </div>
-          <Select
-            value={statusFilter}
-            onChange={setStatusFilter}
-            className="portal-drawer-select"
-            size="large"
-          >
-            <Option value="ALL">All Active Jobs ({jobs.length})</Option>
-            <Option value="UNAPPLIED">Unapplied Jobs Only</Option>
-            <Option value="SAVED">Saved / Bookmarked Only</Option>
-            <Option value="APPLIED">Applied Jobs Only</Option>
-          </Select>
-        </div>
-
-        <Divider className="portal-drawer-divider" />
-
         <div className="portal-filter-section">
           <div className="portal-filter-section-title">
             <CompassOutlined /> Location
@@ -637,19 +578,49 @@ const CandidateJobs = () => {
                     {job.title}
                   </h3>
 
-                  <p className="portal-job-card-desc">
-                    {job.description}
-                  </p>
+                  <div className="portal-job-card-meta-grid" style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginTop: '12px', marginBottom: '16px', color: '#64748b', fontSize: '13px' }}>
+                    {job.salaryRange && (
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <DollarOutlined /> {getSalaryRangeLabel(job.salaryRange)}
+                      </span>
+                    )}
+                    {job.experienceLevel && (
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <UserOutlined /> {getExperienceLevelLabel(job.experienceLevel)}
+                      </span>
+                    )}
+                    {job.employer?.location && (
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <EnvironmentOutlined /> {job.employer.location}
+                      </span>
+                    )}
+                    {job.createdAt && (
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <ClockCircleOutlined /> {getRelativeTime(job.createdAt)}
+                      </span>
+                    )}
+                  </div>
 
-                  {job.requirements && (
-                    <div className="portal-job-requirements-box">
-                      <strong>Requirements:</strong> {job.requirements}
+                  {job.skills?.length > 0 && (
+                    <div style={{ marginBottom: '16px', display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                      {job.skills.slice(0, 4).map(s => (
+                        <Tag key={s.skill?.id || s.skillId} color="blue" style={{ borderRadius: '4px' }}>
+                          {s.skill?.name || 'Insolvency'}
+                        </Tag>
+                      ))}
+                      {job.skills.length > 4 && (
+                        <Tag style={{ borderRadius: '4px', borderStyle: 'dashed' }}>
+                          +{job.skills.length - 4} more
+                        </Tag>
+                      )}
                     </div>
                   )}
+
+
                 </div>
 
                 <div className="portal-saved-card-footer">
-                  <Link to={`/jobs/${job.id}`} className="portal-saved-view-link">
+                  <Link to={`/jobs/${job.id}`} target="_blank" rel="noopener noreferrer" className="portal-saved-view-link">
                     View Job ↗
                   </Link>
 

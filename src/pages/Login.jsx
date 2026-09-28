@@ -6,11 +6,11 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import api from '../api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGoogleLogin } from '@react-oauth/google';
-import { 
-  RocketOutlined, 
-  MailOutlined, 
-  LockOutlined, 
-  KeyOutlined, 
+import {
+  RocketOutlined,
+  MailOutlined,
+  LockOutlined,
+  KeyOutlined,
   CheckCircleOutlined,
   CheckCircleFilled,
   ThunderboltOutlined,
@@ -85,7 +85,7 @@ const Login = () => {
   const [passwordForm] = Form.useForm();
   const [googleProfileForm] = Form.useForm();
   const [resetPasswordForm] = Form.useForm();
-  
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -384,7 +384,7 @@ const Login = () => {
       navigate(redirectUrl);
       return;
     }
-    
+
     if (userRole === 'ADMIN') {
       navigate('/admin');
     } else if (userRole === 'EMPLOYER') {
@@ -427,15 +427,15 @@ const Login = () => {
       </div>
 
       <div className="portal-auth-page-container">
-        
+
         {/* Top Logo / Brand */}
         <div className="portal-auth-brand-header">
 
           <Title level={2} className="portal-auth-title">
-            {googleOnboardingUser 
+            {googleOnboardingUser
               ? 'Complete Your Profile'
-              : isLogin 
-                ? 'Welcome Back' 
+              : isLogin
+                ? 'Welcome Back'
                 : 'Join the Network'
             }
           </Title>
@@ -450,9 +450,9 @@ const Login = () => {
         </div>
 
         {/* Card Container */}
-        <motion.div 
-          initial={{ opacity: 0, y: 15 }} 
-          animate={{ opacity: 1, y: 0 }} 
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
           className="portal-card portal-auth-card"
         >
@@ -474,11 +474,11 @@ const Login = () => {
             <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }}>
               {/* Google Verified Banner */}
               <div className="portal-google-verified-banner">
-                <Avatar 
-                  size={48} 
-                  src={googleOnboardingUser.photoUrl || null} 
-                  icon={<UserOutlined />} 
-                  className="portal-avatar-blue-border" 
+                <Avatar
+                  size={48}
+                  src={googleOnboardingUser.photoUrl || null}
+                  icon={<UserOutlined />}
+                  className="portal-avatar-blue-border"
                 />
                 <div className="portal-flex-1">
                   <div className="portal-flex-center-gap-6 portal-mb-2">
@@ -647,7 +647,7 @@ const Login = () => {
                   }
                   name="password"
                   rules={[{ required: true, message: 'Please enter your password' }]}
-                  className="portal-mb-24"
+                  className="portal-mb-24 portal-full-width-label"
                 >
                   <Input.Password
                     prefix={<LockOutlined className="portal-text-link" />}
@@ -667,7 +667,7 @@ const Login = () => {
               </Form>
 
               {/* Quick Demo Login Fillers */}
-              <div className="portal-demo-accounts-box">
+              {/* <div className="portal-demo-accounts-box">
                 <div className="portal-demo-accounts-title">
                   ⚡ Quick Demo Accounts
                 </div>
@@ -694,7 +694,7 @@ const Login = () => {
                     Admin
                   </button>
                 </div>
-              </div>
+              </div> */}
             </div>
           ) : (
 
@@ -772,9 +772,9 @@ const Login = () => {
                       <label className="portal-form-label">
                         Enter 6-Digit OTP Code
                       </label>
-                      <button 
-                        type="button" 
-                        onClick={() => setRegisterStep(0)} 
+                      <button
+                        type="button"
+                        onClick={() => setRegisterStep(0)}
                         className="portal-btn-change-email"
                       >
                         Change Email ({registerEmail})
@@ -795,9 +795,9 @@ const Login = () => {
                     {devOtpHint && (
                       <div className="portal-dev-otp-box">
                         <span>⚡ Development OTP: <strong>{devOtpHint}</strong></span>
-                        <button 
-                          type="button" 
-                          onClick={() => setOtpCode(devOtpHint)} 
+                        <button
+                          type="button"
+                          onClick={() => setOtpCode(devOtpHint)}
                           className="portal-btn-autofill-otp"
                         >
                           Auto Fill
@@ -963,8 +963,8 @@ const Login = () => {
               <span className="portal-text-muted-14">
                 {isLogin ? "Don't have an account? " : "Already have an account? "}
               </span>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={() => { setIsLogin(!isLogin); setErrorMessage(''); setRegisterStep(0); }}
                 className="portal-auth-switch-btn"
               >
@@ -1068,9 +1068,9 @@ const Login = () => {
               {forgotDevOtp && (
                 <div className="portal-dev-otp-box">
                   <span>⚡ Development OTP: <strong>{forgotDevOtp}</strong></span>
-                  <button 
-                    type="button" 
-                    onClick={() => setForgotOtp(forgotDevOtp)} 
+                  <button
+                    type="button"
+                    onClick={() => setForgotOtp(forgotDevOtp)}
                     className="portal-btn-autofill-otp"
                   >
                     Auto Fill

@@ -15,6 +15,7 @@ import {
   SettingOutlined
 } from '@ant-design/icons';
 import { getFileUrl } from '../utils/fileUrl';
+import logoWithName from '../assets/logo_with_name.png';
 
 const Navbar = () => {
   const { user, isAuthenticated } = useSelector((state) => state.auth);
@@ -119,11 +120,8 @@ const Navbar = () => {
   return (
     <header className="portal-navbar">
       <div className="portal-nav-container">
-        <Link to="/" className="portal-logo">
-          <div className="portal-logo-icon">
-            <RocketOutlined />
-          </div>
-          <span>Res<span className="portal-logo-highlight">olve</span></span>
+        <Link to="/" className="portal-logo" style={{ textDecoration: 'none' }}>
+          <img src={logoWithName} alt="Resolve Logo" style={{ height: '32px', display: 'block' }} />
         </Link>
 
         {/* <nav className="portal-nav-links">

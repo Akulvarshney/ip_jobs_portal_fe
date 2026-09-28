@@ -41,6 +41,7 @@ const JobDetails = () => {
   const [loading, setLoading] = useState(true);
   const [isSaved, setIsSaved] = useState(false);
   const [appliedStatus, setAppliedStatus] = useState(null);
+  const [appliedJobsMap, setAppliedJobsMap] = useState({});
 
   // Apply Modal
   const [applyModalOpen, setApplyModalOpen] = useState(false);
@@ -71,6 +72,13 @@ const JobDetails = () => {
         setIsSaved(found);
 
         const appsList = Array.isArray(appsRes) ? appsRes : appsRes?.data || [];
+
+        const appMap = {};
+        appsList.forEach(a => {
+          appMap[a.jobId || a.job?.id] = a.status;
+        });
+        setAppliedJobsMap(appMap);
+
         const app = appsList.find(a => (a.jobId || a.job?.id) === Number(id));
         if (app) setAppliedStatus(app.status);
       }
@@ -250,7 +258,6 @@ const JobDetails = () => {
             {/* Quick Metadata Highlights */}
             <div className="portal-details-meta-grid">
               <div>
-                <div className="portal-details-meta-label">Job Type</div>
                 <div className="portal-details-meta-val">
                   <ClockCircleOutlined className="portal-details-meta-icon" />
                   {getJobTypeLabel(job.jobType)}
@@ -258,7 +265,6 @@ const JobDetails = () => {
               </div>
 
               <div>
-                <div className="portal-details-meta-label">Experience</div>
                 <div className="portal-details-meta-val">
                   <UserOutlined className="portal-details-meta-icon" />
                   {getExperienceLevelLabel(job.experienceLevel)}
@@ -266,7 +272,6 @@ const JobDetails = () => {
               </div>
 
               <div>
-                <div className="portal-details-meta-label">Salary / Bracket</div>
                 <div className="portal-details-meta-val-success">
                   <DollarOutlined className="portal-details-meta-icon-success" />
                   {getSalaryRangeLabel(job.salaryRange)}
@@ -274,7 +279,6 @@ const JobDetails = () => {
               </div>
 
               <div>
-                <div className="portal-details-meta-label">Location / Bench</div>
                 <div className="portal-details-meta-val">
                   <EnvironmentOutlined className="portal-details-meta-icon" />
                   {job.employer?.location || 'India'}
@@ -282,19 +286,12 @@ const JobDetails = () => {
               </div>
 
               <div>
-                <div className="portal-details-meta-label">Posted Date</div>
                 <div className="portal-details-meta-val">
                   <CalendarOutlined className="portal-details-meta-icon" />
                   {new Date(job.createdAt).toLocaleDateString()}
                 </div>
               </div>
 
-              <div>
-                <div className="portal-details-meta-label">Status</div>
-                <div className="portal-details-meta-val-status">
-                  ● Active Accepting Applications
-                </div>
-              </div>
             </div>
 
             {/* Job Description */}
@@ -406,26 +403,71 @@ const JobDetails = () => {
                 Recommended Jobs for You
               </h3>
               <div className="portal-flex-col-gap-14">
-                {jobsList?.filter(j => j.id !== Number(id)).slice(0, 3).map((recommendedJob, index, array) => (
-                  <React.Fragment key={recommendedJob.id}>
-                    <div className="portal-recommended-job-item">
-                      <div className="portal-card-heading portal-recommended-job-heading">
-                        <Link to={`/jobs/${recommendedJob.id}`} className="portal-color-link">
-                          {recommendedJob.title}
-                        </Link>
-                      </div>
-                      <div className="portal-card-meta portal-flex-center-gap-8 portal-recommended-job-meta">
-                        <span>{recommendedJob.employer?.name || 'Insolvency Entity'}</span>
-                        <span>•</span>
-                        <span className="portal-color-cyan"><DollarOutlined /> {getSalaryRangeLabel(recommendedJob.salaryRange)}</span>
-                      </div>
-                    </div>
-                    {index < array.length - 1 && <Divider className="portal-recommended-job-divider" />}
-                  </React.Fragment>
-                ))}
-                {(!jobsList || jobsList.filter(j => j.id !== Number(id)).length === 0) && (
-                  <p className="portal-color-muted">No recommended jobs found.</p>
-                )}
+                {(() => {
+                  const stored = JSON.parse(localStorage.getItem('portal_job_filters') || '{}');
+                  const dbStored = user?.savedFilters || stored;
+
+                  const searchKeyword = dbStored.searchKeyword || '';
+                  const selectedLocation = dbStored.selectedLocation;
+                  const selectedCategory = dbStored.selectedCategory;
+                  const selectedOrgType = dbStored.selectedOrgType;
+                  const selectedJobType = dbStored.selectedJobType;
+                  const selectedSalaryRange = dbStored.selectedSalaryRange;
+                  const selectedExpLevel = dbStored.selectedExpLevel;
+
+                  const filteredRecommendations = (jobsList || []).filter(j => {
+                    if (j.id === Number(id)) return false;
+
+                    if (appliedJobsMap[j.id]) return false;
+
+                    const matchesKeyword = !searchKeyword ||
+                      j.title.toLowerCase().includes(searchKeyword.toLowerCase()) ||
+                      j.description?.toLowerCase().includes(searchKeyword.toLowerCase()) ||
+                      j.requirements?.toLowerCase().includes(searchKeyword.toLowerCase()) ||
+                      (j.employer?.name && j.employer.name.toLowerCase().includes(searchKeyword.toLowerCase()));
+
+                    const matchesLocation = !selectedLocation ||
+                      (j.employer?.location && j.employer.location.toLowerCase().includes(selectedLocation.toLowerCase()));
+
+                    const matchesCategory = !selectedCategory ||
+                      j.title.toLowerCase().includes(selectedCategory.toLowerCase()) ||
+                      j.requirements?.toLowerCase().includes(selectedCategory.toLowerCase());
+
+                    const matchesOrgType = !selectedOrgType ||
+                      j.employer?.type === selectedOrgType;
+
+                    const matchesJobType = !selectedJobType || j.jobType === selectedJobType;
+                    const matchesSalary = !selectedSalaryRange || j.salaryRange === selectedSalaryRange;
+                    const matchesExp = !selectedExpLevel || j.experienceLevel === selectedExpLevel;
+
+                    return matchesKeyword && matchesLocation && matchesCategory && matchesOrgType && matchesJobType && matchesSalary && matchesExp;
+                  });
+
+                  return (
+                    <>
+                      {filteredRecommendations.slice(0, 3).map((recommendedJob, index, array) => (
+                        <React.Fragment key={recommendedJob.id}>
+                          <div className="portal-recommended-job-item">
+                            <div className="portal-card-heading portal-recommended-job-heading">
+                              <Link to={`/jobs/${recommendedJob.id}`} target="_blank" rel="noopener noreferrer" className="portal-color-link">
+                                {recommendedJob.title}
+                              </Link>
+                            </div>
+                            <div className="portal-card-meta portal-flex-center-gap-8 portal-recommended-job-meta">
+                              <span>{recommendedJob.employer?.name || 'Insolvency Entity'}</span>
+                              <span>•</span>
+                              <span className="portal-color-cyan"><DollarOutlined /> {getSalaryRangeLabel(recommendedJob.salaryRange)}</span>
+                            </div>
+                          </div>
+                          {index < array.length - 1 && <Divider className="portal-recommended-job-divider" />}
+                        </React.Fragment>
+                      ))}
+                      {filteredRecommendations.length === 0 && (
+                        <p className="portal-color-muted">No recommended jobs found.</p>
+                      )}
+                    </>
+                  );
+                })()}
               </div>
             </div>
           </div>
