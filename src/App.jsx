@@ -10,7 +10,7 @@ import Login from './pages/Login';
 import CandidateDashboard from './pages/CandidateDashboard';
 import EmployerDashboard from './pages/EmployerDashboard';
 import './styles/portal-ui.css';
-
+import ScrollToTop from './components/ScrollToTop';
 
 import JobDetails from './pages/public/JobDetails';
 import CompanyProfile from './pages/public/CompanyProfile';
@@ -71,6 +71,7 @@ function App() {
       }}
     >
       <BrowserRouter>
+        <ScrollToTop />
         <div className="portal-app-root">
           <Navbar />
           <main className="portal-main-area">
