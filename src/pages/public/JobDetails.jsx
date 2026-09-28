@@ -1,32 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Button, 
-  Tag, 
-  Divider, 
-  Modal, 
-  Input, 
-  message, 
-  Spin, 
-  Breadcrumb 
+import { getFileUrl } from "../../utils/fileUrl";
+import {
+  Button,
+  Tag,
+  Divider,
+  Modal,
+  Input,
+  message,
+  Spin,
+  Breadcrumb
 } from 'antd';
-import { 
-  EnvironmentOutlined, 
-  DollarOutlined, 
-  CalendarOutlined, 
-  BankOutlined, 
-  ShareAltOutlined, 
-  HeartOutlined, 
-  HeartFilled, 
-  CheckCircleOutlined, 
-  ClockCircleOutlined, 
-  UserOutlined, 
-  GlobalOutlined, 
-  SafetyCertificateOutlined 
+import {
+  EnvironmentOutlined,
+  DollarOutlined,
+  CalendarOutlined,
+  BankOutlined,
+  ShareAltOutlined,
+  HeartOutlined,
+  HeartFilled,
+  CheckCircleOutlined,
+  ClockCircleOutlined,
+  UserOutlined,
+  GlobalOutlined,
+  SafetyCertificateOutlined
 } from '@ant-design/icons';
 import { motion } from 'framer-motion';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchJobById } from '../../store/jobsSlice';
+import { fetchJobById, fetchAllJobs } from '../../store/jobsSlice';
 import { fetchSavedJobs, fetchCandidateApplications, toggleSaveJob, applyToJob } from '../../store/candidateSlice';
 import { getJobTypeLabel, getJobTypeColor, getSalaryRangeLabel, getExperienceLevelLabel } from '../../utils/jobType';
 
@@ -34,6 +35,7 @@ const JobDetails = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -46,12 +48,17 @@ const JobDetails = () => {
   const [submittingApply, setSubmittingApply] = useState(false);
 
   const { isAuthenticated, user } = useSelector((state) => state.auth);
+  const { jobsList } = useSelector((state) => state.jobs);
 
   const loadJobData = async () => {
     try {
       setLoading(true);
       const jobData = await dispatch(fetchJobById(id)).unwrap();
       setJob(jobData);
+
+      if (!jobsList || jobsList.length === 0) {
+        dispatch(fetchAllJobs());
+      }
 
       if (isAuthenticated && user?.role === 'CANDIDATE') {
         const [savedRes, appsRes] = await Promise.all([
@@ -69,7 +76,7 @@ const JobDetails = () => {
       }
     } catch (error) {
       console.error('Error fetching job details:', error);
-      message.error('Failed to load mandate details');
+      message.error('Failed to load job details');
     } finally {
       setLoading(false);
     }
@@ -82,7 +89,7 @@ const JobDetails = () => {
   const handleToggleSave = async () => {
     if (!isAuthenticated) {
       message.info('Please log in as a candidate to save jobs');
-      return navigate('/login');
+      return navigate(`/login?redirect=${encodeURIComponent(location.pathname)}`);
     }
     try {
       const res = await dispatch(toggleSaveJob(id)).unwrap();
@@ -96,10 +103,10 @@ const JobDetails = () => {
   const handleOpenApplyModal = () => {
     if (!isAuthenticated) {
       message.info('Please log in or sign up to apply');
-      return navigate('/login?mode=signup');
+      return navigate(`/login?mode=signup&redirect=${encodeURIComponent(location.pathname)}`);
     }
     if (user?.role !== 'CANDIDATE') {
-      message.warning('Only candidate accounts can apply to mandates');
+      message.warning('Only candidate accounts can apply to jobs');
       return;
     }
     setCoverNote('');
@@ -122,7 +129,7 @@ const JobDetails = () => {
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(window.location.href);
-    message.success('Mandate link copied to clipboard!');
+    message.success('Job link copied to clipboard!');
   };
 
   if (loading) {
@@ -137,10 +144,10 @@ const JobDetails = () => {
     return (
       <div className="portal-page-wrapper">
         <div className="portal-not-found-box">
-          <h2 className="portal-not-found-title">Mandate Not Found</h2>
+          <h2 className="portal-not-found-title">Job Not Found</h2>
           <p className="portal-not-found-desc">The job posting you are looking for may have been closed or removed.</p>
-          <Link to="/jobs">
-            <Button type="primary">Back to Mandates Directory</Button>
+          <Link to="/candidate/jobs">
+            <Button type="primary">Back to Jobs Directory</Button>
           </Link>
         </div>
       </div>
@@ -155,20 +162,20 @@ const JobDetails = () => {
       </div>
 
       <div className="portal-public-container-1240">
-        
+
         {/* Breadcrumb Navigation */}
         <div className="portal-mb-24">
           <Breadcrumb
             items={[
               { title: <Link to="/" className="portal-color-muted">Home</Link> },
-              { title: <Link to="/jobs" className="portal-color-muted">Mandates</Link> },
+              { title: <Link to="/candidate/jobs" className="portal-color-muted">Jobs</Link> },
               { title: <span className="portal-color-link">{job.title}</span> }
             ]}
           />
         </div>
 
         <div className="portal-details-layout">
-          
+
           {/* Main Job Details Card */}
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -179,10 +186,10 @@ const JobDetails = () => {
             <div className="portal-details-header-flex">
               <div className="portal-details-avatar-group">
                 <div className="portal-details-avatar-box">
-                  {job.employer?.name ? job.employer.name.substring(0, 2).toUpperCase() : 'CO'}
+                  {job.employer?.logoUrl ? <img src={getFileUrl(job.employer?.logoUrl)} alt="logo" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "inherit" }} /> : (job.employer?.name ? job.employer.name.substring(0, 2).toUpperCase() : "CO")}
                 </div>
                 <div>
-                  <div className="portal-details-tags-row">
+                  {/* <div className="portal-details-tags-row">
                     <Tag color="cyan" className="portal-tag-pill-11">
                       {job.employer?.type || 'VERIFIED ENTITY'}
                     </Tag>
@@ -192,7 +199,7 @@ const JobDetails = () => {
                     <Tag color="geekblue" className="portal-tag-pill-11">
                       {getExperienceLevelLabel(job.experienceLevel)}
                     </Tag>
-                  </div>
+                  </div> */}
                   <h1 className="portal-details-title">
                     {job.title}
                   </h1>
@@ -211,13 +218,32 @@ const JobDetails = () => {
                   {isSaved ? <HeartFilled /> : <HeartOutlined />}
                 </button>
 
+
+
                 <Button
                   icon={<ShareAltOutlined />}
                   onClick={handleCopyLink}
                   className="portal-btn-share"
                 >
-                  Share
+
                 </Button>
+
+                {appliedStatus ? (
+                  <Tag
+                    color={appliedStatus === 'SHORTLISTED' ? 'purple' : 'cyan'}
+                    icon={<CheckCircleOutlined />}
+                    className="portal-details-status-tag"
+                  >
+                    {appliedStatus}
+                  </Tag>
+                ) : (
+                  <button
+                    className="portal-btn-primary portal-btn-apply-job"
+                    onClick={handleOpenApplyModal}
+                  >
+                    Apply for this Job
+                  </button>
+                )}
               </div>
             </div>
 
@@ -274,7 +300,7 @@ const JobDetails = () => {
             {/* Job Description */}
             <div className="portal-mb-32">
               <h2 className="portal-details-section-title">
-                Mandate Overview & Scope
+                Job Overview & Scope
               </h2>
               <div className="portal-details-desc-content">
                 {job.description}
@@ -312,52 +338,31 @@ const JobDetails = () => {
               </div>
             )}
 
-            {/* Bottom Apply Action Bar */}
-            <div className="portal-details-footer-bar">
-              <div>
-                <span className="portal-details-footer-note">
-                  Interested in this Insolvency & Restructuring assignment?
-                </span>
-              </div>
+            <Divider className="portal-legal-divider" />
 
-              {appliedStatus ? (
-                <Tag 
-                  color={appliedStatus === 'SHORTLISTED' ? 'purple' : 'cyan'} 
-                  icon={<CheckCircleOutlined />}
-                  className="portal-details-status-tag"
-                >
-                  Application Status: {appliedStatus}
-                </Tag>
-              ) : (
-                <button
-                  className="portal-btn-primary portal-btn-apply-mandate"
-                  onClick={handleOpenApplyModal}
-                >
-                  Apply for this Mandate
-                </button>
-              )}
-            </div>
-          </motion.div>
-
-          {/* Right Sidebar: About Organisation */}
-          <div className="portal-details-sidebar">
-            
-            <div className="portal-glass-card portal-details-org-card">
-              <h3 className="portal-details-org-title">
-                <BankOutlined className="portal-company-meta-icon" /> About the Organisation
-              </h3>
+            {/* About Organisation */}
+            <div className="portal-mb-32">
+              <h2 className="portal-details-section-title">
+                About the Organisation
+              </h2>
 
               <div className="portal-details-org-header">
                 <div className="portal-details-org-logo">
-                  {job.employer?.name ? job.employer.name.substring(0, 2).toUpperCase() : 'CO'}
+                  {job.employer?.logoUrl ? <img src={getFileUrl(job.employer?.logoUrl)} alt="logo" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "inherit" }} /> : (job.employer?.name ? job.employer.name.substring(0, 2).toUpperCase() : "CO")}
                 </div>
                 <div>
-                  <div className="portal-details-org-name">
-                    {job.employer?.name}
-                  </div>
-                  <Tag color="purple" className="portal-details-org-tag">
-                    {job.employer?.type || 'VERIFIED ENTITY'}
-                  </Tag>
+                  <Link to={`/companies/${job.employer?.id}`} className="portal-block-link">
+                    <div className="portal-details-org-name">
+                      {job.employer?.name}
+                    </div>
+
+                    <Tag color="blue" className="portal-details-org-tag">
+                      {job.employer?.type || 'VERIFIED ENTITY'}
+                    </Tag>
+                  </Link>
+
+
+
                 </div>
               </div>
 
@@ -377,10 +382,10 @@ const JobDetails = () => {
                 {job.employer?.website && (
                   <div>
                     <GlobalOutlined className="portal-company-meta-icon" />
-                    <a 
-                      href={job.employer.website} 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
+                    <a
+                      href={job.employer.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="portal-company-meta-link"
                     >
                       {job.employer.website}
@@ -389,23 +394,40 @@ const JobDetails = () => {
                 )}
               </div>
 
-              <Link to={`/companies/${job.employer?.id}`} className="portal-block-link">
-                <Button block className="portal-details-org-btn">
-                  View Organisation Profile ↗
-                </Button>
-              </Link>
+
             </div>
 
-            {/* Quick Safety / IBC compliance note */}
-            <div className="portal-glass-card portal-details-safety-card">
-              <h4 className="portal-details-safety-title">
-                <SafetyCertificateOutlined className="portal-legal-icon-emerald" /> Verified Mandate
-              </h4>
-              <p className="portal-details-safety-desc">
-                This assignment is verified for IBC 2016 statutory guidelines. Recruiters directly receive candidate IBBI registration and credentials.
-              </p>
-            </div>
+          </motion.div>
 
+          {/* Right Sidebar: Recommended Jobs */}
+          <div className="portal-details-sidebar">
+            <div className="portal-glass-card portal-recommended-jobs-card">
+              <h3 className="portal-details-section-title portal-recommended-jobs-title">
+                Recommended Jobs for You
+              </h3>
+              <div className="portal-flex-col-gap-14">
+                {jobsList?.filter(j => j.id !== Number(id)).slice(0, 3).map((recommendedJob, index, array) => (
+                  <React.Fragment key={recommendedJob.id}>
+                    <div className="portal-recommended-job-item">
+                      <div className="portal-card-heading portal-recommended-job-heading">
+                        <Link to={`/jobs/${recommendedJob.id}`} className="portal-color-link">
+                          {recommendedJob.title}
+                        </Link>
+                      </div>
+                      <div className="portal-card-meta portal-flex-center-gap-8 portal-recommended-job-meta">
+                        <span>{recommendedJob.employer?.name || 'Insolvency Entity'}</span>
+                        <span>•</span>
+                        <span className="portal-color-cyan"><DollarOutlined /> {getSalaryRangeLabel(recommendedJob.salaryRange)}</span>
+                      </div>
+                    </div>
+                    {index < array.length - 1 && <Divider className="portal-recommended-job-divider" />}
+                  </React.Fragment>
+                ))}
+                {(!jobsList || jobsList.filter(j => j.id !== Number(id)).length === 0) && (
+                  <p className="portal-color-muted">No recommended jobs found.</p>
+                )}
+              </div>
+            </div>
           </div>
 
         </div>
@@ -421,10 +443,10 @@ const JobDetails = () => {
           <Button key="back" onClick={() => setApplyModalOpen(false)}>
             Cancel
           </Button>,
-          <Button 
-            key="submit" 
-            type="primary" 
-            loading={submittingApply} 
+          <Button
+            key="submit"
+            type="primary"
+            loading={submittingApply}
             onClick={handleConfirmApply}
             className="portal-btn-sky"
           >

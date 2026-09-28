@@ -11,7 +11,7 @@ import CandidateDashboard from './pages/CandidateDashboard';
 import EmployerDashboard from './pages/EmployerDashboard';
 import './styles/portal-ui.css';
 
-import JobSearch from './pages/public/JobSearch';
+
 import JobDetails from './pages/public/JobDetails';
 import CompanyProfile from './pages/public/CompanyProfile';
 import PrivacyPolicy from './pages/public/PrivacyPolicy';
@@ -42,7 +42,7 @@ import AdminManageReports from './pages/admin/ManageReports';
 function App() {
   const dispatch = useDispatch();
   const mode = useSelector(selectTheme);
-  const token = useSelector((state) => state.auth.token);
+  const { token, isAuthenticated, user } = useSelector((state) => state.auth);
   const isDark = mode === 'dark';
 
   useLayoutEffect(() => {
@@ -76,9 +76,15 @@ function App() {
           <main className="portal-main-area">
             <Routes>
               {/* Public Routes */}
-              <Route path="/" element={<Home />} />
+              <Route path="/" element={
+                isAuthenticated ? (
+                  <Navigate to={user?.role === 'ADMIN' ? '/admin' : user?.role === 'EMPLOYER' ? '/employer' : '/candidate'} replace />
+                ) : (
+                  <Home />
+                )
+              } />
               <Route path="/login" element={<Login />} />
-              <Route path="/jobs" element={<JobSearch />} />
+              <Route path="/jobs" element={<Navigate to="/candidate/jobs" replace />} />
               <Route path="/jobs/:id" element={<JobDetails />} />
               <Route path="/companies/:id" element={<CompanyProfile />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />

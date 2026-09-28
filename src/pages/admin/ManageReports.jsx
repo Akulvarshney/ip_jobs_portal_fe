@@ -235,7 +235,7 @@ const ManageReports = () => {
     <div className="portal-w-full">
       <AdminHeader 
           title="Platform Moderation & Reports" 
-          subtitle="Audit reported fake jobs, unverified organisations, spam mandates, or compliance violations."
+          subtitle="Audit reported fake jobs, unverified organisations, spam jobs, or compliance violations."
           actions={
             <div className="portal-flex-gap-10">
               <button 
@@ -396,7 +396,7 @@ const ManageReports = () => {
               size="large"
             >
               <Option value="ALL">All Report Types</Option>
-              <Option value="Fake job">Fake Mandate / Job</Option>
+              <Option value="Fake job">Fake Job / Job</Option>
               <Option value="Fake organisation">Fake Organisation</Option>
               <Option value="Spam">Spam / Unsolicited</Option>
               <Option value="Inappropriate content">Inappropriate Content</Option>
@@ -529,7 +529,7 @@ const ManageReports = () => {
               name="description" 
               rules={[{ required: true, message: 'Please describe the violation' }]}
             >
-              <TextArea rows={4} placeholder="Describe the suspected spam, fake CIRP mandate, or misconduct..." />
+              <TextArea rows={4} placeholder="Describe the suspected spam, fake CIRP job, or misconduct..." />
             </Form.Item>
 
             <Form.Item className="portal-form-item-submit">

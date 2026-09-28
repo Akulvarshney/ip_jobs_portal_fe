@@ -1,24 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Form, 
-  Input, 
-  Radio, 
-  Switch, 
-  Button, 
-  message, 
-  Divider, 
-  Row, 
-  Col, 
+import {
+  Form,
+  Input,
+  Radio,
+  Switch,
+  Button,
+  message,
+  Divider,
+  Row,
+  Col,
   Popconfirm,
   Tag,
   Spin
 } from 'antd';
-import { 
-  SettingOutlined, 
-  LockOutlined, 
-  EyeOutlined, 
-  BellOutlined, 
-  LogoutOutlined, 
+import {
+  SettingOutlined,
+  LockOutlined,
+  EyeOutlined,
+  BellOutlined,
+  LogoutOutlined,
   CheckCircleOutlined,
   SafetyCertificateOutlined,
   BgColorsOutlined,
@@ -110,7 +110,7 @@ const CandidateSettings = () => {
     setSavingNotificationKey(key);
 
     const labels = {
-      jobAlerts: 'New Mandate Alerts',
+      jobAlerts: 'New Job Alerts',
       applicationUpdates: 'Application Status Updates',
       interviewReminders: 'Interview Schedule Reminders',
       stayUpdated: 'Stay Updated & Insolvency Insights'
@@ -205,7 +205,7 @@ const CandidateSettings = () => {
         </div>
 
         {/* Account Overview */}
-        <div className="portal-settings-account-card">
+        <div className="portal-settings-account-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
           <div>
             <div className="portal-settings-account-badge">
               Active Account
@@ -217,21 +217,15 @@ const CandidateSettings = () => {
               {user?.email}
             </div>
           </div>
-
-          <div className="portal-settings-account-tags">
-            <Tag color="cyan" className="portal-settings-tag">
-              Role: {user?.role || 'CANDIDATE'}
-            </Tag>
-            {user?.authProvider === 'GOOGLE' ? (
-              <Tag color="blue" className="portal-settings-tag portal-settings-google-tag">
-                <span>Google Sign-In</span>
-              </Tag>
-            ) : (
-              <Tag color="purple" className="portal-settings-tag">
-                Email & Password
-              </Tag>
-            )}
-          </div>
+          {(!user?.role || user?.role === 'CANDIDATE') && (
+            <Button 
+              type="primary" 
+              onClick={() => navigate('/candidate/profile')} 
+              className="portal-btn-cyan"
+            >
+              Manage My Profile
+            </Button>
+          )}
         </div>
 
         {/* Appearance & Interface Theme */}
@@ -377,7 +371,7 @@ const CandidateSettings = () => {
                       )}
                     </div>
                     <div className="portal-visibility-desc">
-                      Visible to all verified banks, ARCs, and insolvency practice firms. Maximizes interview invitations and direct mandate outreach.
+                      Visible to all verified banks, ARCs, and insolvency practice firms. Maximizes interview invitations and direct job outreach.
                     </div>
                   </div>
                 </div>
@@ -421,7 +415,7 @@ const CandidateSettings = () => {
                       )}
                     </div>
                     <div className="portal-visibility-desc">
-                      Hidden from talent searches. Your profile and resumes are only accessible to mandates you explicitly submit an application for.
+                      Hidden from talent searches. Your profile and resumes are only accessible to jobs you explicitly submit an application for.
                     </div>
                   </div>
                 </div>
@@ -438,7 +432,7 @@ const CandidateSettings = () => {
                     <BellOutlined className="portal-settings-icon" /> Notification Preferences
                   </h3>
                   <p className="portal-settings-section-desc">
-                    Customize alerts for mandate postings and application status. Changes are recorded automatically.
+                    Customize alerts for job postings and application status. Changes are recorded automatically.
                   </p>
                 </div>
                 {savingNotificationKey && (
@@ -451,13 +445,13 @@ const CandidateSettings = () => {
               <div className="portal-notification-list">
                 <div className="portal-notification-row">
                   <div>
-                    <div className="portal-notification-title">New Mandate Alerts</div>
+                    <div className="portal-notification-title">New Job Alerts</div>
                     <div className="portal-notification-desc">Receive emails when new jobs matching your professional category are posted.</div>
                   </div>
-                  <Switch 
-                    checked={jobAlerts} 
+                  <Switch
+                    checked={jobAlerts}
                     loading={savingNotificationKey === 'jobAlerts'}
-                    onChange={(checked) => handleToggleNotification('jobAlerts', checked)} 
+                    onChange={(checked) => handleToggleNotification('jobAlerts', checked)}
                   />
                 </div>
 
@@ -466,10 +460,10 @@ const CandidateSettings = () => {
                     <div className="portal-notification-title">Application Status Updates</div>
                     <div className="portal-notification-desc">Get notified when a recruiter shortlists, selects, or reviews your application.</div>
                   </div>
-                  <Switch 
-                    checked={applicationUpdates} 
+                  <Switch
+                    checked={applicationUpdates}
                     loading={savingNotificationKey === 'applicationUpdates'}
-                    onChange={(checked) => handleToggleNotification('applicationUpdates', checked)} 
+                    onChange={(checked) => handleToggleNotification('applicationUpdates', checked)}
                   />
                 </div>
 
@@ -478,10 +472,10 @@ const CandidateSettings = () => {
                     <div className="portal-notification-title">Interview Schedule Reminders</div>
                     <div className="portal-notification-desc">Receive calendar notifications and reminders 1 hour before scheduled video calls.</div>
                   </div>
-                  <Switch 
-                    checked={interviewReminders} 
+                  <Switch
+                    checked={interviewReminders}
                     loading={savingNotificationKey === 'interviewReminders'}
-                    onChange={(checked) => handleToggleNotification('interviewReminders', checked)} 
+                    onChange={(checked) => handleToggleNotification('interviewReminders', checked)}
                   />
                 </div>
 
@@ -493,10 +487,10 @@ const CandidateSettings = () => {
                     </div>
                     <div className="portal-notification-desc">Receive curated weekly IBC restructuring alerts, NCLT jurisprudence digests, and executive job digests.</div>
                   </div>
-                  <Switch 
-                    checked={stayUpdated} 
+                  <Switch
+                    checked={stayUpdated}
                     loading={savingNotificationKey === 'stayUpdated'}
-                    onChange={(checked) => handleToggleNotification('stayUpdated', checked)} 
+                    onChange={(checked) => handleToggleNotification('stayUpdated', checked)}
                   />
                 </div>
               </div>

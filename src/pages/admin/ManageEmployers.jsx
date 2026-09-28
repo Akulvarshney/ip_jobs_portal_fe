@@ -136,7 +136,7 @@ const ManageEmployers = () => {
       key: 'jobs',
       render: (_, record) => (
         <Tag color="cyan" className="font-semibold portal-p-2-8">
-          {record._count?.jobs || 0} Mandates
+          {record._count?.jobs || 0} Jobs
         </Tag>
       ),
     },
@@ -422,7 +422,7 @@ const ManageEmployers = () => {
               <div className="portal-flex-col-gap-16">
                 <div>
                   <h4 className="portal-text-link-soft portal-text-13 uppercase portal-mb-6 font-semibold">
-                    Entity Overview & Mandate Scope
+                    Entity Overview & Job Scope
                   </h4>
                   <p className="portal-text-detail leading-relaxed m-0">
                     {selectedEmployer.description || 'No detailed description provided by entity.'}
@@ -470,7 +470,7 @@ const ManageEmployers = () => {
                 {selectedEmployer.jobs?.length > 0 && (
                   <div>
                     <h4 className="portal-text-link-soft portal-text-13 uppercase portal-mb-8 font-semibold">
-                      Active Mandates ({selectedEmployer.jobs.length})
+                      Active Jobs ({selectedEmployer.jobs.length})
                     </h4>
                     <div className="portal-flex-col-gap-6">
                       {selectedEmployer.jobs.map((j) => (

@@ -2832,7 +2832,7 @@ input[type="number"] {
 }
 
 /* ==========================================================================
-   Candidate Jobs & Mandates Search Classes
+   Candidate Jobs & Jobs Search Classes
    ========================================================================== */
 .portal-search-bar-card {
   padding: 16px 20px;
@@ -5399,13 +5399,13 @@ input[type="number"] {
   font-size: 22px !important;
 }
 
-.portal-mandate-cell-title {
+.portal-job-cell-title {
   font-weight: 600;
   color: var(--theme-heading);
   font-size: 15px;
 }
 
-.portal-mandate-cell-sub {
+.portal-job-cell-sub {
   font-size: 12px;
   color: var(--theme-muted);
   display: flex;
@@ -7067,10 +7067,15 @@ input[type="number"] {
 }
 
 .portal-details-status-tag {
-  padding: 8px 18px !important;
+  height: 40px !important;
+  padding: 0 18px !important;
   border-radius: 10px !important;
   font-size: 14px !important;
   font-weight: 600 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 !important;
 }
 
 .portal-details-sidebar {
@@ -7097,7 +7102,7 @@ input[type="number"] {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
 
 .portal-details-org-logo {
@@ -7116,7 +7121,7 @@ input[type="number"] {
 .portal-details-org-name {
   color: var(--theme-heading);
   font-weight: 600;
-  font-size: 15px;
+  font-size: 18px;
 }
 
 .portal-details-org-tag {
@@ -7134,11 +7139,12 @@ input[type="number"] {
 
 .portal-details-org-meta-list {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 12px;
   font-size: 13px;
   color: var(--theme-detail);
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .portal-details-org-btn {
@@ -7341,7 +7347,9 @@ input[type="number"] {
 }
 
 .portal-block-link {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   text-decoration: none;
 }
 
@@ -7374,14 +7382,23 @@ input[type="number"] {
 .portal-btn-share {
   border-radius: 10px !important;
   height: 40px !important;
+  width: 40px !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
   background: rgba(var(--theme-contrast-rgb), 0.05) !important;
   border-color: rgba(var(--theme-contrast-rgb), 0.12) !important;
   color: var(--theme-heading) !important;
 }
 
-.portal-btn-apply-mandate {
-  padding: 12px 32px !important;
+.portal-btn-apply-job {
+  height: 40px !important;
+  padding: 0 32px !important;
   font-size: 15px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
 .portal-w-full {
@@ -8183,4 +8200,53 @@ input[type="number"] {
 
 .portal-flex-shrink-0 {
   flex-shrink: 0;
+}
+@media (max-width: 768px) {
+  .portal-details-main-card {
+    padding: 20px !important;
+  }
+  .portal-details-header-flex {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .portal-details-actions-row {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+  .portal-details-actions-row .portal-btn-apply-job {
+    flex: 1;
+    text-align: center;
+  }
+  .portal-details-title {
+    font-size: 22px !important;
+  }
+  .portal-details-meta-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* Recommended Jobs Classes */
+.portal-recommended-jobs-card {
+  padding: 24px !important;
+}
+.portal-recommended-jobs-title {
+  font-size: 18px !important;
+  margin-bottom: 20px !important;
+  margin-top: 0 !important;
+}
+.portal-recommended-job-item {
+  padding: 4px 0;
+}
+.portal-recommended-job-heading {
+  font-size: 15px;
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+.portal-recommended-job-meta {
+  font-size: 12px;
+}
+.portal-recommended-job-divider {
+  margin: 8px 0 !important;
 }

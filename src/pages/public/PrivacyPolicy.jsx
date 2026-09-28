@@ -32,7 +32,7 @@ const PrivacyPolicy = () => {
           <ul className="portal-legal-list">
             <li><strong className="portal-legal-strong">Account Credentials:</strong> Name, verified email address, hashed passwords, and OAuth identifiers (Google OAuth UID).</li>
             <li><strong className="portal-legal-strong">Professional Profiles:</strong> IBBI Registration Numbers, ICAI/ICSI/ICMAI memberships, educational records, employment track record, and uploaded resume PDFs.</li>
-            <li><strong className="portal-legal-strong">Employer & Entity Information:</strong> Corporate identity, authorized recruiter credentials, company PAN/GSTIN, and job mandate descriptions.</li>
+            <li><strong className="portal-legal-strong">Employer & Entity Information:</strong> Corporate identity, authorized recruiter credentials, company PAN/GSTIN, and job job descriptions.</li>
             <li><strong className="portal-legal-strong">System & Analytics Data:</strong> IP address, device fingerprints, browser telemetry, access timestamps, and session security cookies.</li>
           </ul>
         </>
@@ -49,8 +49,8 @@ const PrivacyPolicy = () => {
           </Paragraph>
           <div className="portal-legal-grid-3">
             <div className="portal-legal-info-card">
-              <div className="portal-legal-info-title">Mandate Matching</div>
-              <div className="portal-legal-info-desc">Matching certified Insolvency Professionals (IPs) & Valuers with active CIRP and liquidation mandates.</div>
+              <div className="portal-legal-info-title">Job Matching</div>
+              <div className="portal-legal-info-desc">Matching certified Insolvency Professionals (IPs) & Valuers with active CIRP and liquidation jobs.</div>
             </div>
             <div className="portal-legal-info-card">
               <div className="portal-legal-info-title portal-legal-icon-emerald">Identity & Credential Verification</div>
@@ -75,7 +75,7 @@ const PrivacyPolicy = () => {
           </Paragraph>
           <ul className="portal-legal-list">
             <li><strong className="portal-legal-strong">Public Mode:</strong> Profile and resume are discoverable by verified hiring entities, IPEs, and banks.</li>
-            <li><strong className="portal-legal-strong">Confidential Mode:</strong> Your name and current employer remain masked until you explicitly consent to an employer's mandate invitation.</li>
+            <li><strong className="portal-legal-strong">Confidential Mode:</strong> Your name and current employer remain masked until you explicitly consent to an employer's job invitation.</li>
             <li><strong className="portal-legal-strong">Private Mode:</strong> Profile is completely hidden from recruiter searches and only visible when you submit an application directly.</li>
           </ul>
         </>
@@ -93,7 +93,7 @@ const PrivacyPolicy = () => {
           <ul className="portal-legal-list">
             <li><strong className="portal-legal-strong">Authorized Employers:</strong> When you apply for a job or accept an interview schedule.</li>
             <li><strong className="portal-legal-strong">Infrastructure Providers:</strong> Encrypted hosting and mail transport providers (e.g., PostgreSQL Cloud DB, Nodemailer SMTP, Google Cloud OAuth).</li>
-            <li><strong className="portal-legal-strong">Regulatory Authorities:</strong> Where legally mandated under the Insolvency and Bankruptcy Code (IBC) 2016 or judicial orders.</li>
+            <li><strong className="portal-legal-strong">Regulatory Authorities:</strong> Where legally jobd under the Insolvency and Bankruptcy Code (IBC) 2016 or judicial orders.</li>
           </ul>
         </>
       )

@@ -46,12 +46,7 @@ const Navbar = () => {
       label: 'Candidate Dashboard',
       onClick: () => navigate('/candidate'),
     },
-    {
-      key: 'profile',
-      icon: <UserOutlined className="portal-menu-icon" />,
-      label: 'My Profile',
-      onClick: () => navigate('/candidate/profile'),
-    },
+
     {
       key: 'applications',
       icon: <SendOutlined className="portal-menu-icon" />,
@@ -131,26 +126,24 @@ const Navbar = () => {
           <span>Res<span className="portal-logo-highlight">olve</span></span>
         </Link>
 
-        <nav className="portal-nav-links">
-          <Link to="/" className={`portal-nav-link ${location.pathname === '/' ? 'active' : ''}`}>
-            Home
-          </Link>
-          <Link
-            to={getUserDashboardPath()}
-            className={`portal-nav-link ${location.pathname.startsWith('/candidate') || location.pathname.startsWith('/employer') || location.pathname.startsWith('/admin') ? 'active' : ''}`}
-          >
-            {getDashboardLinkLabel()}
-          </Link>
-          <Link to="/jobs" className={`portal-nav-link ${location.pathname.startsWith('/jobs') ? 'active' : ''}`}>
-            Mandates Directory
-          </Link>
-        </nav>
+        {/* <nav className="portal-nav-links">
+
+          {isAuthenticated && (
+            <Link
+              to={getUserDashboardPath()}
+              className={`portal-nav-link ${location.pathname.startsWith('/candidate') || location.pathname.startsWith('/employer') || location.pathname.startsWith('/admin') ? 'active' : ''}`}
+            >
+              {getDashboardLinkLabel()}
+            </Link>
+          )}
+
+        </nav> */}
 
         <div className="portal-nav-actions">
           {isAuthenticated ? (
             <div className="portal-nav-user-wrap">
               <Tag className="portal-nav-role-tag">
-                {user?.role === 'ADMIN' ? 'Platform Admin' : (user?.role === 'EMPLOYER' ? 'Employer' : 'Professional')}
+                {user?.role === 'ADMIN' ? 'Platform Admin' : (user?.role === 'EMPLOYER' ? 'Employer' : 'Candidate')}
               </Tag>
 
               <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" arrow>

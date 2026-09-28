@@ -379,6 +379,12 @@ const Login = () => {
   };
 
   const redirectUser = (userRole) => {
+    const redirectUrl = searchParams.get('redirect');
+    if (redirectUrl) {
+      navigate(redirectUrl);
+      return;
+    }
+    
     if (userRole === 'ADMIN') {
       navigate('/admin');
     } else if (userRole === 'EMPLOYER') {
@@ -424,10 +430,7 @@ const Login = () => {
         
         {/* Top Logo / Brand */}
         <div className="portal-auth-brand-header">
-          <div className="portal-auth-badge">
-            <RocketOutlined className="portal-text-link portal-text-18" />
-            <span className="portal-auth-badge-text">RESOLVE PLATFORM AUTH</span>
-          </div>
+
           <Title level={2} className="portal-auth-title">
             {googleOnboardingUser 
               ? 'Complete Your Profile'

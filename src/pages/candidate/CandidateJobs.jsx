@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getFileUrl } from "../../utils/fileUrl";
 import {
   Input,
   Select,
@@ -32,13 +33,24 @@ import {
   CompassOutlined,
   AuditOutlined,
   BankOutlined,
-  TagOutlined
+  TagOutlined,
+  ClockCircleOutlined,
+  UserOutlined
 } from '@ant-design/icons';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchAllJobs } from '../../store/jobsSlice';
 import { fetchSavedJobs, fetchCandidateApplications, toggleSaveJob, applyToJob } from '../../store/candidateSlice';
+import { saveFilters } from '../../store/authSlice';
+import {
+  JOB_TYPES,
+  SALARY_RANGES,
+  EXPERIENCE_LEVELS,
+  getJobTypeLabel,
+  getSalaryRangeLabel,
+  getExperienceLevelLabel
+} from '../../utils/jobEnums';
 
 const { Option } = Select;
 
@@ -58,6 +70,8 @@ const professionalCategories = [
 const CandidateJobs = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
 
   const { jobsList, loading: jobsLoading } = useSelector((state) => state.jobs);
   const { savedJobs, applications } = useSelector((state) => state.candidate);
@@ -66,13 +80,64 @@ const CandidateJobs = () => {
   const [savedJobsMap, setSavedJobsMap] = useState({});
   const [appliedJobsMap, setAppliedJobsMap] = useState({});
 
+  // Helper to read initial state from URL params first, then DB, then localStorage
+  const getInitialFilter = (key, queryParam) => {
+    if (queryParam) {
+      const fromUrl = searchParams.get(queryParam);
+      if (fromUrl) return fromUrl;
+    }
+    const dbStored = user?.savedFilters;
+    if (dbStored && dbStored[key] !== undefined) {
+      return dbStored[key];
+    }
+    const stored = JSON.parse(localStorage.getItem('portal_job_filters') || '{}');
+    return stored[key] || undefined;
+  };
+
   // Filter states
-  const [searchKeyword, setSearchKeyword] = useState('');
-  const [selectedLocation, setSelectedLocation] = useState(undefined);
-  const [selectedCategory, setSelectedCategory] = useState(undefined);
-  const [selectedOrgType, setSelectedOrgType] = useState(undefined);
+  const [searchKeyword, setSearchKeyword] = useState(() => getInitialFilter('searchKeyword', 'keyword') || searchParams.get('q') || '');
+  const [selectedLocation, setSelectedLocation] = useState(() => getInitialFilter('selectedLocation', 'location'));
+  const [selectedCategory, setSelectedCategory] = useState(() => getInitialFilter('selectedCategory', 'category'));
+  const [selectedOrgType, setSelectedOrgType] = useState(() => getInitialFilter('selectedOrgType', 'orgType'));
+  const [selectedJobType, setSelectedJobType] = useState(() => getInitialFilter('selectedJobType', 'jobType'));
+  const [selectedSalaryRange, setSelectedSalaryRange] = useState(() => getInitialFilter('selectedSalaryRange', 'salaryRange'));
+  const [selectedExpLevel, setSelectedExpLevel] = useState(() => getInitialFilter('selectedExpLevel', 'experienceLevel'));
   const [statusFilter, setStatusFilter] = useState('ALL'); // 'ALL' | 'UNAPPLIED' | 'APPLIED' | 'SAVED'
   const [drawerOpen, setDrawerOpen] = useState(false);
+
+  // Sync state if user's saved filters arrive after initial mount
+  useEffect(() => {
+    if (user?.savedFilters) {
+      if (user.savedFilters.searchKeyword !== undefined) setSearchKeyword(user.savedFilters.searchKeyword);
+      if (user.savedFilters.selectedLocation !== undefined) setSelectedLocation(user.savedFilters.selectedLocation);
+      if (user.savedFilters.selectedJobType !== undefined) setSelectedJobType(user.savedFilters.selectedJobType);
+      if (user.savedFilters.selectedSalaryRange !== undefined) setSelectedSalaryRange(user.savedFilters.selectedSalaryRange);
+      if (user.savedFilters.selectedExpLevel !== undefined) setSelectedExpLevel(user.savedFilters.selectedExpLevel);
+      if (user.savedFilters.selectedCategory !== undefined) setSelectedCategory(user.savedFilters.selectedCategory);
+      if (user.savedFilters.selectedOrgType !== undefined) setSelectedOrgType(user.savedFilters.selectedOrgType);
+    }
+  }, [user?.savedFilters]);
+
+  // Persist filters to localStorage and Database whenever they change
+  useEffect(() => {
+    const filters = {
+      searchKeyword,
+      selectedLocation,
+      selectedJobType,
+      selectedSalaryRange,
+      selectedExpLevel,
+      selectedCategory,
+      selectedOrgType
+    };
+    localStorage.setItem('portal_job_filters', JSON.stringify(filters));
+
+    const currentDbFilters = user?.savedFilters || {};
+    const hasChanged = Object.keys(filters).some(key => filters[key] !== currentDbFilters[key]);
+
+    if (isAuthenticated && hasChanged) {
+      dispatch(saveFilters(filters));
+    }
+  }, [searchKeyword, selectedLocation, selectedJobType, selectedSalaryRange, selectedExpLevel, selectedCategory, selectedOrgType, isAuthenticated, dispatch, user?.savedFilters]);
 
   // Apply Modal state
   const [applyModalOpen, setApplyModalOpen] = useState(false);
@@ -151,6 +216,9 @@ const CandidateJobs = () => {
     setSelectedLocation(undefined);
     setSelectedCategory(undefined);
     setSelectedOrgType(undefined);
+    setSelectedJobType(undefined);
+    setSelectedSalaryRange(undefined);
+    setSelectedExpLevel(undefined);
     setStatusFilter('ALL');
   };
 
@@ -158,6 +226,9 @@ const CandidateJobs = () => {
     selectedLocation,
     selectedCategory,
     selectedOrgType,
+    selectedJobType,
+    selectedSalaryRange,
+    selectedExpLevel,
     statusFilter !== 'ALL' ? statusFilter : null
   ].filter(Boolean).length;
 
@@ -187,7 +258,11 @@ const CandidateJobs = () => {
       const matchesOrgType = !selectedOrgType ||
         job.employer?.type === selectedOrgType;
 
-      return matchesKeyword && matchesLocation && matchesCategory && matchesOrgType;
+      const matchesJobType = !selectedJobType || job.jobType === selectedJobType;
+      const matchesSalary = !selectedSalaryRange || job.salaryRange === selectedSalaryRange;
+      const matchesExp = !selectedExpLevel || job.experienceLevel === selectedExpLevel;
+
+      return matchesKeyword && matchesLocation && matchesCategory && matchesOrgType && matchesJobType && matchesSalary && matchesExp;
     })
     .sort((a, b) => {
       const aApplied = Boolean(appliedJobsMap[a.id]);
@@ -207,7 +282,7 @@ const CandidateJobs = () => {
       {/* Page Header */}
       <div className="portal-page-header">
         <h1 className="portal-page-title">
-          Insolvency & Restructuring Mandates
+          Insolvency & Restructuring Jobs
         </h1>
         <p className="portal-page-subtitle">
           Browse open opportunities posted by verified Insolvency Professional Entities (IPEs), Banks, ARCs, and Consulting Firms.
@@ -246,19 +321,11 @@ const CandidateJobs = () => {
             )}
           </button>
 
-          {(activeFiltersCount > 0 || searchKeyword) && (
-            <Tooltip title="Reset all filters">
-              <Button
-                icon={<ClearOutlined />}
-                onClick={handleResetFilters}
-                className="portal-reset-filter-btn"
-              />
-            </Tooltip>
-          )}
+
         </div>
 
         {/* Active Filter Chips */}
-        {(activeFiltersCount > 0 || selectedLocation || selectedCategory || selectedOrgType || statusFilter !== 'ALL') && (
+        {activeFiltersCount > 0 && (
           <div className="portal-active-filters-bar">
             <span className="portal-active-filters-label">Active Filters:</span>
 
@@ -266,6 +333,27 @@ const CandidateJobs = () => {
               <span className="portal-filter-tag">
                 <TagOutlined /> Status: {statusFilter}
                 <CloseOutlined onClick={() => setStatusFilter('ALL')} />
+              </span>
+            )}
+
+            {selectedJobType && (
+              <span className="portal-filter-tag">
+                <ClockCircleOutlined /> {getJobTypeLabel(selectedJobType)}
+                <CloseOutlined onClick={() => setSelectedJobType(undefined)} />
+              </span>
+            )}
+
+            {selectedExpLevel && (
+              <span className="portal-filter-tag">
+                <UserOutlined /> {getExperienceLevelLabel(selectedExpLevel)}
+                <CloseOutlined onClick={() => setSelectedExpLevel(undefined)} />
+              </span>
+            )}
+
+            {selectedSalaryRange && (
+              <span className="portal-filter-tag">
+                <DollarOutlined /> {getSalaryRangeLabel(selectedSalaryRange)}
+                <CloseOutlined onClick={() => setSelectedSalaryRange(undefined)} />
               </span>
             )}
 
@@ -296,7 +384,7 @@ const CandidateJobs = () => {
       {/* Results Counter & Quick Status Tabs */}
       <div className="portal-jobs-results-header">
         <div>
-          Showing <strong>{filteredJobs.length}</strong> {statusFilter === 'UNAPPLIED' ? 'unapplied' : (statusFilter === 'APPLIED' ? 'applied' : (statusFilter === 'SAVED' ? 'saved' : 'active'))} mandates
+          Showing <strong>{filteredJobs.length}</strong> {statusFilter === 'UNAPPLIED' ? 'unapplied' : (statusFilter === 'APPLIED' ? 'applied' : (statusFilter === 'SAVED' ? 'saved' : 'active'))} jobs
         </div>
 
         <div className="portal-quick-tabs-wrap">
@@ -304,7 +392,7 @@ const CandidateJobs = () => {
             onClick={() => setStatusFilter('ALL')}
             className={`portal-quick-tab-btn ${statusFilter === 'ALL' ? 'active' : ''}`}
           >
-            All Mandates ({jobs.length})
+            All Jobs ({jobs.length})
           </button>
           <button
             onClick={() => setStatusFilter('UNAPPLIED')}
@@ -368,10 +456,10 @@ const CandidateJobs = () => {
             className="portal-drawer-select"
             size="large"
           >
-            <Option value="ALL">All Active Mandates ({jobs.length})</Option>
-            <Option value="UNAPPLIED">Unapplied Mandates Only</Option>
+            <Option value="ALL">All Active Jobs ({jobs.length})</Option>
+            <Option value="UNAPPLIED">Unapplied Jobs Only</Option>
             <Option value="SAVED">Saved / Bookmarked Only</Option>
-            <Option value="APPLIED">Applied Mandates Only</Option>
+            <Option value="APPLIED">Applied Jobs Only</Option>
           </Select>
         </div>
 
@@ -442,6 +530,66 @@ const CandidateJobs = () => {
             <Option value="CORPORATE">Corporate</Option>
           </Select>
         </div>
+
+        <Divider className="portal-drawer-divider" />
+
+        <div className="portal-filter-section">
+          <div className="portal-filter-section-title">
+            <ClockCircleOutlined /> Job Type
+          </div>
+          <Select
+            placeholder="All Job Types"
+            allowClear
+            value={selectedJobType}
+            onChange={setSelectedJobType}
+            className="portal-drawer-select"
+            size="large"
+          >
+            {JOB_TYPES.map(jt => (
+              <Option key={jt.value} value={jt.value}>{jt.label}</Option>
+            ))}
+          </Select>
+        </div>
+
+        <Divider className="portal-drawer-divider" />
+
+        <div className="portal-filter-section">
+          <div className="portal-filter-section-title">
+            <UserOutlined /> Experience Level
+          </div>
+          <Select
+            placeholder="All Experience Levels"
+            allowClear
+            value={selectedExpLevel}
+            onChange={setSelectedExpLevel}
+            className="portal-drawer-select"
+            size="large"
+          >
+            {EXPERIENCE_LEVELS.map(el => (
+              <Option key={el.value} value={el.value}>{el.label}</Option>
+            ))}
+          </Select>
+        </div>
+
+        <Divider className="portal-drawer-divider" />
+
+        <div className="portal-filter-section">
+          <div className="portal-filter-section-title">
+            <DollarOutlined /> Salary Range
+          </div>
+          <Select
+            placeholder="All Salary Ranges"
+            allowClear
+            value={selectedSalaryRange}
+            onChange={setSelectedSalaryRange}
+            className="portal-drawer-select"
+            size="large"
+          >
+            {SALARY_RANGES.map(sr => (
+              <Option key={sr.value} value={sr.value}>{sr.label}</Option>
+            ))}
+          </Select>
+        </div>
       </Drawer>
 
       {/* Jobs Grid */}
@@ -465,7 +613,7 @@ const CandidateJobs = () => {
                   <div className="portal-saved-card-header">
                     <div className="portal-saved-company-group">
                       <div className="portal-job-avatar">
-                        {job.employer?.name ? job.employer.name.substring(0, 2).toUpperCase() : 'CO'}
+                        {job.employer?.logoUrl ? <img src={getFileUrl(job.employer?.logoUrl)} alt="logo" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "inherit" }} /> : (job.employer?.name ? job.employer.name.substring(0, 2).toUpperCase() : "CO")}
                       </div>
                       <div>
                         <div className="portal-job-org-type">
@@ -502,7 +650,7 @@ const CandidateJobs = () => {
 
                 <div className="portal-saved-card-footer">
                   <Link to={`/jobs/${job.id}`} className="portal-saved-view-link">
-                    View Mandate ↗
+                    View Job ↗
                   </Link>
 
                   {applicationStatus ? (
@@ -531,7 +679,7 @@ const CandidateJobs = () => {
       {filteredJobs.length === 0 && !loading && (
         <div className="portal-glass-card portal-empty-state-card">
           <SearchOutlined className="portal-empty-state-icon" />
-          <h3 className="portal-empty-state-title">No matching mandates found</h3>
+          <h3 className="portal-empty-state-title">No matching jobs found</h3>
           <p className="portal-empty-state-desc">Try adjusting your filters or keyword query.</p>
           <Button type="primary" onClick={handleResetFilters} className="portal-empty-state-btn">
             Clear All Filters
@@ -541,7 +689,7 @@ const CandidateJobs = () => {
 
       {/* Apply Modal */}
       <Modal
-        title={`Apply for ${selectedJobForApply?.title || 'Mandate'}`}
+        title={`Apply for ${selectedJobForApply?.title || 'Job'}`}
         open={applyModalOpen}
         onCancel={() => setApplyModalOpen(false)}
         footer={[

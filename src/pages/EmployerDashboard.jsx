@@ -121,7 +121,7 @@ const EmployerDashboard = () => {
       title: 'Action', 
       key: 'action', 
       render: (_, record) => (
-        <Tooltip title="View Mandate & Applicants">
+        <Tooltip title="View Job & Applicants">
           <Button 
             className="portal-btn-primary portal-btn-compact-apply" 
             icon={<ArrowRightOutlined />}
@@ -142,12 +142,12 @@ const EmployerDashboard = () => {
         >
           <div>
             <h1 className="portal-section-title portal-text-36">Entity Dashboard</h1>
-            <p className="portal-section-subtitle">Manage mandates, review IBBI verified candidates, and send direct interview invitations.</p>
+            <p className="portal-section-subtitle">Manage jobs, review IBBI verified candidates, and send direct interview invitations.</p>
           </div>
 
           <button className="portal-btn-primary" onClick={() => setIsModalVisible(true)}>
             <PlusOutlined />
-            <span>List New Mandate</span>
+            <span>List New Job</span>
           </button>
         </motion.div>
 
@@ -168,7 +168,7 @@ const EmployerDashboard = () => {
 
         {/* Post Job Modal */}
         <Modal 
-          title={<span className="portal-modal-title">List a New Mandate/Role</span>} 
+          title={<span className="portal-modal-title">List a New Job/Role</span>} 
           open={isModalVisible} 
           onCancel={() => {
             setIsModalVisible(false);
@@ -219,7 +219,7 @@ const EmployerDashboard = () => {
               </Form.Item>
             </div>
 
-            <Form.Item label="Mandate Description" name="description" rules={[{ required: true, message: 'Please enter description' }]}>
+            <Form.Item label="Job Description" name="description" rules={[{ required: true, message: 'Please enter description' }]}>
               <TextArea rows={4} placeholder="Describe the CIRP/Liquidation scope, ticket size, and expectations..." />
             </Form.Item>
             <Form.Item label="Eligibility & Compliance Requirements" name="requirements" rules={[{ required: true, message: 'Please enter requirements' }]}>

@@ -181,6 +181,7 @@ const OrganisationProfile = () => {
                 layout="vertical"
                 onFinish={handleSave}
               >
+                <Form.Item name="logoUrl" hidden><Input /></Form.Item>
                 <div className="portal-flex-center-gap-20 portal-mb-24 flex-wrap">
                   <Avatar
                     size={72}
@@ -302,7 +303,7 @@ const OrganisationProfile = () => {
                 <div className="portal-live-preview-box">
                   <div className="portal-flex-center-gap-16 portal-mb-16">
                     <div className="portal-live-avatar">
-                      {currentValues.name ? currentValues.name.substring(0, 2).toUpperCase() : 'CO'}
+                      {currentValues.logoUrl ? <img src={getFileUrl(currentValues.logoUrl)} alt="logo" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "inherit" }} /> : (currentValues.name ? currentValues.name.substring(0, 2).toUpperCase() : "CO")}
                     </div>
                     <div>
                       <div className="portal-text-18 font-bold portal-text-heading">
@@ -339,7 +340,7 @@ const OrganisationProfile = () => {
                     <div className="portal-text-20 font-bold portal-text-heading">
                       {orgData?._count?.jobs || 0}
                     </div>
-                    <div className="portal-text-muted-xs">Active Mandates</div>
+                    <div className="portal-text-muted-xs">Active Jobs</div>
                   </div>
                   <div className="portal-live-stat-box">
                     <div className="portal-text-20 font-bold portal-text-success">

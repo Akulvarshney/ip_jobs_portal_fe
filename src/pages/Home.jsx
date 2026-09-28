@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getFileUrl } from '../utils/fileUrl';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchAllJobs } from '../store/jobsSlice';
@@ -125,9 +126,9 @@ const Home = () => {
     if (e) e.preventDefault();
     const query = searchTerm.trim();
     if (query) {
-      navigate(`/jobs?keyword=${encodeURIComponent(query)}`);
+      navigate(`/candidate/jobs?keyword=${encodeURIComponent(query)}`);
     } else {
-      navigate('/jobs');
+      navigate('/candidate/jobs');
     }
   };
 
@@ -239,7 +240,7 @@ const Home = () => {
                 : 'Handpicked insolvency, legal, and financial positions available right now'}
             </p>
           </div>
-          <button className="portal-btn-secondary" onClick={() => navigate('/jobs')}>
+          <button className="portal-btn-secondary" onClick={() => navigate('/candidate/jobs')}>
             View All Open Roles
           </button>
         </div>
@@ -268,7 +269,7 @@ const Home = () => {
                 <div>
                   <div className="portal-job-header">
                     <div className="portal-company-avatar">
-                      {job.employer?.name ? job.employer.name.substring(0, 2).toUpperCase() : 'IP'}
+                      {job.employer?.logoUrl ? <img src={getFileUrl(job.employer?.logoUrl)} alt="logo" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "inherit" }} /> : (job.employer?.name ? job.employer.name.substring(0, 2).toUpperCase() : "IP")}
                     </div>
                     <span className="portal-job-badge">Verified Listing</span>
                   </div>
@@ -295,7 +296,7 @@ const Home = () => {
                 </div>
 
                 <div className="portal-job-footer">
-                  <div className="portal-job-salary">{job.salary || 'Competitive Mandate'}</div>
+                  <div className="portal-job-salary">{job.salary || 'Competitive Job'}</div>
                   <button
                     className="portal-btn-primary portal-btn-sm-13"
                     onClick={(e) => {

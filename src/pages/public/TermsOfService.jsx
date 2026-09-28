@@ -26,7 +26,7 @@ const TermsOfService = () => {
       title: "1. Acceptance of Terms",
       content: (
         <Paragraph className="portal-legal-paragraph">
-          By creating an account, browsing listings, submitting applications, or publishing mandates on <strong className="portal-legal-strong">Resolve Portal</strong>, you agree to be bound by these Terms of Service. If you are accepting on behalf of an Insolvency Professional Entity (IPE), Asset Reconstruction Company (ARC), Financial Institution, or Law Firm, you represent that you possess the requisite legal authority to bind said entity.
+          By creating an account, browsing listings, submitting applications, or publishing jobs on <strong className="portal-legal-strong">Resolve Portal</strong>, you agree to be bound by these Terms of Service. If you are accepting on behalf of an Insolvency Professional Entity (IPE), Asset Reconstruction Company (ARC), Financial Institution, or Law Firm, you represent that you possess the requisite legal authority to bind said entity.
         </Paragraph>
       )
     },
@@ -54,13 +54,13 @@ const TermsOfService = () => {
       content: (
         <>
           <Paragraph className="portal-legal-paragraph">
-            Employers publishing job mandates or assigning CIRP / liquidation advisory roles must adhere to the following standards:
+            Employers publishing job jobs or assigning CIRP / liquidation advisory roles must adhere to the following standards:
           </Paragraph>
           <ul className="portal-legal-list">
-            <li>Post only bona fide, active career opportunities or mandate assignments.</li>
+            <li>Post only bona fide, active career opportunities or job assignments.</li>
             <li>Do not request unlawful candidate fees, security deposits, or non-refundable application charges.</li>
             <li>Maintain confidentiality regarding candidate resumes, non-public valuations, and corporate claims.</li>
-            <li>Comply with equal opportunity standards and non-discrimination mandates.</li>
+            <li>Comply with equal opportunity standards and non-discrimination jobs.</li>
           </ul>
         </>
       )
@@ -79,7 +79,7 @@ const TermsOfService = () => {
               <ExclamationCircleOutlined /> Prohibition on Misrepresentation
             </div>
             <div className="portal-legal-warning-desc">
-              Falsifying IBBI registration numbers, Section 29A eligibility declarations, or experience mandates will result in immediate permanent suspension and referral to regulatory authorities.
+              Falsifying IBBI registration numbers, Section 29A eligibility declarations, or experience jobs will result in immediate permanent suspension and referral to regulatory authorities.
             </div>
           </div>
         </>

@@ -12,7 +12,22 @@ export const saveTheme = createAsyncThunk('auth/saveTheme', async (theme, { reje
   condition: (theme, { getState }) => {
     const { isAuthenticated, themeSaving, loading } = getState().auth;
     return isAuthenticated && !themeSaving && !loading && ['light', 'dark'].includes(theme);
-  },
+  }
+});
+
+export const saveFilters = createAsyncThunk('auth/saveFilters', async (savedFilters, { rejectWithValue, getState }) => {
+  try {
+    const { isAuthenticated } = getState().auth;
+    if (isAuthenticated) {
+      const response = await api.patch('/api/auth/filters', { savedFilters });
+      return response.data.savedFilters;
+    } else {
+      // If not authenticated, just update localStorage via extraReducers (or handled locally)
+      return savedFilters;
+    }
+  } catch (err) {
+    return rejectWithValue(err.response?.data?.error || 'Could not save filters.');
+  }
 });
 
 // Async thunk to fetch fresh user profile info
@@ -110,6 +125,12 @@ export const authSlice = createSlice({
         if (state.themeRequestId !== action.meta.requestId) return;
         state.themeSaving = false;
         state.themeRequestId = null;
+      })
+      .addCase(saveFilters.fulfilled, (state, action) => {
+        if (state.user) {
+          state.user.savedFilters = action.payload;
+          localStorage.setItem('user', JSON.stringify(state.user));
+        }
       });
   },
 });

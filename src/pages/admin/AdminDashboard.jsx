@@ -55,7 +55,7 @@ const AdminDashboard = () => {
       link: '/admin/employers',
     },
     {
-      title: 'Active Job Mandates',
+      title: 'Active Job Jobs',
       count: stats?.activeJobs ?? 0,
       icon: <FileTextOutlined className="portal-stat-icon-cyan" />,
       subtitle: `${(stats?.pausedJobs ?? 0) + (stats?.closedJobs ?? 0)} paused/closed`,
@@ -81,7 +81,7 @@ const AdminDashboard = () => {
     <div className="portal-w-full">
       <AdminHeader 
           title="Platform Governance & Analytics" 
-          subtitle="System overview of registered insolvency professionals, corporate employers, active mandates, and safety moderation."
+          subtitle="System overview of registered insolvency professionals, corporate employers, active jobs, and safety moderation."
           actions={
             <Button 
               icon={<ReloadOutlined />} 
@@ -175,12 +175,12 @@ const AdminDashboard = () => {
             )}
           </div>
 
-          {/* Latest Job Mandates */}
+          {/* Latest Job Jobs */}
           <div className="portal-glass-card portal-p-24">
             <div className="portal-flex-between-center portal-mb-20">
               <div>
                 <h3 className="portal-text-18 font-bold portal-text-heading m-0">
-                  Latest Mandates & Jobs
+                  Latest Jobs & Jobs
                 </h3>
                 <span className="portal-text-13 portal-text-muted">CIRP, Liquidation, and Restructuring listings</span>
               </div>
@@ -229,7 +229,7 @@ const AdminDashboard = () => {
               <h3 className="portal-text-18 font-bold portal-text-heading m-0 portal-inline-flex-center-gap-8">
                 <WarningOutlined className="portal-text-warning" /> Active Safety & Moderation Feed
               </h3>
-              <span className="portal-text-13 portal-text-muted">User reports regarding spam, duplicate mandates, and platform integrity</span>
+              <span className="portal-text-13 portal-text-muted">User reports regarding spam, duplicate jobs, and platform integrity</span>
             </div>
             <Button 
               type="link" 

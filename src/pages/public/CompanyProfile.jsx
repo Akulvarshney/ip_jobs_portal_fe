@@ -62,7 +62,7 @@ const CompanyProfile = () => {
       return navigate('/login?mode=signup');
     }
     if (user?.role !== 'CANDIDATE') {
-      message.warning('Only candidate accounts can apply to mandates');
+      message.warning('Only candidate accounts can apply to jobs');
       return;
     }
     setSelectedJobForApply(job);
@@ -102,8 +102,8 @@ const CompanyProfile = () => {
         <div className="portal-not-found-box">
           <h2 className="portal-not-found-title">Organisation Not Found</h2>
           <p className="portal-not-found-desc">The company profile you are searching for does not exist.</p>
-          <Link to="/jobs">
-            <Button type="primary">Explore Mandates Directory</Button>
+          <Link to="/candidate/jobs">
+            <Button type="primary">Explore Jobs Directory</Button>
           </Link>
         </div>
       </div>
@@ -124,7 +124,7 @@ const CompanyProfile = () => {
           <Breadcrumb
             items={[
               { title: <Link to="/" className="portal-color-muted">Home</Link> },
-              { title: <Link to="/jobs" className="portal-color-muted">Organisations</Link> },
+              { title: <Link to="/candidate/jobs" className="portal-color-muted">Organisations</Link> },
               { title: <span className="portal-color-link">{company.name}</span> }
             ]}
           />
@@ -139,7 +139,7 @@ const CompanyProfile = () => {
           <div className="portal-company-header-flex">
             <div className="portal-company-info-group">
               <div className="portal-company-avatar-box">
-                {company.name ? company.name.substring(0, 2).toUpperCase() : 'CO'}
+                {company.logoUrl ? <img src={getFileUrl(company.logoUrl)} alt="logo" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "inherit" }} /> : (company.name ? company.name.substring(0, 2).toUpperCase() : "CO")}
               </div>
 
               <div>
@@ -183,7 +183,7 @@ const CompanyProfile = () => {
                 {company.jobs?.length || 0}
               </div>
               <div className="portal-company-stat-label">
-                Active Mandates
+                Active Jobs
               </div>
             </div>
           </div>
@@ -205,7 +205,7 @@ const CompanyProfile = () => {
           <div className="portal-company-jobs-header">
             <div>
               <h2 className="portal-company-jobs-title">
-                Open Mandates & Opportunities ({company.jobs?.length || 0})
+                Open Jobs & Opportunities ({company.jobs?.length || 0})
               </h2>
               <p className="portal-company-jobs-subtitle">
                 Direct job openings posted by {company.name}
@@ -263,7 +263,7 @@ const CompanyProfile = () => {
 
                 <div className="portal-company-job-footer">
                   <Link to={`/jobs/${job.id}`} className="portal-company-view-link">
-                    View Mandate ↗
+                    View Job ↗
                   </Link>
 
                   <button
@@ -280,7 +280,7 @@ const CompanyProfile = () => {
           {(!company.jobs || company.jobs.length === 0) && (
             <div className="portal-glass-card portal-company-empty-box">
               <RocketOutlined className="portal-company-empty-icon" />
-              <h3 className="portal-company-empty-title">No active mandates right now</h3>
+              <h3 className="portal-company-empty-title">No active jobs right now</h3>
               <p className="portal-company-empty-desc">Check back later for new openings posted by this organisation.</p>
             </div>
           )}
@@ -290,7 +290,7 @@ const CompanyProfile = () => {
 
       {/* Apply Modal */}
       <Modal
-        title={`Apply for ${selectedJobForApply?.title || 'Mandate'}`}
+        title={`Apply for ${selectedJobForApply?.title || 'Job'}`}
         open={applyModalOpen}
         onCancel={() => setApplyModalOpen(false)}
         footer={[

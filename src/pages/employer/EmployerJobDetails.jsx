@@ -48,7 +48,7 @@ const EmployerJobDetails = () => {
       setJob(res);
     } catch (error) {
       console.error('Error fetching job details:', error);
-      message.error('Failed to load mandate details');
+      message.error('Failed to load job details');
     } finally {
       setLoading(false);
     }
@@ -95,7 +95,7 @@ const EmployerJobDetails = () => {
   const handleToggleJobStatus = async (newStatus) => {
     try {
       await dispatch(updateAdminJobStatus({ id: job.id, status: newStatus })).unwrap();
-      message.success(`Mandate status updated to ${newStatus}`);
+      message.success(`Job status updated to ${newStatus}`);
       fetchJobDetails();
     } catch (error) {
       console.error('Error updating job status:', error);
@@ -241,7 +241,7 @@ const EmployerJobDetails = () => {
   if (loading && !job) {
     return (
       <div className="portal-loading-container">
-        <p className="portal-loading-text">Loading mandate details & candidates...</p>
+        <p className="portal-loading-text">Loading job details & candidates...</p>
       </div>
     );
   }
@@ -263,7 +263,7 @@ const EmployerJobDetails = () => {
           </button>
         </div>
 
-        {/* Top Section: Mandate Overview Card */}
+        {/* Top Section: Job Overview Card */}
         <motion.div 
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
@@ -301,7 +301,7 @@ const EmployerJobDetails = () => {
               </div>
             </div>
 
-            {/* Quick Mandate Controls */}
+            {/* Quick Job Controls */}
             <div className="portal-flex-gap-10">
               {job?.status === 'ACTIVE' ? (
                 <Button 
@@ -309,7 +309,7 @@ const EmployerJobDetails = () => {
                   onClick={() => handleToggleJobStatus('PAUSED')}
                   className="portal-btn-warning-soft"
                 >
-                  Pause Mandate
+                  Pause Job
                 </Button>
               ) : (
                 <Button 
@@ -318,7 +318,7 @@ const EmployerJobDetails = () => {
                   onClick={() => handleToggleJobStatus('ACTIVE')}
                   className="portal-btn-success"
                 >
-                  Re-Activate Mandate
+                  Re-Activate Job
                 </Button>
               )}
             </div>
@@ -344,11 +344,11 @@ const EmployerJobDetails = () => {
             </div>
           </div>
 
-          {/* Mandate Description & Requirements */}
+          {/* Job Description & Requirements */}
           <div className="portal-grid-2col-gap-20">
             <div>
               <h4 className="portal-subheading-cyan">
-                Mandate Scope & Description
+                Job Scope & Description
               </h4>
               <div className="portal-box-desc">
                 {job?.description}
@@ -367,7 +367,7 @@ const EmployerJobDetails = () => {
           {job?.skills?.length > 0 && (
             <div className="portal-mt-20">
               <h4 className="portal-subheading-cyan">
-                Mandate Specialisations & Skills
+                Job Specialisations & Skills
               </h4>
               <div className="portal-flex-wrap-gap-8">
                 {job.skills.map(s => (
@@ -404,7 +404,7 @@ const EmployerJobDetails = () => {
             pagination={{ pageSize: 8 }}
             className="portal-table"
             locale={{
-              emptyText: <div className="portal-empty-table-text">No candidates have applied to this mandate yet.</div>
+              emptyText: <div className="portal-empty-table-text">No candidates have applied to this job yet.</div>
             }}
           />
         </motion.div>

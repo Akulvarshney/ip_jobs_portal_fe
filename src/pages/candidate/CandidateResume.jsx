@@ -239,7 +239,7 @@ const CandidateResume = () => {
             <div className="portal-resume-sidebar-guidance">
               <div className="portal-resume-tip-card">
                 <div className="portal-resume-tip-title">
-                  1. Highlight Mandate Values & CIRP Stages
+                  1. Highlight Job Values & CIRP Stages
                 </div>
                 <div className="portal-resume-tip-desc">
                   Mention verified claim amounts, liquidation valuations, and Location.

@@ -26,15 +26,14 @@ const ROLE_NAV_CONFIGS = {
         title: 'Main',
         items: [
           { path: '/candidate', exact: true, label: 'Dashboard', icon: <DashboardOutlined /> },
-          { path: '/candidate/profile', label: 'My Profile', icon: <UserOutlined /> },
         ]
       },
       {
-        title: 'Mandates',
+        title: 'Jobs',
         items: [
-          { path: '/candidate/jobs', label: 'Search Mandates', icon: <SearchOutlined /> },
+          { path: '/candidate/jobs', label: 'Search Jobs', icon: <SearchOutlined /> },
           { path: '/candidate/applications', label: 'My Applications', icon: <SendOutlined /> },
-          { path: '/candidate/saved-jobs', label: 'Saved Mandates', icon: <BookOutlined /> },
+          { path: '/candidate/saved-jobs', label: 'Saved Jobs', icon: <BookOutlined /> },
           { path: '/candidate/interviews', label: 'Interviews', icon: <CalendarOutlined /> },
         ]
       },
@@ -59,7 +58,7 @@ const ROLE_NAV_CONFIGS = {
       {
         title: 'Recruitment',
         items: [
-          { path: '/employer/jobs', label: 'Manage Mandates', icon: <FileTextOutlined /> },
+          { path: '/employer/jobs', label: 'Manage Jobs', icon: <FileTextOutlined /> },
           { path: '/employer/applications', label: 'Submissions', icon: <TeamOutlined /> },
         ]
       },
@@ -92,7 +91,7 @@ const ROLE_NAV_CONFIGS = {
         items: [
           { path: '/admin/users', label: 'User Governance', icon: <UserOutlined /> },
           { path: '/admin/employers', label: 'Employer Approvals', icon: <BankOutlined /> },
-          { path: '/admin/jobs', label: 'Mandates Directory', icon: <FileTextOutlined /> },
+          { path: '/admin/jobs', label: 'Jobs Directory', icon: <FileTextOutlined /> },
           { path: '/admin/applications', label: 'All Applications', icon: <SolutionOutlined /> },
         ]
       },
@@ -194,11 +193,11 @@ const SidebarNav = ({ activeKey }) => {
       {/* Sidebar Secondary Navigation / Quick Links & Status */}
       <div className="portal-sidebar-footer">
         <Link
-          to="/jobs"
+          to="/candidate/jobs"
           className="portal-sidebar-link portal-sidebar-sublink"
         >
           <span className="portal-sidebar-icon"><CompassOutlined /></span>
-          <span className="portal-sidebar-text">Mandates Directory</span>
+          <span className="portal-sidebar-text">Jobs Directory</span>
         </Link>
 
         <div className="portal-sidebar-status-card">

@@ -48,17 +48,7 @@ const CandidateApplications = () => {
     dispatch(fetchCandidateApplications());
   }, [dispatch]);
 
-  const handleWithdraw = async (appId) => {
-    try {
-      const res = await api.post(`/api/candidate/applications/${appId}/withdraw`);
-      if (res.data?.success) {
-        message.success('Application withdrawn successfully');
-        fetchApplications();
-      }
-    } catch (error) {
-      message.error(error?.response?.data?.message || 'Failed to withdraw application');
-    }
-  };
+
 
   const getStatusTag = (status) => {
     switch (status) {
@@ -90,12 +80,14 @@ const CandidateApplications = () => {
 
   const columns = [
     {
-      title: 'Mandate / Role',
+      title: 'Job / Role',
       dataIndex: ['job', 'title'],
       key: 'jobTitle',
       render: (text, record) => (
         <div>
-          <div className="portal-app-title">{text}</div>
+          <Link to={`/jobs/${record.jobId}`} className="portal-app-title portal-color-link" style={{ textDecoration: 'none' }}>
+            {text}
+          </Link>
           <div className="portal-app-employer">
             {record.job?.employer?.name || 'Insolvency Entity'}
           </div>
@@ -163,32 +155,7 @@ const CandidateApplications = () => {
         );
       },
     },
-    {
-      title: 'Actions',
-      key: 'actions',
-      render: (_, record) => (
-        <div className="portal-app-actions-wrap">
-          <Link to={`/jobs/${record.jobId}`}>
-            <Tooltip title="Job Details">
-              <Button size="small" type="link" icon={<FileTextOutlined />} className="portal-app-action-link" />
-            </Tooltip>
-          </Link>
-          {record.status !== 'WITHDRAWN' && record.status !== 'REJECTED' && record.status !== 'SELECTED' && (
-            <Popconfirm
-              title="Withdraw this application?"
-              description="Are you sure? Recruiter will be notified that you withdrew."
-              onConfirm={() => handleWithdraw(record.id)}
-              okText="Withdraw"
-              cancelText="Cancel"
-            >
-              <Tooltip title="Withdraw Application">
-                <Button size="small" type="link" danger icon={<StopOutlined />} className="portal-app-withdraw-btn" />
-              </Tooltip>
-            </Popconfirm>
-          )}
-        </div>
-      ),
-    },
+
   ];
 
   const tabItems = [
@@ -198,7 +165,6 @@ const CandidateApplications = () => {
     { key: 'INTERVIEW', label: `Interview (${applications.filter(a => a.status === 'INTERVIEW').length})` },
     { key: 'SELECTED', label: `Selected (${applications.filter(a => a.status === 'SELECTED').length})` },
     { key: 'REJECTED', label: `Not Selected (${applications.filter(a => a.status === 'REJECTED').length})` },
-    { key: 'WITHDRAWN', label: `Withdrawn (${applications.filter(a => a.status === 'WITHDRAWN').length})` },
   ];
 
   return (
@@ -256,7 +222,7 @@ const CandidateApplications = () => {
 
       {/* Details / Interview Modal */}
       <Modal
-        title={`Application: ${selectedAppModal?.job?.title || 'Mandate'}`}
+        title={`Application: ${selectedAppModal?.job?.title || 'Job'}`}
         open={detailsModalVisible}
         onCancel={() => setDetailsModalVisible(false)}
         footer={[

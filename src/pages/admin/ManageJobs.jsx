@@ -113,12 +113,12 @@ const ManageJobs = () => {
 
   const columns = [
     {
-      title: 'Mandate / Job Title',
+      title: 'Job / Job Title',
       key: 'title',
       render: (_, record) => (
         <div>
-          <div className="portal-mandate-cell-title">{record.title}</div>
-          <div className="portal-mandate-cell-sub">
+          <div className="portal-job-cell-title">{record.title}</div>
+          <div className="portal-job-cell-sub">
             <BankOutlined /> {record.employer?.name || 'Unknown Entity'}
             {record.employer?.type && <Tag color="purple" className="portal-tag-xs-purple">{record.employer.type}</Tag>}
           </div>
@@ -161,7 +161,7 @@ const ManageJobs = () => {
       key: 'actions',
       render: (_, record) => (
         <Space size="small" wrap>
-          <Tooltip title="Review Mandate">
+          <Tooltip title="Review Job">
             <Button 
               size="small" 
               icon={<EyeOutlined />}
@@ -184,7 +184,7 @@ const ManageJobs = () => {
           )}
 
           {record.status === 'ACTIVE' && (
-            <Tooltip title="Pause Mandate">
+            <Tooltip title="Pause Job">
               <Button
                 size="small"
                 loading={actionLoadingId === record.id}
@@ -196,7 +196,7 @@ const ManageJobs = () => {
           )}
 
           {record.status !== 'CLOSED' && (
-            <Tooltip title="Close Mandate">
+            <Tooltip title="Close Job">
               <Button
                 size="small"
                 loading={actionLoadingId === record.id}
@@ -208,14 +208,14 @@ const ManageJobs = () => {
           )}
 
           <Popconfirm
-            title="Delete this mandate?"
+            title="Delete this job?"
             description="Are you sure you want to delete this job and related applications?"
             onConfirm={() => handleDeleteJob(record.id)}
             okText="Yes, Delete"
             cancelText="Cancel"
             okButtonProps={{ danger: true }}
           >
-            <Tooltip title="Delete Mandate">
+            <Tooltip title="Delete Job">
               <Button
                 size="small"
                 danger
@@ -233,8 +233,8 @@ const ManageJobs = () => {
   return (
     <div className="portal-w-full">
       <AdminHeader 
-          title="Mandates & Job Listings Moderation" 
-          subtitle="Audit, approve, pause, close, or remove insolvency and restructuring job mandates."
+          title="Jobs & Job Listings Moderation" 
+          subtitle="Audit, approve, pause, close, or remove insolvency and restructuring job jobs."
           actions={
             <Button 
               icon={<ReloadOutlined />} 
@@ -253,7 +253,7 @@ const ManageJobs = () => {
             <div className="portal-flex-grow-gap-8">
               <Input 
                 prefix={<SearchOutlined className="portal-muted-icon" />}
-                placeholder="Search mandate title, employer, requirements..."
+                placeholder="Search job title, employer, requirements..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 onPressEnter={fetchJobs}
@@ -317,7 +317,7 @@ const ManageJobs = () => {
           title={
             <div className="portal-drawer-title-row">
               <FilterOutlined className="portal-text-link" />
-              <span>Filter Mandates & Jobs</span>
+              <span>Filter Jobs & Jobs</span>
             </div>
           }
           placement="right"
@@ -360,9 +360,9 @@ const ManageJobs = () => {
               size="large"
             >
               <Option value="ALL">All Statuses</Option>
-              <Option value="ACTIVE">Active Mandates</Option>
+              <Option value="ACTIVE">Active Jobs</Option>
               <Option value="PAUSED">Paused Listings</Option>
-              <Option value="CLOSED">Closed Mandates</Option>
+              <Option value="CLOSED">Closed Jobs</Option>
               <Option value="SUSPENDED">Suspended Listings</Option>
             </Select>
           </div>
@@ -388,7 +388,7 @@ const ManageJobs = () => {
         <Modal
           title={
             <div className="portal-modal-header-row">
-              <FileTextOutlined className="portal-text-link" /> Mandate Review Dossier #{selectedJob?.id}
+              <FileTextOutlined className="portal-text-link" /> Job Review Dossier #{selectedJob?.id}
             </div>
           }
           open={modalOpen}
@@ -415,7 +415,7 @@ const ManageJobs = () => {
               <div className="portal-flex-col-gap-18">
                 <div>
                   <h4 className="portal-dossier-section-title">
-                    Mandate Scope & Description
+                    Job Scope & Description
                   </h4>
                   <div className="portal-dossier-text-box">
                     {selectedJob.description}
@@ -454,7 +454,7 @@ const ManageJobs = () => {
                     onClick={() => handleUpdateStatus(selectedJob.id, 'ACTIVE')}
                     loading={actionLoadingId === selectedJob.id}
                   >
-                    Approve Mandate
+                    Approve Job
                   </Button>
                 )}
                 {selectedJob.status === 'ACTIVE' && (
@@ -462,7 +462,7 @@ const ManageJobs = () => {
                     onClick={() => handleUpdateStatus(selectedJob.id, 'PAUSED')}
                     loading={actionLoadingId === selectedJob.id}
                   >
-                    Pause Mandate
+                    Pause Job
                   </Button>
                 )}
               </div>

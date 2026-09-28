@@ -61,7 +61,7 @@ const CandidateInterviews = () => {
         <div>
           <div className="portal-interview-card-title-wrap">
             <span className="portal-interview-card-title">
-              {interview.job?.title || 'Mandate Discussion'}
+              {interview.job?.title || 'Job Discussion'}
             </span>
             <Tag color="gold" icon={getInterviewTypeIcon(interview.interviewType)} className="portal-interview-tag">
               {interview.interviewType}

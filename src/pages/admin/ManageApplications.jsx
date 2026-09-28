@@ -117,7 +117,7 @@ const ManageApplications = () => {
       ),
     },
     {
-      title: 'Mandate / Role',
+      title: 'Job / Role',
       key: 'job',
       render: (_, record) => (
         <div>
@@ -205,7 +205,7 @@ const ManageApplications = () => {
           <div className="portal-flex-grow-gap-8">
             <Input
               prefix={<SearchOutlined className="portal-muted-icon" />}
-              placeholder="Search candidate, email, mandate, or entity..."
+              placeholder="Search candidate, email, job, or entity..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               onPressEnter={fetchApplications}

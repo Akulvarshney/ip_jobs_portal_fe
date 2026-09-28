@@ -42,7 +42,7 @@ export const EXPERIENCE_LEVELS = [
   { value: 'MID_LEVEL', label: 'Mid Level (3-5 Yrs)', shortLabel: '3-5 Yrs' },
   { value: 'SENIOR_LEVEL', label: 'Senior Level (6-10 Yrs)', shortLabel: '6-10 Yrs' },
   { value: 'DIRECTOR_EXECUTIVE', label: 'Executive / Partner (10+ Yrs)', shortLabel: '10+ Yrs' },
-  { value: 'MANDATE_SPECIFIC', label: 'Mandate / Domain Specific', shortLabel: 'Mandate Specific' },
+  { value: 'MANDATE_SPECIFIC', label: 'Job / Domain Specific', shortLabel: 'Job Specific' },
 ];
 
 export const getExperienceLevelLabel = (val) => {

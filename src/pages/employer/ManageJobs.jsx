@@ -35,7 +35,7 @@ const ManageJobs = () => {
 
   const columns = [
     {
-      title: 'Mandate / Role Title',
+      title: 'Job / Role Title',
       dataIndex: 'title',
       key: 'title',
       render: (text, record) => (
@@ -99,12 +99,12 @@ const ManageJobs = () => {
     <div className="portal-w-full">
       <div className="portal-page-header-row portal-mb-28">
         <div>
-          <h1 className="portal-section-title portal-text-30">Active Mandates</h1>
+          <h1 className="portal-section-title portal-text-30">Active Jobs</h1>
           <p className="portal-section-subtitle">Manage your listed CIRP & Liquidation roles and review candidate submissions.</p>
         </div>
         <button className="portal-btn-primary" onClick={() => navigate('/employer')}>
           <PlusOutlined />
-          <span>Post New Mandate</span>
+          <span>Post New Job</span>
         </button>
       </div>
 

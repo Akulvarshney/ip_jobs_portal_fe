@@ -912,7 +912,7 @@ const CandidateProfile = () => {
             {(!profile?.experiences || profile.experiences.length === 0) && (
               <div className="portal-profile-empty-item">
                 <BankOutlined className="portal-profile-empty-item-icon" />
-                <p>No work experience added yet. Click "Add Experience" to add roles and mandates.</p>
+                <p>No work experience added yet. Click "Add Experience" to add roles and jobs.</p>
               </div>
             )}
           </div>
@@ -1008,7 +1008,7 @@ const CandidateProfile = () => {
           <div className="portal-section-header">
             <div>
               <h3 className="portal-section-title">Candidate Resume & Credentials</h3>
-              <p className="portal-section-desc">Manage your primary CV document used when applying for mandates.</p>
+              <p className="portal-section-desc">Manage your primary CV document used when applying for jobs.</p>
             </div>
           </div>
 

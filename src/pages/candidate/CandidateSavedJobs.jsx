@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getFileUrl } from "../../utils/fileUrl";
 import { 
   Button, 
   Tag, 
@@ -82,7 +83,7 @@ const CandidateSavedJobs = () => {
         animate={{ opacity: 1, y: 0 }}
         className="portal-page-header"
       >
-        <h1 className="portal-page-title">Saved Mandates</h1>
+        <h1 className="portal-page-title">Saved Jobs</h1>
         <p className="portal-page-subtitle">
           Bookmarked opportunities for quick reference and application.
         </p>
@@ -108,7 +109,7 @@ const CandidateSavedJobs = () => {
                   <div className="portal-saved-card-header">
                     <div className="portal-saved-company-group">
                       <div className="portal-saved-avatar">
-                        {job?.employer?.name ? job.employer.name.substring(0, 2).toUpperCase() : 'CO'}
+                        {job?.employer?.logoUrl ? <img src={getFileUrl(job?.employer?.logoUrl)} alt="logo" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "inherit" }} /> : (job?.employer?.name ? job.employer.name.substring(0, 2).toUpperCase() : "CO")}
                       </div>
                       <div>
                         <div className="portal-saved-org-type">
@@ -154,7 +155,7 @@ const CandidateSavedJobs = () => {
 
                 <div className="portal-saved-card-footer">
                   <Link to={`/jobs/${job?.id}`} className="portal-saved-view-link">
-                    View Mandate ↗
+                    View Job ↗
                   </Link>
 
                   {hasApplied ? (
@@ -177,17 +178,17 @@ const CandidateSavedJobs = () => {
       {savedJobs.length === 0 && !loading && (
         <div className="portal-glass-card portal-empty-state-card">
           <BookOutlined className="portal-empty-state-icon" />
-          <h3 className="portal-empty-state-title">No saved mandates yet</h3>
+          <h3 className="portal-empty-state-title">No saved jobs yet</h3>
           <p className="portal-empty-state-desc">Save interesting roles from the search page to apply later.</p>
           <Link to="/candidate/jobs">
-            <Button type="primary" className="portal-empty-state-btn">Explore Mandates</Button>
+            <Button type="primary" className="portal-empty-state-btn">Explore Jobs</Button>
           </Link>
         </div>
       )}
 
       {/* Apply Modal */}
       <Modal
-        title={`Apply for ${selectedJob?.title || 'Mandate'}`}
+        title={`Apply for ${selectedJob?.title || 'Job'}`}
         open={applyModalOpen}
         onCancel={() => setApplyModalOpen(false)}
         footer={[

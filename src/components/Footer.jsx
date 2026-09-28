@@ -108,8 +108,8 @@ const Footer = () => {
           </div>
           <p className="portal-footer-newsletter-desc">
             {isRegistered
-              ? "You're registered in our Stay Tuned program for curated insolvency mandates and regulatory alerts."
-              : "Get weekly curated IBC mandates and restructuring opportunities sent to your inbox."}
+              ? "You're registered in our Stay Tuned program for curated insolvency jobs and regulatory alerts."
+              : "Get weekly curated IBC jobs and restructuring opportunities sent to your inbox."}
           </p>
 
           {isRegistered ? (

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getFileUrl } from "../../utils/fileUrl";
 import {
   Input,
   Select,
@@ -32,6 +33,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchAllJobs } from '../../store/jobsSlice';
 import { fetchSavedJobs, fetchCandidateApplications, toggleSaveJob, applyToJob } from '../../store/candidateSlice';
+import { saveFilters } from '../../store/authSlice';
 import {
   JOB_TYPES,
   SALARY_RANGES,
@@ -59,9 +61,6 @@ const professionalCategories = [
 
 const JobSearch = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const initialKeyword = searchParams.get('keyword') || searchParams.get('q') || '';
-  const initialLocation = searchParams.get('location') || undefined;
-
   const dispatch = useDispatch();
   const { jobsList } = useSelector((state) => state.jobs);
   const { isAuthenticated, user } = useSelector((state) => state.auth);
@@ -69,16 +68,64 @@ const JobSearch = () => {
   const [loading, setLoading] = useState(true);
   const [savedJobsMap, setSavedJobsMap] = useState({});
   const [appliedJobsMap, setAppliedJobsMap] = useState({});
+  // Helper to read initial state from URL params first, then DB, then localStorage
+  const getInitialFilter = (key, queryParam) => {
+    if (queryParam) {
+      const fromUrl = searchParams.get(queryParam);
+      if (fromUrl) return fromUrl;
+    }
+    const dbStored = user?.savedFilters;
+    if (dbStored && dbStored[key] !== undefined) {
+      return dbStored[key];
+    }
+    const stored = JSON.parse(localStorage.getItem('portal_job_filters') || '{}');
+    return stored[key] || undefined;
+  };
 
   // Filter states
-  const [searchKeyword, setSearchKeyword] = useState(initialKeyword);
-  const [selectedLocation, setSelectedLocation] = useState(initialLocation);
-  const [selectedJobType, setSelectedJobType] = useState(searchParams.get('jobType') || undefined);
-  const [selectedSalaryRange, setSelectedSalaryRange] = useState(searchParams.get('salaryRange') || undefined);
-  const [selectedExpLevel, setSelectedExpLevel] = useState(searchParams.get('experienceLevel') || undefined);
-  const [selectedCategory, setSelectedCategory] = useState(undefined);
-  const [selectedOrgType, setSelectedOrgType] = useState(undefined);
+  const [searchKeyword, setSearchKeyword] = useState(() => getInitialFilter('searchKeyword', 'keyword') || searchParams.get('q') || '');
+  const [selectedLocation, setSelectedLocation] = useState(() => getInitialFilter('selectedLocation', 'location'));
+  const [selectedJobType, setSelectedJobType] = useState(() => getInitialFilter('selectedJobType', 'jobType'));
+  const [selectedSalaryRange, setSelectedSalaryRange] = useState(() => getInitialFilter('selectedSalaryRange', 'salaryRange'));
+  const [selectedExpLevel, setSelectedExpLevel] = useState(() => getInitialFilter('selectedExpLevel', 'experienceLevel'));
+  const [selectedCategory, setSelectedCategory] = useState(() => getInitialFilter('selectedCategory', 'category'));
+  const [selectedOrgType, setSelectedOrgType] = useState(() => getInitialFilter('selectedOrgType', 'orgType'));
   const [drawerOpen, setDrawerOpen] = useState(false);
+
+  // Sync state if user's saved filters arrive after initial mount (e.g. on fresh login)
+  useEffect(() => {
+    if (user?.savedFilters) {
+      if (user.savedFilters.searchKeyword !== undefined) setSearchKeyword(user.savedFilters.searchKeyword);
+      if (user.savedFilters.selectedLocation !== undefined) setSelectedLocation(user.savedFilters.selectedLocation);
+      if (user.savedFilters.selectedJobType !== undefined) setSelectedJobType(user.savedFilters.selectedJobType);
+      if (user.savedFilters.selectedSalaryRange !== undefined) setSelectedSalaryRange(user.savedFilters.selectedSalaryRange);
+      if (user.savedFilters.selectedExpLevel !== undefined) setSelectedExpLevel(user.savedFilters.selectedExpLevel);
+      if (user.savedFilters.selectedCategory !== undefined) setSelectedCategory(user.savedFilters.selectedCategory);
+      if (user.savedFilters.selectedOrgType !== undefined) setSelectedOrgType(user.savedFilters.selectedOrgType);
+    }
+  }, [user?.savedFilters]);
+
+  // Persist filters to localStorage and Database whenever they change
+  useEffect(() => {
+    const filters = {
+      searchKeyword,
+      selectedLocation,
+      selectedJobType,
+      selectedSalaryRange,
+      selectedExpLevel,
+      selectedCategory,
+      selectedOrgType
+    };
+    localStorage.setItem('portal_job_filters', JSON.stringify(filters));
+    
+    // Create a deep copy to compare without causing circular dependency issues
+    const currentDbFilters = user?.savedFilters || {};
+    const hasChanged = Object.keys(filters).some(key => filters[key] !== currentDbFilters[key]);
+    
+    if (isAuthenticated && hasChanged) {
+      dispatch(saveFilters(filters));
+    }
+  }, [searchKeyword, selectedLocation, selectedJobType, selectedSalaryRange, selectedExpLevel, selectedCategory, selectedOrgType, isAuthenticated, dispatch, user?.savedFilters]);
 
   // Apply Modal state
   const [applyModalOpen, setApplyModalOpen] = useState(false);
@@ -113,7 +160,7 @@ const JobSearch = () => {
       }
     } catch (error) {
       console.error('Error loading public jobs:', error);
-      message.error('Failed to load mandates directory');
+      message.error('Failed to load jobs directory');
     } finally {
       setLoading(false);
     }
@@ -143,7 +190,7 @@ const JobSearch = () => {
       return navigate('/login?mode=signup');
     }
     if (user?.role !== 'CANDIDATE') {
-      message.warning('Only candidate accounts can apply to mandates');
+      message.warning('Only candidate accounts can apply to jobs');
       return;
     }
     setSelectedJobForApply(job);
@@ -177,6 +224,7 @@ const JobSearch = () => {
     setSelectedCategory(undefined);
     setSelectedOrgType(undefined);
     setSearchParams({});
+    localStorage.removeItem('portal_job_filters');
   };
 
   const activeFiltersCount = [
@@ -365,7 +413,7 @@ const JobSearch = () => {
         >
           <div className="portal-filter-section">
             <div className="portal-filter-section-title">
-              <ClockCircleOutlined /> Job / Mandate Type
+              <ClockCircleOutlined /> Job / Job Type
             </div>
             <Select
               placeholder="All Job Types (Full-time, Contract, Internship...)"
@@ -516,7 +564,7 @@ const JobSearch = () => {
                       <div className="portal-company-job-header">
                         <div className="portal-details-avatar-group">
                           <div className="portal-company-avatar-box-sm">
-                            {job.employer?.name ? job.employer.name.substring(0, 2).toUpperCase() : 'CO'}
+                            {job.employer?.logoUrl ? <img src={getFileUrl(job.employer?.logoUrl)} alt="logo" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "inherit" }} /> : (job.employer?.name ? job.employer.name.substring(0, 2).toUpperCase() : "CO")}
                           </div>
                           <div>
                             <div className="portal-details-tags-row">
@@ -575,7 +623,7 @@ const JobSearch = () => {
 
                     <div className="portal-company-job-footer">
                       <Link to={`/jobs/${job.id}`} className="portal-company-view-link">
-                        View Mandate ↗
+                        View Job ↗
                       </Link>
 
                       {applicationStatus ? (
@@ -605,7 +653,7 @@ const JobSearch = () => {
         {filteredJobs.length === 0 && !loading && (
           <div className="portal-glass-card portal-company-empty-box portal-mt-20">
             <SearchOutlined className="portal-company-empty-icon" />
-            <h3 className="portal-company-empty-title">No matching mandates found</h3>
+            <h3 className="portal-company-empty-title">No matching jobs found</h3>
             <p className="portal-company-empty-desc">Try adjusting your filters or search keywords.</p>
             <Button type="primary" onClick={handleResetFilters} className="portal-btn-primary-reset">
               Clear All Filters
@@ -617,7 +665,7 @@ const JobSearch = () => {
 
       {/* Apply Modal */}
       <Modal
-        title={`Apply for ${selectedJobForApply?.title || 'Mandate'}`}
+        title={`Apply for ${selectedJobForApply?.title || 'Job'}`}
         open={applyModalOpen}
         onCancel={() => setApplyModalOpen(false)}
         footer={[

@@ -217,7 +217,7 @@ const ManageApplications = () => {
       },
     },
     {
-      title: 'Applied Mandate',
+      title: 'Applied Job',
       dataIndex: ['job', 'title'],
       key: 'jobTitle',
       render: (title, record) => (
@@ -353,7 +353,7 @@ const ManageApplications = () => {
 
           <Link to="/employer/jobs">
             <Button className="portal-btn-neutral portal-btn-rounded-8">
-              Manage Mandates
+              Manage Jobs
             </Button>
           </Link>
         </div>
@@ -417,7 +417,7 @@ const ManageApplications = () => {
               
               {selectedJobFilter !== 'ALL' && (
                 <span className="portal-filter-tag">
-                  <AuditOutlined /> Mandate: {jobs.find(j => j.id === selectedJobFilter)?.title || selectedJobFilter}
+                  <AuditOutlined /> Job: {jobs.find(j => j.id === selectedJobFilter)?.title || selectedJobFilter}
                   <CloseOutlined onClick={() => { setSelectedJobFilter('ALL'); setSearchParams(activeTab !== 'ALL' ? { status: activeTab } : {}); }} />
                 </span>
               )}
@@ -470,7 +470,7 @@ const ManageApplications = () => {
         >
           <div className="portal-filter-section">
             <div className="portal-filter-section-title">
-              <AuditOutlined /> Listed Mandate / Role
+              <AuditOutlined /> Listed Job / Role
             </div>
             <Select
               value={selectedJobFilter}
@@ -481,7 +481,7 @@ const ManageApplications = () => {
               className="portal-w-full"
               size="large"
             >
-              <Option value="ALL">All Active Mandates ({jobs.length})</Option>
+              <Option value="ALL">All Active Jobs ({jobs.length})</Option>
               {jobs.map(j => (
                 <Option key={j.id} value={j.id}>{j.title}</Option>
               ))}
