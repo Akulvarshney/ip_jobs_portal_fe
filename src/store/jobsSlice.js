@@ -33,6 +33,7 @@ export const applyForJob = createAsyncThunk('jobs/apply', async ({ jobId, applic
 
 const initialState = {
   jobsList: [],
+  listRequestId: null,
   selectedJob: null,
   searchQuery: '',
   activeCategory: 'All',
@@ -61,14 +62,21 @@ const jobsSlice = createSlice({
   extraReducers: (builder) => {
     builder
       // Fetch All
-      .addCase(fetchAllJobs.pending, (state) => {
+      .addCase(fetchAllJobs.pending, (state, action) => {
+        state.listRequestId = action.meta.requestId;
+        state.jobsList = [];
+        state.error = null;
         state.loading = true;
       })
       .addCase(fetchAllJobs.fulfilled, (state, action) => {
+        if (state.listRequestId !== action.meta.requestId) return;
+        state.listRequestId = null;
         state.loading = false;
         state.jobsList = action.payload;
       })
       .addCase(fetchAllJobs.rejected, (state, action) => {
+        if (state.listRequestId !== action.meta.requestId) return;
+        state.listRequestId = null;
         state.loading = false;
         state.error = action.payload;
       })

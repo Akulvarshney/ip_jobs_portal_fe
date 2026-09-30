@@ -1,6 +1,6 @@
 import React, { useEffect, useLayoutEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchCurrentUser, selectTheme } from './store/authSlice';
+import { fetchCurrentUser, selectTheme, logout } from './store/authSlice';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ConfigProvider, theme } from 'antd';
 import Navbar from './components/Navbar';
@@ -53,6 +53,12 @@ function App() {
   useEffect(() => {
     if (token) dispatch(fetchCurrentUser());
   }, [dispatch, token]);
+
+  useEffect(() => {
+    const expire = () => dispatch(logout());
+    window.addEventListener('portal:session-expired', expire);
+    return () => window.removeEventListener('portal:session-expired', expire);
+  }, [dispatch]);
 
   return (
     <ConfigProvider
@@ -112,6 +118,7 @@ function App() {
                 {/* Employer Routes */}
                 <Route path="/employer" element={<EmployerDashboard />} />
                 <Route path="/employer/dashboard" element={<EmployerDashboard />} />
+                <Route path="/employer/profile" element={<Navigate to="/employer/organisation" replace />} />
                 <Route path="/employer/organisation" element={<OrganisationProfile />} />
                 <Route path="/employer/jobs" element={<ManageJobs />} />
                 <Route path="/employer/jobs/:id" element={<EmployerJobDetails />} />

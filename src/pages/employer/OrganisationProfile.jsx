@@ -30,6 +30,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchOrganisationProfile, updateOrganisationProfile } from '../../store/employerSlice';
 import api from '../../api';
+import CitySelect from '../../components/CitySelect';
+import { updateUser } from '../../store/authSlice';
 import { getFileUrl } from '../../utils/fileUrl';
 
 const { Option } = Select;
@@ -103,7 +105,9 @@ const OrganisationProfile = () => {
           type: res.type || 'IPE',
           description: res.description,
           website: res.website,
-          location: res.location
+          location: res.location,
+          panNumber: res.panNumber,
+          gstNumber: res.gstNumber
         });
       }
     } catch (error) {
@@ -122,8 +126,10 @@ const OrganisationProfile = () => {
     try {
       setSaving(true);
       const res = await dispatch(updateOrganisationProfile(values)).unwrap();
-      message.success('Organisation profile updated successfully!');
+      message.success(orgData ? 'Organisation profile updated.' : 'Organisation submitted for review. You can now explore your dashboard.');
       setOrgData(res);
+      dispatch(updateUser({ onboarding: { required: false, path: '/employer/organisation' } }));
+      if (!orgData) navigate('/employer', { replace: true });
     } catch (error) {
       message.error(typeof error === 'string' ? error : 'Failed to update organisation details');
     } finally {
@@ -250,11 +256,37 @@ const OrganisationProfile = () => {
 
                   <Col xs={24} sm={12}>
                     <Form.Item
+                      label={<span className="portal-form-label">PAN Number</span>}
+                      name="panNumber"
+                      rules={[
+                        { required: true, message: 'PAN Number is required' },
+                        { pattern: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i, message: 'Invalid PAN format' }
+                      ]}
+                      tooltip="Required to prevent duplicate organisations. Example: ABCDE1234F"
+                    >
+                      <Input placeholder="Enter 10-digit PAN" className="portal-form-input" style={{ textTransform: 'uppercase' }} />
+                    </Form.Item>
+                  </Col>
+
+                  <Col xs={24} sm={12}>
+                    <Form.Item
+                      label={<span className="portal-form-label">GST Number (Optional)</span>}
+                      name="gstNumber"
+                      rules={[
+                        { pattern: /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/i, message: 'Invalid GST format' }
+                      ]}
+                    >
+                      <Input placeholder="Enter 15-digit GSTIN" className="portal-form-input" style={{ textTransform: 'uppercase' }} />
+                    </Form.Item>
+                  </Col>
+
+                  <Col xs={24} sm={12}>
+                    <Form.Item
                       label={<span className="portal-form-label">Headquarters / Location</span>}
                       name="location"
                       rules={[{ required: true, message: 'Location is required' }]}
                     >
-                      <Input placeholder="e.g. New Delhi, Mumbai, Bengaluru" className="portal-form-input" />
+                      <CitySelect className="portal-form-select" aria-label="Headquarters city" />
                     </Form.Item>
                   </Col>
 

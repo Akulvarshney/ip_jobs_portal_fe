@@ -45,6 +45,7 @@ const initialState = {
   token: localStorage.getItem('token') || null,
   isAuthenticated: !!localStorage.getItem('token'),
   loading: false,
+  sessionChecked: !localStorage.getItem('token'),
   error: null,
   guestTheme: localStorage.getItem('portalGuestTheme') === 'light' ? 'light' : 'dark',
   themeSaving: false,
@@ -60,6 +61,7 @@ export const authSlice = createSlice({
       state.user = action.payload.user;
       state.token = action.payload.token;
       state.isAuthenticated = true;
+      state.sessionChecked = true;
       state.loading = false;
       state.error = null;
       state.themeSaving = false;
@@ -76,6 +78,7 @@ export const authSlice = createSlice({
       state.user = null;
       state.token = null;
       state.isAuthenticated = false;
+      state.sessionChecked = true;
       state.loading = false;
       state.error = null;
       state.themeSaving = false;
@@ -95,12 +98,14 @@ export const authSlice = createSlice({
       .addCase(fetchCurrentUser.pending, (state, action) => {
         state.loading = true;
         state.sessionRequestId = action.meta.requestId;
+        state.error = null;
       })
       .addCase(fetchCurrentUser.fulfilled, (state, action) => {
         if (state.sessionRequestId !== action.meta.requestId) return;
         state.loading = false;
         state.sessionRequestId = null;
         state.user = action.payload;
+        state.sessionChecked = true;
         state.isAuthenticated = true;
         localStorage.setItem('user', JSON.stringify(action.payload));
       })

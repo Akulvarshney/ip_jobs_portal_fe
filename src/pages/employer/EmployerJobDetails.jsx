@@ -1,8 +1,9 @@
+import CitySelect from '../../components/CitySelect';
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchJobById } from '../../store/jobsSlice';
-import { updateApplicationStatus, inviteCandidate } from '../../store/employerSlice';
+import { updateApplicationStatus, inviteCandidate, updateJob } from '../../store/employerSlice';
 import { updateAdminJobStatus } from '../../store/adminSlice';
 import { 
   ArrowLeftOutlined, 
@@ -34,6 +35,9 @@ const EmployerJobDetails = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  const [editingLocation, setEditingLocation] = useState(false);
+  const [jobLocations, setJobLocations] = useState([]);
+  const [savingLocations, setSavingLocations] = useState(false);
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedCandidate, setSelectedCandidate] = useState(null);
@@ -57,6 +61,18 @@ const EmployerJobDetails = () => {
   useEffect(() => {
     fetchJobDetails();
   }, [id, dispatch]);
+
+  const saveLocations = async () => {
+    if (!jobLocations || jobLocations.length === 0) return message.warning('Select at least one city for this job.');
+    setSavingLocations(true);
+    try {
+      const updated = await dispatch(updateJob({ id, jobData: { locations: jobLocations } })).unwrap();
+      setJob(updated);
+      setEditingLocation(false);
+      message.success('Job locations updated.');
+    } catch (error) { message.error(typeof error === 'string' ? error : 'Could not update job locations.'); }
+    finally { setSavingLocations(false); }
+  };
 
   const handleUpdateAppStatus = async (appId, newStatus) => {
     setActionLoadingId(appId);
@@ -290,9 +306,9 @@ const EmployerJobDetails = () => {
               </h1>
               <div className="portal-job-meta-row">
                 <BankOutlined /> {job?.employer?.name}
-                {job?.employer?.location && (
+                {(job?.locations?.length > 0 || job?.employer?.location) && (
                   <span className="portal-text-muted ml-10">
-                    <EnvironmentOutlined /> {job.employer.location}
+                    <EnvironmentOutlined /> {job?.locations?.length > 0 ? job.locations.join(', ') : job.employer?.location}
                   </span>
                 )}
                 <span className="portal-text-success ml-10 font-semibold">
@@ -301,6 +317,11 @@ const EmployerJobDetails = () => {
               </div>
             </div>
 
+            <Button onClick={() => { setJobLocations(job.locations?.length > 0 ? job.locations : (job.employer?.location ? [job.employer.location] : [])); setEditingLocation(true); }}>Edit job locations</Button>
+            <Modal title="Job locations" open={editingLocation} onCancel={() => setEditingLocation(false)} onOk={saveLocations} confirmLoading={savingLocations} okButtonProps={{ disabled: jobLocations.length === 0 }} okText="Save locations">
+              <p>Select the cities where this job is based.</p>
+              <CitySelect aria-label="Job locations" value={jobLocations} onChange={setJobLocations} mode="multiple" />
+            </Modal>
             {/* Quick Job Controls */}
             <div className="portal-flex-gap-10">
               {job?.status === 'ACTIVE' ? (

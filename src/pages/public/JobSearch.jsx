@@ -1,3 +1,4 @@
+import CitySelect from '../../components/CitySelect';
 import React, { useState, useEffect } from 'react';
 import { getFileUrl } from "../../utils/fileUrl";
 import {
@@ -138,7 +139,7 @@ const JobSearch = () => {
   const loadJobs = async () => {
     try {
       setLoading(true);
-      await dispatch(fetchAllJobs()).unwrap();
+      await dispatch(fetchAllJobs({ location: selectedLocation || undefined })).unwrap();
 
       if (isAuthenticated && user?.role === 'CANDIDATE') {
         const [savedRes, appsRes] = await Promise.all([
@@ -168,7 +169,7 @@ const JobSearch = () => {
 
   useEffect(() => {
     loadJobs();
-  }, [dispatch, isAuthenticated]);
+  }, [selectedLocation, dispatch, isAuthenticated]);
 
   const handleToggleSave = async (jobId) => {
     if (!isAuthenticated) {
@@ -217,7 +218,7 @@ const JobSearch = () => {
 
   const handleResetFilters = () => {
     setSearchKeyword('');
-    setSelectedLocation(undefined);
+    setSelectedLocation(null);
     setSelectedJobType(undefined);
     setSelectedSalaryRange(undefined);
     setSelectedExpLevel(undefined);
@@ -243,7 +244,9 @@ const JobSearch = () => {
       job.requirements?.toLowerCase().includes(searchKeyword.toLowerCase()) ||
       (job.employer?.name && job.employer.name.toLowerCase().includes(searchKeyword.toLowerCase()));
 
+
     const matchesLocation = !selectedLocation ||
+      job.locations?.some(loc => loc.toLowerCase().includes(selectedLocation.toLowerCase())) ||
       (job.employer?.location && job.employer.location.toLowerCase().includes(selectedLocation.toLowerCase()));
 
     const matchesJobType = !selectedJobType ||
@@ -333,7 +336,7 @@ const JobSearch = () => {
               {selectedLocation && (
                 <span className="portal-filter-tag">
                   <EnvironmentOutlined /> {selectedLocation}
-                  <CloseOutlined onClick={() => setSelectedLocation(undefined)} />
+                  <CloseOutlined onClick={() => setSelectedLocation(null)} />
                 </span>
               )}
 
@@ -475,22 +478,14 @@ const JobSearch = () => {
             <div className="portal-filter-section-title">
               <CompassOutlined /> Location
             </div>
-            <Select
-              placeholder="All Locations & Benches"
-              allowClear
+            <CitySelect
+              aria-label="Filter jobs by city"
+              placeholder="All cities — search worldwide"
               value={selectedLocation}
-              onChange={setSelectedLocation}
-              className="portal-w-full"
+              onChange={city => setSelectedLocation(city || null)}
+              className="portal-drawer-select"
               size="large"
-            >
-              <Option value="Delhi NCR">Delhi NCR / Principal Bench</Option>
-              <Option value="Mumbai">Mumbai Bench</Option>
-              <Option value="Bengaluru">Bengaluru Bench</Option>
-              <Option value="Chennai">Chennai Bench</Option>
-              <Option value="Kolkata">Kolkata Bench</Option>
-              <Option value="Hyderabad">Hyderabad Bench</Option>
-              <Option value="Ahmedabad">Ahmedabad Bench</Option>
-            </Select>
+            />
           </div>
 
           <Divider className="portal-legal-divider" />
@@ -559,6 +554,8 @@ const JobSearch = () => {
                     exit={{ opacity: 0, scale: 0.9 }}
                     whileHover={{ y: -5 }}
                     className="portal-glass-card portal-company-job-card"
+                    onClick={() => navigate(`/jobs/${job.id}`)}
+                    style={{ cursor: 'pointer' }}
                   >
                     <div>
                       <div className="portal-company-job-header">
@@ -575,14 +572,14 @@ const JobSearch = () => {
                                 {getJobTypeLabel(job.jobType)}
                               </Tag>
                             </div>
-                            <Link to={`/companies/${job.employer?.id}`} className="portal-job-employer-link">
+                            <Link to={`/companies/${job.employer?.id}`} className="portal-job-employer-link" onClick={(e) => e.stopPropagation()}>
                               {job.employer?.name || 'Insolvency Entity'}
                             </Link>
                           </div>
                         </div>
 
                         <button
-                          onClick={() => handleToggleSave(job.id)}
+                          onClick={(e) => { e.stopPropagation(); handleToggleSave(job.id); }}
                           className={`portal-btn-bookmark ${isSaved ? 'portal-btn-bookmark-saved' : 'portal-btn-bookmark-unsaved'}`}
                           aria-label="Save Job"
                         >
@@ -603,9 +600,9 @@ const JobSearch = () => {
                             {getExperienceLevelShortLabel(job.experienceLevel)}
                           </Tag>
                         </div>
-                        {job.employer?.location && (
+                        {(job.locations?.length ? job.locations.join(", ") : job.employer?.location) && (
                           <span className="portal-search-card-loc">
-                            <EnvironmentOutlined /> {job.employer.location}
+                            <EnvironmentOutlined /> {job.locations?.length ? job.locations.join(", ") : job.employer?.location}
                           </span>
                         )}
                       </div>
@@ -622,9 +619,6 @@ const JobSearch = () => {
                     </div>
 
                     <div className="portal-company-job-footer">
-                      <Link to={`/jobs/${job.id}`} className="portal-company-view-link">
-                        View Job ↗
-                      </Link>
 
                       {applicationStatus ? (
                         <Tag
@@ -637,7 +631,7 @@ const JobSearch = () => {
                       ) : (
                         <button
                           className="portal-btn-primary portal-company-apply-btn"
-                          onClick={() => handleOpenApplyModal(job)}
+                          onClick={(e) => { e.stopPropagation(); handleOpenApplyModal(job); }}
                         >
                           Apply Now
                         </button>

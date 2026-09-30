@@ -1,14 +1,27 @@
 import React from 'react';
 import { Outlet, Navigate, useLocation } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { Alert, Button, Spin } from 'antd';
+import { fetchCurrentUser, logout } from '../store/authSlice';
 import SidebarNav from './SidebarNav';
 
 const PortalLayout = () => {
-  const { isAuthenticated, user } = useSelector((state) => state.auth);
+  const { isAuthenticated, user, sessionChecked, loading, error } = useSelector((state) => state.auth);
   const location = useLocation();
+  const dispatch = useDispatch();
 
   if (!isAuthenticated) {
     return <Navigate to={`/login?redirect=${encodeURIComponent(location.pathname)}`} replace />;
+  }
+
+  if (!sessionChecked) {
+    return <div className="portal-p-24">{error && !loading
+      ? <Alert type="error" message="We couldn’t check your session. Please retry." action={<><Button onClick={() => dispatch(fetchCurrentUser())}>Retry</Button><Button onClick={() => dispatch(logout())}>Sign in again</Button></>} />
+      : <Spin tip="Checking your session…"><div className="portal-py-80" /></Spin>}</div>;
+  }
+
+  if (user?.role === 'EMPLOYER' && user.onboarding?.required && !['/employer/organisation', '/employer/profile'].includes(location.pathname)) {
+    return <Navigate to="/employer/organisation" replace />;
   }
 
   if (user?.role) {

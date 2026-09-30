@@ -1,3 +1,4 @@
+import { matchesCityLocation } from '../../utils/location';
 import React, { useState, useEffect } from 'react';
 import { getFileUrl } from "../../utils/fileUrl";
 import {
@@ -281,7 +282,7 @@ const JobDetails = () => {
               <div>
                 <div className="portal-details-meta-val">
                   <EnvironmentOutlined className="portal-details-meta-icon" />
-                  {job.employer?.location || 'India'}
+                  {job.locations?.length ? job.locations.join(", ") : job.employer?.location || 'Location not specified'}
                 </div>
               </div>
 
@@ -373,7 +374,7 @@ const JobDetails = () => {
                 {job.employer?.location && (
                   <div>
                     <EnvironmentOutlined className="portal-company-meta-icon" />
-                    {job.employer.location}
+                    Headquarters: {job.employer.location}
                   </div>
                 )}
                 {job.employer?.website && (
@@ -426,8 +427,7 @@ const JobDetails = () => {
                       j.requirements?.toLowerCase().includes(searchKeyword.toLowerCase()) ||
                       (j.employer?.name && j.employer.name.toLowerCase().includes(searchKeyword.toLowerCase()));
 
-                    const matchesLocation = !selectedLocation ||
-                      (j.employer?.location && j.employer.location.toLowerCase().includes(selectedLocation.toLowerCase()));
+                    const matchesLocation = matchesCityLocation(j.location || j.employer?.location, selectedLocation);
 
                     const matchesCategory = !selectedCategory ||
                       j.title.toLowerCase().includes(selectedCategory.toLowerCase()) ||

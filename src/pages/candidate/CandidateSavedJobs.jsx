@@ -21,12 +21,13 @@ import {
   EnvironmentOutlined
 } from '@ant-design/icons';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchSavedJobs, toggleSaveJob } from '../../store/candidateSlice';
 import api from '../../api';
 
 const CandidateSavedJobs = () => {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { savedJobs: rawSavedJobs, loading } = useSelector((state) => state.candidate);
   const savedJobs = Array.isArray(rawSavedJobs) ? rawSavedJobs : (rawSavedJobs?.data || []);
@@ -104,6 +105,8 @@ const CandidateSavedJobs = () => {
                 exit={{ opacity: 0, scale: 0.9 }}
                 whileHover={{ y: -4 }}
                 className="portal-glass-card portal-saved-card"
+                onClick={() => navigate(`/jobs/${job?.id}`)}
+                style={{ cursor: 'pointer' }}
               >
                 <div>
                   <div className="portal-saved-card-header">
@@ -132,6 +135,7 @@ const CandidateSavedJobs = () => {
                         danger 
                         icon={<DeleteOutlined />} 
                         className="portal-delete-btn"
+                        onClick={(e) => e.stopPropagation()}
                       />
                     </Popconfirm>
                   </div>
@@ -154,16 +158,13 @@ const CandidateSavedJobs = () => {
                 </div>
 
                 <div className="portal-saved-card-footer">
-                  <Link to={`/jobs/${job?.id}`} className="portal-saved-view-link">
-                    View Job ↗
-                  </Link>
 
                   {hasApplied ? (
                     <Tag color="cyan" icon={<CheckCircleOutlined />}>Applied</Tag>
                   ) : (
                     <button
                       className="portal-btn-primary portal-saved-apply-btn"
-                      onClick={() => handleOpenApply(job)}
+                      onClick={(e) => { e.stopPropagation(); handleOpenApply(job); }}
                     >
                       Apply Now
                     </button>

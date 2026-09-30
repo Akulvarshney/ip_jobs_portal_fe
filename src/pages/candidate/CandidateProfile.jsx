@@ -1,6 +1,8 @@
+import CitySelect from '../../components/CitySelect';
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Tabs,
+  Alert,
   Form,
   Input,
   Select,
@@ -610,10 +612,10 @@ const CandidateProfile = () => {
             </Col>
             <Col xs={24} sm={12}>
               <Form.Item
-                label={<span className="portal-form-label">City / Location</span>}
+                label={<span className="portal-form-label">Current city / Location</span>}
                 name="city"
               >
-                <Input placeholder="e.g. New Delhi, Mumbai, Bengaluru" className="portal-form-input" />
+                <CitySelect aria-label="Current city" className="portal-form-select" emptyValue={null} />
               </Form.Item>
             </Col>
           </Row>
@@ -1136,6 +1138,13 @@ const CandidateProfile = () => {
             Manage your personal background, professional categories, education, experience, IBC competencies, certifications, and CV.
           </p>
         </div>
+
+        {profile && !profile.resumeUrl && <Alert
+          className="portal-mb-24" type="info" showIcon
+          message="Your account is ready. Build your profile at your own pace."
+          description="Add your contact details and upload a resume so employers can learn about you. You can also browse, save and apply for jobs now."
+          action={<Button onClick={() => navigate('/candidate/jobs')}>Browse jobs</Button>}
+        />}
 
         {/* Profile Completeness Interactive Banner */}
         {profile?.completeness && (

@@ -2288,7 +2288,7 @@ input[type="number"] {
   flex-direction: column;
   min-height: 100vh;
   width: 100%;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 .portal-main-area {
@@ -2564,7 +2564,7 @@ input[type="number"] {
   padding-top: 16px;
   border-top: 1px solid rgba(var(--theme-contrast-rgb), 0.08);
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
 }
 
@@ -6810,7 +6810,7 @@ input[type="number"] {
   padding-top: 16px;
   border-top: 1px solid rgba(var(--theme-contrast-rgb), 0.08);
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
 }
 
@@ -8626,4 +8626,125 @@ input[type="number"] {
   color: var(--theme-muted);
   margin-bottom: 40px;
   line-height: 1.6;
+}
+/* Horizontal Job Card Layout */
+.portal-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.portal-job-card-horizontal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  background: var(--theme-glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(var(--theme-contrast-rgb), 0.08);
+  border-radius: 12px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.portal-job-card-horizontal:hover {
+  transform: translateY(-2px) scale(1.005);
+  box-shadow: 0 12px 32px rgba(var(--theme-primary-rgb), 0.15);
+  border-color: rgba(var(--theme-primary-rgb), 0.4);
+}
+
+.portal-job-card-h-left {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  flex: 1;
+}
+
+.portal-job-card-h-logo {
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  background: rgba(var(--theme-contrast-rgb), 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--theme-primary);
+  flex-shrink: 0;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.portal-job-card-h-content {
+  flex: 1;
+}
+
+.portal-job-card-h-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--theme-text);
+  margin: 0 0 6px 0;
+  letter-spacing: -0.3px;
+}
+
+.portal-job-card-h-company {
+  font-size: 14px;
+  color: var(--theme-primary);
+  margin-bottom: 12px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.portal-job-card-h-meta {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: var(--theme-muted);
+}
+
+.portal-job-card-h-meta span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.portal-job-card-h-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 16px;
+  min-width: 160px;
+  border-left: 1px solid rgba(var(--theme-contrast-rgb), 0.08);
+  padding-left: 24px;
+  margin-left: 16px;
+}
+
+.portal-job-card-h-skills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.portal-job-card-h-bookmark {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 20px;
+  color: var(--theme-muted);
+  transition: all 0.2s;
+  padding: 4px;
+}
+
+.portal-job-card-h-bookmark:hover {
+  transform: scale(1.1);
+  color: var(--theme-danger);
+}
+
+.portal-job-card-h-bookmark.saved {
+  color: var(--theme-danger);
 }

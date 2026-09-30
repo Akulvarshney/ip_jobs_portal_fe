@@ -1,9 +1,10 @@
+import CitySelect from '../components/CitySelect';
 import React, { useEffect, useState } from 'react';
 import { Table, Button, Modal, Form, Input, Select, Typography, message, Tag, Badge, Tooltip } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchEmployerJobs, createJob, inviteCandidate, fetchJobApplicants } from '../store/employerSlice';
-import { PlusOutlined, UserOutlined, MailOutlined, SendOutlined, CheckCircleOutlined, BankOutlined, DollarOutlined, SolutionOutlined, ArrowRightOutlined } from '@ant-design/icons';
+import { fetchEmployerJobs, createJob, inviteCandidate, fetchJobApplicants, fetchOrganisationProfile } from '../store/employerSlice';
+import { PlusOutlined, UserOutlined, MailOutlined, SendOutlined, CheckCircleOutlined, BankOutlined, DollarOutlined, SolutionOutlined, ArrowRightOutlined, LockOutlined } from '@ant-design/icons';
 import { motion } from 'framer-motion';
 import { 
   JOB_TYPES, 
@@ -21,7 +22,7 @@ const { TextArea } = Input;
 const { Option } = Select;
 
 const EmployerDashboard = () => {
-  const { jobs } = useSelector((state) => state.employer);
+  const { jobs, organisation, loading: orgLoading } = useSelector((state) => state.employer);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [applicantsModalVisible, setApplicantsModalVisible] = useState(false);
   const [selectedJob, setSelectedJob] = useState(null);
@@ -36,6 +37,7 @@ const EmployerDashboard = () => {
   const fetchJobs = async () => {
     try {
       if (!localStorage.getItem('token')) return navigate('/login');
+      await dispatch(fetchOrganisationProfile()).unwrap();
       await dispatch(fetchEmployerJobs()).unwrap();
     } catch (error) {
       if (error?.response?.status === 401 || error?.response?.status === 403) {
@@ -132,8 +134,33 @@ const EmployerDashboard = () => {
     }
   ];
 
+  if (orgLoading && !organisation) {
+    return <div className="portal-loading-container portal-py-80"><Typography.Text>Loading Dashboard...</Typography.Text></div>;
+  }
+
+  if (!organisation) {
+    return (
+      <div className="portal-w-full portal-flex-col-center portal-py-80 text-center">
+        <BankOutlined style={{ fontSize: 64, color: '#0ea5e9' }} className="portal-mb-24" />
+        <Title level={2}>Complete Your Organization Profile</Title>
+        <Text type="secondary" className="portal-mb-24 portal-max-w-600">
+          Add your organisation details to start hiring. We will guide you through the information needed for review.
+        </Text>
+        <Button type="primary" size="large" onClick={() => navigate('/employer/organisation')}>
+          Setup Organization Profile
+        </Button>
+      </div>
+    );
+  }
+
+
   return (
     <div className="portal-w-full">
+      {organisation.status === 'PENDING' && <div className="portal-card portal-p-24 portal-mb-24" role="status">
+        <h2>Organisation submitted for review</h2>
+        <p>You can update your organisation details and explore your dashboard. Publishing jobs becomes available after approval.</p>
+        <Button onClick={() => navigate('/employer/organisation')}>Review organisation details</Button>
+      </div>}
       <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -145,7 +172,7 @@ const EmployerDashboard = () => {
             <p className="portal-section-subtitle">Manage jobs, review IBBI verified candidates, and send direct interview invitations.</p>
           </div>
 
-          <button className="portal-btn-primary" onClick={() => setIsModalVisible(true)}>
+          <button className="portal-btn-primary" disabled={organisation.status !== 'APPROVED'} onClick={() => setIsModalVisible(true)}>
             <PlusOutlined />
             <span>List New Job</span>
           </button>
@@ -219,6 +246,9 @@ const EmployerDashboard = () => {
               </Form.Item>
             </div>
 
+            <Form.Item label="Job locations" name="locations" rules={[{ required: true, message: 'Select at least one city where this job is based' }]} extra="Choose the job’s cities, which may differ from your headquarters.">
+              <CitySelect aria-label="Job locations" size="large" mode="multiple" />
+            </Form.Item>
             <Form.Item label="Job Description" name="description" rules={[{ required: true, message: 'Please enter description' }]}>
               <TextArea rows={4} placeholder="Describe the CIRP/Liquidation scope, ticket size, and expectations..." />
             </Form.Item>

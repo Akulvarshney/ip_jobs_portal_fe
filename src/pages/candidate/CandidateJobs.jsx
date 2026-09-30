@@ -1,3 +1,4 @@
+import CitySelect from '../../components/CitySelect';
 import React, { useState, useEffect } from 'react';
 import { getFileUrl } from "../../utils/fileUrl";
 import {
@@ -41,7 +42,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchAllJobs } from '../../store/jobsSlice';
-import { fetchSavedJobs, fetchCandidateApplications, toggleSaveJob, applyToJob } from '../../store/candidateSlice';
+import { fetchSavedJobs, toggleSaveJob, applyToJob } from '../../store/candidateSlice';
 import { saveFilters } from '../../store/authSlice';
 import {
   JOB_TYPES,
@@ -155,13 +156,12 @@ const CandidateJobs = () => {
   const [coverNote, setCoverNote] = useState('');
   const [submittingApply, setSubmittingApply] = useState(false);
 
-  const loadJobsAndStatuses = async () => {
+    const loadJobsAndStatuses = async () => {
     try {
       setLoading(true);
-      const [jobsRes, savedRes, appsRes] = await Promise.all([
-        dispatch(fetchAllJobs()).unwrap(),
-        dispatch(fetchSavedJobs()).unwrap().catch(() => []),
-        dispatch(fetchCandidateApplications()).unwrap().catch(() => [])
+      const [jobsRes, savedRes] = await Promise.all([
+        dispatch(fetchAllJobs({ location: selectedLocation || undefined })).unwrap(),
+        dispatch(fetchSavedJobs()).unwrap().catch(() => [])
       ]);
 
       const savedMap = {};
@@ -170,11 +170,8 @@ const CandidateJobs = () => {
       });
       setSavedJobsMap(savedMap);
 
-      const appsMap = {};
-      (Array.isArray(appsRes) ? appsRes : appsRes?.data || []).forEach(app => {
-        appsMap[app.jobId] = app.status;
-      });
-      setAppliedJobsMap(appsMap);
+      // The backend already filters out jobs the user has applied to.
+      // We only keep appliedJobsMap for tracking state when applying in current session.
 
     } catch (error) {
       console.error('Error loading jobs:', error);
@@ -186,7 +183,7 @@ const CandidateJobs = () => {
 
   useEffect(() => {
     loadJobsAndStatuses();
-  }, [dispatch]);
+  }, [selectedLocation, dispatch]);
 
   const handleToggleSave = async (jobId) => {
     try {
@@ -223,7 +220,7 @@ const CandidateJobs = () => {
 
   const handleResetFilters = () => {
     setSearchKeyword('');
-    setSelectedLocation(undefined);
+    setSelectedLocation(null);
     setSelectedCategory(undefined);
     setSelectedOrgType(undefined);
     setSelectedJobType(undefined);
@@ -253,8 +250,6 @@ const CandidateJobs = () => {
         job.requirements?.toLowerCase().includes(searchKeyword.toLowerCase()) ||
         (job.employer?.name && job.employer.name.toLowerCase().includes(searchKeyword.toLowerCase()));
 
-      const matchesLocation = !selectedLocation ||
-        (job.employer?.location && job.employer.location.toLowerCase().includes(selectedLocation.toLowerCase()));
 
       const matchesCategory = !selectedCategory ||
         job.title.toLowerCase().includes(selectedCategory.toLowerCase()) ||
@@ -267,7 +262,7 @@ const CandidateJobs = () => {
       const matchesSalary = !selectedSalaryRange || job.salaryRange === selectedSalaryRange;
       const matchesExp = !selectedExpLevel || job.experienceLevel === selectedExpLevel;
 
-      return matchesKeyword && matchesLocation && matchesCategory && matchesOrgType && matchesJobType && matchesSalary && matchesExp;
+      return matchesKeyword && matchesCategory && matchesOrgType && matchesJobType && matchesSalary && matchesExp;
     })
     .sort((a, b) => {
       // Then newest first
@@ -347,7 +342,7 @@ const CandidateJobs = () => {
             {selectedLocation && (
               <span className="portal-filter-tag">
                 <EnvironmentOutlined /> {selectedLocation}
-                <CloseOutlined onClick={() => setSelectedLocation(undefined)} />
+                <CloseOutlined onClick={() => setSelectedLocation(null)} />
               </span>
             )}
 
@@ -410,22 +405,14 @@ const CandidateJobs = () => {
           <div className="portal-filter-section-title">
             <CompassOutlined /> Location
           </div>
-          <Select
-            placeholder="All Locations & Benches"
-            allowClear
-            value={selectedLocation}
-            onChange={setSelectedLocation}
-            className="portal-drawer-select"
-            size="large"
-          >
-            <Option value="Delhi NCR">Delhi NCR / Principal Bench</Option>
-            <Option value="Mumbai">Mumbai Bench</Option>
-            <Option value="Bengaluru">Bengaluru Bench</Option>
-            <Option value="Chennai">Chennai Bench</Option>
-            <Option value="Kolkata">Kolkata Bench</Option>
-            <Option value="Hyderabad">Hyderabad Bench</Option>
-            <Option value="Ahmedabad">Ahmedabad Bench</Option>
-          </Select>
+          <CitySelect
+              aria-label="Filter jobs by city"
+              placeholder="All cities — search worldwide"
+              value={selectedLocation}
+              onChange={city => setSelectedLocation(city || null)}
+              className="portal-drawer-select"
+              size="large"
+            />
         </div>
 
         <Divider className="portal-drawer-divider" />
@@ -533,8 +520,8 @@ const CandidateJobs = () => {
         </div>
       </Drawer>
 
-      {/* Jobs Grid */}
-      <div className="portal-cards-grid">
+      {/* Jobs List */}
+      <div className="portal-cards-list">
         <AnimatePresence>
           {filteredJobs.map((job) => {
             const isSaved = Boolean(savedJobsMap[job.id]);
@@ -544,101 +531,87 @@ const CandidateJobs = () => {
               <motion.div
                 key={job.id}
                 layout
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                whileHover={{ y: -5 }}
-                className="portal-glass-card portal-job-card"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="portal-job-card-horizontal"
+                onClick={() => navigate(`/jobs/${job.id}`)}
+                style={{ cursor: 'pointer' }}
               >
-                <div>
-                  <div className="portal-saved-card-header">
-                    <div className="portal-saved-company-group">
-                      <div className="portal-job-avatar">
-                        {job.employer?.logoUrl ? <img src={getFileUrl(job.employer?.logoUrl)} alt="logo" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "inherit" }} /> : (job.employer?.name ? job.employer.name.substring(0, 2).toUpperCase() : "CO")}
-                      </div>
-                      <div>
-                        <div className="portal-job-org-type">
-                          {job.employer?.type || 'VERIFIED ORG'}
-                        </div>
-                        <div className="portal-job-org-name">
-                          {job.employer?.name || 'Insolvency Entity'}
-                        </div>
-                      </div>
+                <div className="portal-job-card-h-left">
+                  <div className="portal-job-card-h-logo">
+                    {job.employer?.logoUrl ? (
+                      <img src={getFileUrl(job.employer?.logoUrl)} alt="logo" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "inherit" }} />
+                    ) : (
+                      (job.employer?.name ? job.employer.name.substring(0, 2).toUpperCase() : "CO")
+                    )}
+                  </div>
+                  
+                  <div className="portal-job-card-h-content">
+                    <h3 className="portal-job-card-h-title">{job.title}</h3>
+                    <div className="portal-job-card-h-company">
+                      <BankOutlined /> {job.employer?.name || 'Insolvency Entity'} 
+                      <Tag color="cyan" style={{ margin: 0, borderRadius: '12px', fontSize: '11px', border: 'none' }}>
+                        {job.employer?.type || 'VERIFIED ORG'}
+                      </Tag>
                     </div>
+                    
+                    <div className="portal-job-card-h-meta">
+                      {job.salaryRange && (
+                        <span><DollarOutlined /> {getSalaryRangeLabel(job.salaryRange)}</span>
+                      )}
+                      {job.experienceLevel && (
+                        <span><UserOutlined /> {getExperienceLevelLabel(job.experienceLevel)}</span>
+                      )}
+                      {(job.locations?.length ? job.locations.join(", ") : job.employer?.location) && (
+                        <span style={{ maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          <EnvironmentOutlined /> {job.locations?.length ? job.locations.join(", ") : job.employer?.location}
+                        </span>
+                      )}
+                      {job.createdAt && (
+                        <span><ClockCircleOutlined /> {getRelativeTime(job.createdAt)}</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
 
+                <div className="portal-job-card-h-right">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', width: '100%', justifyContent: 'flex-end' }}>
                     <button
-                      onClick={() => handleToggleSave(job.id)}
-                      className={`portal-bookmark-btn ${isSaved ? 'saved' : ''}`}
+                      onClick={(e) => { e.stopPropagation(); handleToggleSave(job.id); }}
+                      className={`portal-job-card-h-bookmark ${isSaved ? 'saved' : ''}`}
                     >
                       {isSaved ? <HeartFilled /> : <HeartOutlined />}
                     </button>
-                  </div>
 
-                  <h3 className="portal-job-card-title">
-                    {job.title}
-                  </h3>
-
-                  <div className="portal-job-card-meta-grid" style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginTop: '12px', marginBottom: '16px', color: '#64748b', fontSize: '13px' }}>
-                    {job.salaryRange && (
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <DollarOutlined /> {getSalaryRangeLabel(job.salaryRange)}
-                      </span>
-                    )}
-                    {job.experienceLevel && (
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <UserOutlined /> {getExperienceLevelLabel(job.experienceLevel)}
-                      </span>
-                    )}
-                    {job.employer?.location && (
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <EnvironmentOutlined /> {job.employer.location}
-                      </span>
-                    )}
-                    {job.createdAt && (
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <ClockCircleOutlined /> {getRelativeTime(job.createdAt)}
-                      </span>
+                    {applicationStatus ? (
+                      <Tag color={applicationStatus === 'SHORTLISTED' ? 'purple' : 'cyan'} icon={<CheckCircleOutlined />} style={{ padding: '6px 12px', fontSize: '13px', borderRadius: '20px', margin: 0 }}>
+                        {applicationStatus}
+                      </Tag>
+                    ) : (
+                      <button
+                        className="portal-btn-primary"
+                        style={{ padding: '8px 24px', borderRadius: '24px', fontWeight: 600, boxShadow: '0 4px 12px rgba(var(--theme-primary-rgb), 0.2)' }}
+                        onClick={(e) => { e.stopPropagation(); handleOpenApplyModal(job); }}
+                      >
+                        Apply Now
+                      </button>
                     )}
                   </div>
 
                   {job.skills?.length > 0 && (
-                    <div style={{ marginBottom: '16px', display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                      {job.skills.slice(0, 4).map(s => (
-                        <Tag key={s.skill?.id || s.skillId} color="blue" style={{ borderRadius: '4px' }}>
+                    <div className="portal-job-card-h-skills">
+                      {job.skills.slice(0, 3).map(s => (
+                        <Tag key={s.skill?.id || s.skillId} color="blue" style={{ borderRadius: '12px', border: 'none', background: 'rgba(var(--theme-primary-rgb), 0.08)' }}>
                           {s.skill?.name || 'Insolvency'}
                         </Tag>
                       ))}
-                      {job.skills.length > 4 && (
-                        <Tag style={{ borderRadius: '4px', borderStyle: 'dashed' }}>
-                          +{job.skills.length - 4} more
-                        </Tag>
+                      {job.skills.length > 3 && (
+                        <span style={{ fontSize: '12px', color: 'var(--theme-muted)', display: 'flex', alignItems: 'center' }}>
+                          +{job.skills.length - 3}
+                        </span>
                       )}
                     </div>
-                  )}
-
-
-                </div>
-
-                <div className="portal-saved-card-footer">
-                  <Link to={`/jobs/${job.id}`} target="_blank" rel="noopener noreferrer" className="portal-saved-view-link">
-                    View Job ↗
-                  </Link>
-
-                  {applicationStatus ? (
-                    <Tag
-                      color={applicationStatus === 'SHORTLISTED' ? 'purple' : 'cyan'}
-                      icon={<CheckCircleOutlined />}
-                      className="portal-job-status-tag"
-                    >
-                      {applicationStatus}
-                    </Tag>
-                  ) : (
-                    <button
-                      className="portal-btn-primary portal-job-apply-btn"
-                      onClick={() => handleOpenApplyModal(job)}
-                    >
-                      Apply Now
-                    </button>
                   )}
                 </div>
               </motion.div>

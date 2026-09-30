@@ -159,14 +159,9 @@ const Navbar = () => {
               </Dropdown>
             </div>
           ) : (
-            <>
-              <Link to="/login" className="portal-btn-secondary portal-nav-btn">
+              <Link to="/login" className="portal-btn-primary portal-nav-btn">
                 Log In
               </Link>
-              <Link to="/login?mode=signup" className="portal-btn-primary portal-nav-btn">
-                Get Started
-              </Link>
-            </>
           )}
         </div>
       </div>

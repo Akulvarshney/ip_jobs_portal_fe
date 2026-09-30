@@ -1,314 +1,144 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { getFileUrl } from '../utils/fileUrl';
-import { useNavigate } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+import { Link, useNavigate } from 'react-router-dom';
+import { ArrowRightOutlined, ArrowDownOutlined, SearchOutlined } from '@ant-design/icons';
+import { useDispatch, useSelector } from 'react-redux';
 import { fetchAllJobs } from '../store/jobsSlice';
-import { motion, AnimatePresence } from 'framer-motion';
-import {
-  SearchOutlined,
-  ArrowRightOutlined,
-  EnvironmentOutlined,
-  DollarOutlined,
-  BankOutlined,
-  UserSwitchOutlined,
-  SafetyCertificateOutlined,
-  TeamOutlined,
-  ClockCircleOutlined
-} from '@ant-design/icons';
-import { getSalaryRangeLabel } from '../utils/jobType';
+import '../styles/resolve-home.css';
+import CustomCursor from '../components/CustomCursor';
+import FullscreenLoader from '../components/FullscreenLoader';
 
-const sampleJobs = [
-  {
-    id: 'sample-1',
-    title: 'Resolution Professional (CIRP)',
-    employer: { name: 'Apex ARC Ltd.', location: 'Mumbai, MH (On-site)' },
-    location: 'Mumbai, MH (On-site)',
-    salary: '₹24L - ₹36L',
-    type: 'Full-time',
-    description: 'Lead Corporate Insolvency Resolution Processes (CIRP) for MSME clients. Manage CoC meetings, claim verifications, and resolution plan evaluations.',
-    requirements: 'IBBI Registered Insolvency Professional, 10+ years experience, CA/Law background.',
-    tags: ['CIRP', 'IBBI Registered', 'Mumbai', 'CA'],
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'sample-2',
-    title: 'Legal Head - Restructuring & IBC',
-    employer: { name: 'Vanguard NBFC', location: 'Delhi, NCR (Hybrid)' },
-    location: 'Delhi, NCR (Hybrid)',
-    salary: '₹30L - ₹45L',
-    type: 'Full-time',
-    description: 'Oversee all NCLT litigation and restructuring portfolios. Coordinate with resolution professionals and external counsels for recovery strategies.',
-    requirements: 'LLB/LLM, 8+ years in banking litigation, deep expertise in IBC 2016.',
-    tags: ['Legal', 'NCLT', 'IBC', 'Litigation'],
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'sample-3',
-    title: 'Senior Associate - Liquidations',
-    employer: { name: 'Resolv Consultancy Services', location: 'Bengaluru, KA (Remote)' },
-    location: 'Bengaluru, KA (Remote)',
-    salary: '₹15L - ₹22L',
-    type: 'Full-time',
-    description: 'Handle liquidation process compliance, e-auctions of corporate debtor assets, and stakeholder distributions under IBC regulations.',
-    requirements: 'CS/CA, 3+ years experience assisting in liquidations or CIRP.',
-    tags: ['Liquidation', 'CS', 'CA', 'E-auction'],
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'sample-4',
-    title: 'Financial Analyst - Restructuring',
-    employer: { name: 'KPMG India', location: 'Pune, MH (Hybrid)' },
-    location: 'Pune, MH (Hybrid)',
-    salary: '₹12L - ₹18L',
-    type: 'Full-time',
-    description: 'Prepare information memorandums, financial models, and evaluation matrix for prospective resolution applicants.',
-    requirements: 'CA/CFA, strong financial modeling skills, understanding of distressed assets.',
-    tags: ['CA', 'Financial Modeling', 'Big 4', 'Restructuring'],
-    createdAt: new Date().toISOString()
-  }
-];
+const specialties = ['All', 'CIRP', 'Liquidation', 'Legal', 'Financial'];
 
-const DOMAINS = ['All', 'CIRP', 'Liquidation', 'Legal & NCLT', 'Financial Restructuring'];
-
-const getRelativeTime = (dateString) => {
-  const diffTime = Math.abs(new Date() - new Date(dateString));
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  if (diffDays === 0) return 'Today';
-  if (diffDays === 1) return '1 day ago';
-  return `${diffDays} days ago`;
-};
-
-const Home = () => {
-  const [activeDomain, setActiveDomain] = useState('All');
-  const navigate = useNavigate();
+const ResolveHome = () => {
   const dispatch = useDispatch();
-  const { jobsList } = useSelector((state) => state.jobs);
-  const { isAuthenticated } = useSelector((state) => state.auth);
+  const navigate = useNavigate();
+  const { jobsList, loading } = useSelector((state) => state.jobs);
 
   useEffect(() => {
     dispatch(fetchAllJobs());
   }, [dispatch]);
 
-  const displayJobs = Array.isArray(jobsList) && jobsList.length > 0 ? jobsList : sampleJobs;
+  const reducedMotion = useReducedMotion();
+  const [cursorState, setCursorState] = useState({ variant: 'default', label: '' });
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeSpecialty, setActiveSpecialty] = useState('All');
+  const [selectedRole, setSelectedRole] = useState(null);
+  const drawerRef = useRef(null);
+  const setCursor = (variant, label = '') => setCursorState({ variant, label });
+  const resetCursor = () => setCursorState({ variant: 'default', label: '' });
+  const hover = label => ({ onMouseEnter: () => setCursor('hover', label), onMouseLeave: resetCursor });
+  const reveal = (delay = 0) => ({
+    initial: reducedMotion ? false : { opacity: 0, y: 48 },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: false, amount: 0.25, margin: '0px 0px -48px 0px' },
+    transition: { duration: reducedMotion ? 0 : 0.85, delay: reducedMotion ? 0 : delay, ease: [0.22, 1, 0.36, 1] },
+  });
+  const filteredRoles = useMemo(() => (jobsList || []).filter(role => {
+    const query = searchQuery.trim().toLowerCase();
+    const employerName = role.employer?.name || '';
+    const locationStr = role.location || '';
+    const categoryName = role.category?.name || '';
+    return [role.title, employerName, locationStr, categoryName].some(value => value?.toLowerCase().includes(query)) &&
+      (activeSpecialty === 'All' || categoryName.includes(activeSpecialty) || (activeSpecialty === 'Financial' && categoryName === 'Finance'));
+  }), [searchQuery, activeSpecialty, jobsList]);
 
-  const filteredJobs = useMemo(() => {
-    if (activeDomain === 'All') return displayJobs.slice(0, 4);
-    return displayJobs.filter(job => {
-      const tagLower = activeDomain.toLowerCase();
-      return (
-        job.title?.toLowerCase().includes(tagLower) ||
-        job.description?.toLowerCase().includes(tagLower) ||
-        (job.tags && job.tags.some(t => t.toLowerCase().includes(tagLower))) ||
-        (job.skills && job.skills.some(s => (s.skill?.name || s.name || '').toLowerCase().includes(tagLower)))
-      );
-    }).slice(0, 4);
-  }, [displayJobs, activeDomain]);
+  useEffect(() => {
+    if (!selectedRole) return;
+    const previousFocus = document.activeElement;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    drawerRef.current?.querySelector('button')?.focus();
+    const handleKey = event => {
+      if (event.key === 'Escape') setSelectedRole(null);
+      if (event.key === 'Tab') {
+        const elements = drawerRef.current?.querySelectorAll('button, a[href]');
+        if (!elements?.length) return;
+        const first = elements[0];
+        const last = elements[elements.length - 1];
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+      }
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', handleKey);
+      previousFocus?.focus();
+    };
+  }, [selectedRole]);
+
+  const closeRole = () => { setSelectedRole(null); resetCursor(); };
+
+  if (loading && (!jobsList || jobsList.length === 0)) {
+    return <FullscreenLoader />;
+  }
 
   return (
-    <div className="portal-page-wrapper">
-      <div className="portal-bg-glow">
-        <div className="portal-bg-blob-1"></div>
-        <div className="portal-bg-blob-2"></div>
-        <div className="portal-bg-blob-3"></div>
-      </div>
-
-      <div className="portal-home-container">
-        
-        {/* HERO SPLIT SECTION */}
-        <div className="portal-hero-split">
-          
-          <motion.div 
-            initial={{ opacity: 0, x: -40 }} 
-            animate={{ opacity: 1, x: 0 }} 
-            transition={{ duration: 0.7, ease: 'easeOut' }}
-          >
-            <div className="portal-hero-badge-v2">
-               <SafetyCertificateOutlined /> India's Premium IBC Network
-            </div>
-            
-            <h1 className="portal-hero-title-v2">
-              Specialized roles for <br />
-              <span className="portal-text-gradient">
-                Restructuring Experts.
-              </span>
-            </h1>
-            
-            <p className="portal-hero-subtitle-v2">
-              Bypass generic job boards. Connect directly with top NBFCs, ARCs, and Resolution Applicants looking for verified insolvency and legal professionals.
-            </p>
-
-            <div className="portal-domain-filter-wrapper">
-              <div className="portal-domain-filter-header">
-                Explore by Domain
-              </div>
-              <div className="portal-domain-filter-list">
-                {DOMAINS.map(domain => (
-                  <button
-                    key={domain}
-                    onClick={() => setActiveDomain(domain)}
-                    className={`portal-domain-btn ${activeDomain === domain ? 'active' : ''}`}
-                  >
-                    {domain}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-
-          {/* DYNAMIC JOB PREVIEW */}
-          <motion.div 
-            initial={{ opacity: 0, y: 40 }} 
-            animate={{ opacity: 1, y: 0 }} 
-            transition={{ duration: 0.7, delay: 0.2, ease: 'easeOut' }}
-            className="portal-dynamic-preview-wrapper"
-          >
-            <div className="portal-preview-bg-glow" />
-            
-            <div className="portal-preview-list">
-              <AnimatePresence mode="popLayout">
-                {filteredJobs.length > 0 ? filteredJobs.map((job, index) => (
-                  <motion.div
-                    key={job.id}
-                    layout
-                    initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                    transition={{ duration: 0.3, delay: index * 0.05 }}
-                    onClick={() => navigate(`/jobs/${job.id}`)}
-                    className="portal-preview-card"
-                  >
-                    <div className="portal-preview-card-header">
-                      <div className="portal-preview-card-company">
-                        <div className="portal-preview-card-avatar">
-                          {job.employer?.logoUrl ? <img src={getFileUrl(job.employer?.logoUrl)} alt="logo" /> : (job.employer?.name ? job.employer.name.substring(0, 2).toUpperCase() : "CO")}
-                        </div>
-                        <div>
-                          <h3 className="portal-preview-card-title">{job.title}</h3>
-                          <div className="portal-preview-card-subtitle">{job.employer?.name || 'Verified Entity'}</div>
-                        </div>
-                      </div>
-                      <div className="portal-preview-card-salary">
-                        <DollarOutlined /> {job.salaryRange ? getSalaryRangeLabel(job.salaryRange) : (job.salary || 'Competitive')}
-                      </div>
-                    </div>
-                    
-                    <div className="portal-preview-card-meta">
-                       <span className="portal-preview-card-meta-item"><EnvironmentOutlined className="portal-preview-card-meta-icon" /> {job.employer?.location || job.location}</span>
-                       <span className="portal-preview-card-meta-item"><ClockCircleOutlined className="portal-preview-card-meta-icon" /> {getRelativeTime(job.createdAt)}</span>
-                    </div>
-                  </motion.div>
-                )) : (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="portal-preview-empty"
-                  >
-                    No featured jobs found for this domain right now.
-                  </motion.div>
-                )}
-              </AnimatePresence>
-              
-              <motion.button 
-                layout
-                onClick={() => navigate('/candidate/jobs')}
-                className="portal-view-all-btn"
-              >
-                View all opportunities <ArrowRightOutlined />
-              </motion.button>
-            </div>
+    <div className="resolve-page" onMouseLeave={resetCursor}>
+      <CustomCursor cursorState={cursorState} />
+      <section className="resolve-hero">
+        <div className="resolve-hero-copy">
+          <motion.p className="resolve-eyebrow" {...reveal()}><span className="resolve-status-dot" /> A specialist space. A meaningful next step.</motion.p>
+          <motion.h1 {...reveal(0.08)}>Where expertise<br />finds <span>its next chapter.</span></motion.h1>
+          <motion.p className="resolve-hero-desc" {...reveal(0.16)}>Careers in insolvency, restructuring and finance.<br className="resolve-desktop-break" /> Built around the people who move things forward.</motion.p>
+          <motion.div className="resolve-actions" {...reveal(0.24)}>
+            <a href="#roles" className="resolve-button" {...hover('EXPLORE')}>Find jobs <ArrowRightOutlined /></a>
+            <Link to="/login?mode=signup&role=EMPLOYER" className="resolve-text-link" {...hover('HIRE')}>Post a job <ArrowRightOutlined /></Link>
           </motion.div>
         </div>
-
-        {/* VALUE PROPOSITION SCROLL STORY */}
-        <motion.div 
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.8 }}
-          className="portal-value-prop-section"
-        >
-          <div className="portal-value-prop-header">
-            <h2 className="portal-value-prop-title">Designed for the IBC Ecosystem</h2>
-            <p className="portal-value-prop-subtitle">
-              We've stripped away the noise of generic job boards to focus entirely on precision, verification, and direct connections.
-            </p>
-          </div>
-
-          <div className="portal-value-prop-grid">
-            {[
-              { icon: <SafetyCertificateOutlined style={{ fontSize: '24px', color: '#10b981' }}/>, title: "IBBI Verification", desc: "Profiles are cross-referenced with public registers to ensure credentials for Insolvency Professionals." },
-              { icon: <SearchOutlined style={{ fontSize: '24px', color: '#0ea5e9' }}/>, title: "AI-Powered Matching", desc: "Vector search matches exact experience, ticket sizes, and IBC expertise so you don't sift through irrelevant roles." },
-              { icon: <TeamOutlined style={{ fontSize: '24px', color: '#8b5cf6' }}/>, title: "Direct Entity Invites", desc: "Top financial institutions can securely review profiles and issue direct Special Invites for immediate hiring." }
-            ].map((feature, i) => (
-              <motion.div 
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
-                className="portal-value-prop-card"
-              >
-                <div className="portal-value-prop-icon">
-                  {feature.icon}
-                </div>
-                <div>
-                  <h3 className="portal-value-prop-card-title">{feature.title}</h3>
-                  <p className="portal-value-prop-card-desc">
-                    {feature.desc}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+        <motion.div className="resolve-art" aria-hidden="true" {...reveal(0.2)}>
+          <div className="resolve-art-grid" />
+          <div className="resolve-orbit resolve-orbit-one" />
+          <div className="resolve-orbit resolve-orbit-two" />
+          <div className="resolve-orbit resolve-orbit-three" />
+          <div className="resolve-art-center">r<span>.</span></div>
+          <span className="resolve-art-label resolve-art-label-top">EXPERTISE</span>
+          <span className="resolve-art-label resolve-art-label-bottom">OPPORTUNITY</span>
+          <span className="resolve-orbit-dot" />
+          <span className="resolve-art-caption">The right people. The right place.</span>
         </motion.div>
+        <div className="resolve-hero-foot"><span>FOR INDIA’S INSOLVENCY & RESTRUCTURING COMMUNITY</span><a href="#roles" {...hover('SCROLL')}>Explore opportunities <ArrowDownOutlined /></a></div>
+      </section>
 
-        {/* DUAL CTA */}
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.98 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="portal-dual-cta-v2"
-        >
-          <div className="portal-cta-box portal-cta-professional">
-            <div className="portal-cta-top-border portal-cta-top-border-blue" />
-            <div className="portal-cta-icon-wrapper">
-              <UserSwitchOutlined style={{ fontSize: '36px', color: '#0ea5e9' }} />
-            </div>
-            <h3 className="portal-cta-title-v2">For Professionals</h3>
-            <p className="portal-cta-desc-v2">
-              Build your verified profile, browse high-paying roles, and receive direct interview invites from ARCs and Banks.
-            </p>
-            <button 
-              onClick={() => navigate(isAuthenticated ? '/candidate' : '/login')}
-              className="portal-btn-primary"
-            >
-              {isAuthenticated ? 'Go to Dashboard' : 'Create Account'} <ArrowRightOutlined />
-            </button>
-          </div>
-          
-          <div className="portal-cta-box portal-cta-entity">
-            <div className="portal-cta-top-border portal-cta-top-border-purple" />
-            <div className="portal-cta-icon-wrapper">
-              <BankOutlined style={{ fontSize: '36px', color: '#8b5cf6' }} />
-            </div>
-            <h3 className="portal-cta-title-v2">For Entities</h3>
-            <p className="portal-cta-desc-v2">
-              Post open positions, leverage our AI to shortlist verified experts, and send direct special invitations.
-            </p>
-            <button 
-              onClick={() => navigate(isAuthenticated ? '/employer' : '/login')}
-              className="portal-btn-secondary"
-            >
-              {isAuthenticated ? 'Go to Dashboard' : 'Post a Job'} <ArrowRightOutlined />
-            </button>
-          </div>
+      <section id="roles" className="resolve-section resolve-roles-section">
+        <motion.div className="resolve-section-heading" {...reveal()}>
+          <div><p className="resolve-eyebrow">01 / OPPORTUNITIES</p><h2>Work that moves you.</h2></div>
+          {/* <p>A glimpse of what your next chapter could look like.<br /><span className="resolve-sample-note">Illustrative roles · Applications are not open for these listings.</span></p> */}
         </motion.div>
+        <motion.div className="resolve-roles-controls" {...reveal(0.08)}>
+          <div className="resolve-filters" aria-label="Filter by specialty">
+            {specialties.map(spec => <button key={spec} className={`resolve-filter-chip ${activeSpecialty === spec ? 'active' : ''}`} aria-pressed={activeSpecialty === spec} onClick={() => setActiveSpecialty(spec)} {...hover('FILTER')}>{spec}</button>)}
+          </div>
+          <label className="resolve-roles-search"><SearchOutlined aria-hidden="true" /><input type="search" aria-label="Search open roles, organisations or locations" placeholder="Role, organisation or location" value={searchQuery} onChange={event => setSearchQuery(event.target.value)} {...hover('SEARCH')} /></label>
+        </motion.div>
+        <div className="resolve-list-caption"><span>EXPLORE OPEN ROLES</span><span role="status">{filteredRoles.length} {filteredRoles.length === 1 ? 'role' : 'roles'}</span></div>
+        <motion.div className="resolve-role-list" layout={!reducedMotion}>
+          <AnimatePresence mode="popLayout">
+            {filteredRoles.map((role, index) => <motion.button layout={!reducedMotion} {...reveal(index * 0.08)} exit={{ opacity: 0, transition: { duration: reducedMotion ? 0 : 0.15 } }} key={role.id} className="resolve-role-row" onClick={() => { navigate(`/jobs/${role.id}`); resetCursor(); }} {...hover('VIEW')}>
+              <span className="resolve-employer-mark" aria-hidden="true">{(role.employer?.name || 'C').slice(0, 1)}</span>
+              <span className="resolve-role-main"><span className="resolve-row-title">{role.title}</span><span className="resolve-row-employer">{role.employer?.name || 'Confidential'}</span></span>
+              <span className="resolve-row-meta">{role.location}</span><span className="resolve-role-tag">{role.category?.name || 'General'}</span><span className="resolve-row-arrow"><ArrowRightOutlined /></span>
+            </motion.button>)}
+          </AnimatePresence>
+          {filteredRoles.length === 0 && <div className="resolve-empty-state"><h3>No roles found.</h3><p>Try a different keyword or specialty.</p><button className="resolve-text-link" onClick={() => { setSearchQuery(''); setActiveSpecialty('All'); }} {...hover('CLEAR')}>Clear filters <ArrowRightOutlined /></button></div>}
+        </motion.div>
+        <motion.div className="resolve-roles-bottom" {...reveal()}><p>Your experience belongs somewhere meaningful.</p><Link to="/jobs" className="resolve-text-link" {...hover('BROWSE')}>Browse the job portal <ArrowRightOutlined /></Link></motion.div>
+      </section>
 
-      </div>
+      <section className="resolve-process resolve-section" id="how-it-works">
+        <motion.div className="resolve-process-intro" {...reveal()}><p className="resolve-eyebrow">02 / A CLEAR PATH FORWARD</p><h2>Specialist careers.<br /><span>Simple connections.</span></h2><p>Less searching in the wrong places.<br />More space for your next move.</p></motion.div>
+        <div className="resolve-steps">
+          {[
+            ['01', 'Tell your story', 'Create a profile around your experience, qualifications and the work you do best.'],
+            ['02', 'Find your fit', 'Explore opportunities across insolvency, legal, finance and restructuring.'],
+            ['03', 'Take the next step', 'Apply to relevant roles and follow your applications as they move forward.'],
+          ].map(([number, title, description], index) => <motion.div className="resolve-step" key={number} {...reveal(index * 0.08)}><span className="resolve-step-num">{number}</span><div><h3>{title}</h3><p>{description}</p></div><ArrowRightOutlined aria-hidden="true" /></motion.div>)}
+        </div>
+      </section>
+
     </div>
   );
 };
 
-export default Home;
-
+export default ResolveHome;

@@ -1,26 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Input, Button, Typography, message, Alert, Divider, Avatar, Tag, Modal } from 'antd';
+import { Form, Input, Typography, message, Alert, Divider, Avatar, Tag, Modal } from 'antd';
 import { useDispatch } from 'react-redux';
 import { loginSuccess } from '../store/authSlice';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import api from '../api';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useGoogleLogin } from '@react-oauth/google';
 import {
-  RocketOutlined,
   MailOutlined,
   LockOutlined,
   KeyOutlined,
   CheckCircleOutlined,
   CheckCircleFilled,
-  ThunderboltOutlined,
-  ArrowRightOutlined,
   ArrowLeftOutlined,
   UserOutlined,
   BankOutlined,
-  SafetyCertificateOutlined,
-  TeamOutlined,
-  QuestionCircleOutlined
 } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
@@ -49,7 +43,7 @@ const GoogleIcon = () => (
 
 const Login = () => {
   const [searchParams] = useSearchParams();
-  const [isLogin, setIsLogin] = useState(searchParams.get('mode') !== 'signup');
+  const isLogin = searchParams.get('mode') !== 'signup';
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -59,10 +53,11 @@ const Login = () => {
   const [googleRole, setGoogleRole] = useState('CANDIDATE'); // 'CANDIDATE' | 'EMPLOYER'
 
   // Register multi-step state (Self Email OTP flow)
-  // Step 0: Enter Email -> Step 1: Verify OTP -> Step 2: Name, Role & Password
+  // Account details -> verify email and create account.
   const [registerStep, setRegisterStep] = useState(0);
   const [registerEmail, setRegisterEmail] = useState('');
-  const [manualRole, setManualRole] = useState('CANDIDATE');
+  const [manualRole, setManualRole] = useState(searchParams.get('role') === 'EMPLOYER' ? 'EMPLOYER' : 'CANDIDATE');
+  const [registrationDetails, setRegistrationDetails] = useState(null);
   const [otpCode, setOtpCode] = useState('');
   const [sendingOtp, setSendingOtp] = useState(false);
   const [verifyingOtp, setVerifyingOtp] = useState(false);
@@ -89,11 +84,6 @@ const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    if (searchParams.get('mode') === 'signup') {
-      setIsLogin(false);
-    }
-  }, [searchParams]);
 
   // Countdown timer for registration OTP resend
   useEffect(() => {
@@ -121,7 +111,7 @@ const Login = () => {
       const res = await api.post('/api/auth/login', values);
       dispatch(loginSuccess({ token: res.data.token, user: res.data.user }));
       message.success('Welcome back! Sign in successful.');
-      redirectUser(res.data.user.role);
+      redirectUser(res.data.user);
     } catch (error) {
       const msg = error.response?.data?.error || 'Authentication failed. Please check your email and password.';
       setErrorMessage(msg);
@@ -132,20 +122,26 @@ const Login = () => {
   };
 
   // Registration Step 1: Send OTP to email
-  const handleSendOtp = async () => {
-    if (!registerEmail || !registerEmail.includes('@')) {
+  const handleSendOtp = async (details) => {
+    if (sendingOtp) return;
+    const account = details?.email ? details : registrationDetails;
+    const email = (account?.email || registerEmail).trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       message.warning('Please enter a valid email address');
       return;
     }
     setSendingOtp(true);
     setErrorMessage('');
     try {
-      const res = await api.post('/api/auth/send-otp', { email: registerEmail });
+      const res = await api.post('/api/auth/send-otp', { email });
       if (res.data?.success) {
         message.success(res.data.message);
         if (res.data.otp) {
           setDevOtpHint(res.data.otp);
         }
+        setRegisterEmail(email);
+        if (account) setRegistrationDetails(account);
+        setOtpCode('');
         setRegisterStep(1);
         setOtpCountdown(60);
       }
@@ -160,7 +156,8 @@ const Login = () => {
 
   // Registration Step 2: Verify OTP
   const handleVerifyOtp = async () => {
-    if (!otpCode || otpCode.trim().length < 4) {
+    if (verifyingOtp || loading) return;
+    if (!/^\d{6}$/.test(otpCode.trim())) {
       message.warning('Please enter the 6-digit verification code');
       return;
     }
@@ -169,8 +166,7 @@ const Login = () => {
     try {
       const res = await api.post('/api/auth/verify-otp', { email: registerEmail, otp: otpCode });
       if (res.data?.success) {
-        message.success('Email verified! Please complete your profile and set password.');
-        setRegisterStep(2);
+        await onCompleteRegistration(registrationDetails, res.data.verificationToken);
       }
     } catch (error) {
       const msg = error.response?.data?.error || 'Invalid verification code';
@@ -181,10 +177,10 @@ const Login = () => {
     }
   };
 
-  // Registration Step 3: Complete registration with profile, role & password
-  const onCompleteRegistration = async (values) => {
-    if (values.password !== values.confirmPassword) {
-      message.error('Passwords do not match');
+  // Finish registration after email verification.
+  const onCompleteRegistration = async (values, verificationToken) => {
+    if (!values?.password) {
+      message.error('Please return to account details and enter a password.');
       return;
     }
 
@@ -196,12 +192,12 @@ const Login = () => {
         password: values.password,
         name: values.name,
         role: manualRole,
-        companyName: values.companyName
+        verificationToken
       });
 
       dispatch(loginSuccess({ token: res.data.token, user: res.data.user }));
-      message.success('Account created successfully! Welcome to Resolve.');
-      redirectUser(res.data.user.role);
+      message.success('Account created! Add your profile details or start browsing jobs.');
+      navigate(res.data.user.role === 'EMPLOYER' ? '/employer/organisation' : '/candidate/profile', { replace: true });
     } catch (error) {
       const msg = error.response?.data?.error || 'Registration failed';
       setErrorMessage(msg);
@@ -217,25 +213,17 @@ const Login = () => {
       setGoogleLoading(true);
       setErrorMessage('');
       try {
-        const userInfoRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-          headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
-        });
-        const googleUser = await userInfoRes.json();
-
-        const res = await api.post('/api/auth/google', {
-          email: googleUser.email,
-          name: googleUser.name || googleUser.given_name,
-          photoUrl: googleUser.picture,
-          googleId: googleUser.sub
-        });
+        const res = await api.post('/api/auth/google', { accessToken: tokenResponse.access_token });
+        const googleUser = { email: res.data.email, name: res.data.name, picture: res.data.photoUrl };
 
         if (res.data.isNewUser) {
           setGoogleOnboardingUser({
             email: googleUser.email,
             name: googleUser.name || googleUser.given_name || googleUser.email.split('@')[0],
-            photoUrl: googleUser.picture
+            photoUrl: googleUser.picture,
+            accessToken: tokenResponse.access_token
           });
-          setGoogleRole('CANDIDATE');
+          setGoogleRole(manualRole);
           googleProfileForm.setFieldsValue({
             name: googleUser.name || googleUser.given_name || googleUser.email.split('@')[0],
             companyName: ''
@@ -244,7 +232,7 @@ const Login = () => {
         } else {
           dispatch(loginSuccess({ token: res.data.token, user: res.data.user }));
           message.success(`Signed in with Google as ${res.data.user.name || googleUser.email}!`);
-          redirectUser(res.data.user.role);
+          redirectUser(res.data.user);
         }
       } catch (err) {
         console.error('Google OAuth error:', err);
@@ -268,7 +256,7 @@ const Login = () => {
     setErrorMessage('');
     try {
       const res = await api.post('/api/auth/google', {
-        email: googleOnboardingUser.email,
+        accessToken: googleOnboardingUser.accessToken,
         name: values.name || googleOnboardingUser.name,
         photoUrl: googleOnboardingUser.photoUrl,
         role: googleRole,
@@ -277,7 +265,7 @@ const Login = () => {
 
       dispatch(loginSuccess({ token: res.data.token, user: res.data.user }));
       message.success(`Welcome to Resolve, ${res.data.user.name}!`);
-      redirectUser(res.data.user.role);
+      navigate(res.data.user.role === 'EMPLOYER' ? '/employer/organisation' : '/candidate/profile', { replace: true });
     } catch (error) {
       const msg = error.response?.data?.error || 'Failed to complete profile setup';
       setErrorMessage(msg);
@@ -378,10 +366,15 @@ const Login = () => {
     }
   };
 
-  const redirectUser = (userRole) => {
+  const redirectUser = (user) => {
+    const userRole = user.role;
+    if (user.onboarding?.required) {
+      navigate(user.onboarding.path, { replace: true });
+      return;
+    }
     const redirectUrl = searchParams.get('redirect');
-    if (redirectUrl) {
-      navigate(redirectUrl);
+    if (redirectUrl?.startsWith('/') && !redirectUrl.startsWith('//') && !redirectUrl.includes('\\') && !redirectUrl.startsWith('/login')) {
+      navigate(redirectUrl, { replace: true });
       return;
     }
 
@@ -396,7 +389,9 @@ const Login = () => {
 
   const autofillDemo = (demoRole) => {
     setErrorMessage('');
-    setIsLogin(true);
+    const params = new URLSearchParams(searchParams);
+    params.delete('mode');
+    navigate(`/login?${params}`);
     setGoogleOnboardingUser(null);
     if (demoRole === 'ADMIN') {
       loginForm.setFieldsValue({
@@ -444,7 +439,7 @@ const Login = () => {
               ? 'Select how you want to use the Insolvency & Valuation ecosystem'
               : isLogin
                 ? 'Sign in to access your specialized professional ecosystem'
-                : 'Fast, OTP-verified registration for professionals & recruiters'
+                : 'Create your account, verify your email, and get started.'
             }
           </Text>
         </div>
@@ -550,24 +545,6 @@ const Login = () => {
                   </div>
                 </div>
 
-                {/* If Employer selected, prompt Company Name */}
-                {googleRole === 'EMPLOYER' && (
-                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="portal-mb-20">
-                    <Form.Item
-                      label={<span className="portal-form-label-bold">Organization / Company Name</span>}
-                      name="companyName"
-                      rules={[{ required: true, message: 'Please enter your company / firm name' }]}
-                    >
-                      <Input
-                        prefix={<BankOutlined className="portal-text-link" />}
-                        placeholder="e.g. Arcil Resolution Services Pvt Ltd"
-                        size="large"
-                        className="portal-auth-input"
-                      />
-                    </Form.Item>
-                  </motion.div>
-                )}
-
                 <button
                   type="submit"
                   className="portal-btn-primary portal-btn-auth-submit"
@@ -585,7 +562,7 @@ const Login = () => {
                 <div className="portal-text-center portal-mt-14">
                   <button
                     type="button"
-                    onClick={() => { setGoogleOnboardingUser(null); setIsLogin(true); }}
+                    onClick={() => { setGoogleOnboardingUser(null); navigate('/login'); }}
                     className="portal-btn-link-switch"
                   >
                     <ArrowLeftOutlined /> Use a different account
@@ -667,7 +644,7 @@ const Login = () => {
               </Form>
 
               {/* Quick Demo Login Fillers */}
-              {/* <div className="portal-demo-accounts-box">
+              <div className="portal-demo-accounts-box">
                 <div className="portal-demo-accounts-title">
                   ⚡ Quick Demo Accounts
                 </div>
@@ -694,7 +671,7 @@ const Login = () => {
                     Admin
                   </button>
                 </div>
-              </div> */}
+              </div>
             </div>
           ) : (
 
@@ -714,55 +691,96 @@ const Login = () => {
               </button>
 
               <Divider className="portal-auth-divider">
-                OR REGISTER WITH EMAIL OTP
+                OR CONTINUE WITH EMAIL
               </Divider>
 
-              {/* Progress Indicator for Email OTP Flow */}
-              <div className="portal-otp-step-bar">
-                <div className={`portal-step-item ${registerStep >= 0 ? 'active' : ''}`}>
-                  <span className={`portal-step-circle ${registerStep >= 0 ? 'active' : ''}`}>1</span>
-                  Email
-                </div>
-                <div className={`portal-step-line ${registerStep >= 1 ? 'active' : ''}`}></div>
-                <div className={`portal-step-item ${registerStep >= 1 ? 'active' : ''}`}>
-                  <span className={`portal-step-circle ${registerStep >= 1 ? 'active' : ''}`}>2</span>
-                  OTP Verify
-                </div>
-                <div className={`portal-step-line ${registerStep >= 2 ? 'active' : ''}`}></div>
-                <div className={`portal-step-item ${registerStep >= 2 ? 'active' : ''}`}>
-                  <span className={`portal-step-circle ${registerStep >= 2 ? 'active' : ''}`}>3</span>
-                  Profile
-                </div>
+              <div className="portal-otp-step-bar" aria-label={`Step ${registerStep + 1} of 2`}>
+                <span className="portal-step-item active">1. Account details</span>
+                <span className="portal-step-line active" />
+                <span className={`portal-step-item ${registerStep === 1 ? 'active' : ''}`}>2. Verify email</span>
               </div>
-
-              {/* STEP 0: Email Input */}
-              {registerStep === 0 && (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                  <div className="portal-mb-16">
-                    <label className="portal-form-label-block-8">
-                      Enter Your Email
-                    </label>
+              {registerStep === 0 && <div>
+                <Form form={passwordForm} layout="vertical" onFinish={handleSendOtp} initialValues={{ email: registerEmail }} requiredMark={false}>
+                  <Form.Item label="Email address" name="email" rules={[{ required: true, message: 'Enter your email address' }, { type: 'email', message: 'Enter a valid email address' }]}>
+                    <Input autoComplete="email" type="email" size="large" className="portal-auth-input" placeholder="you@example.com" />
+                  </Form.Item>
+                  {/* Full Name */}
+                  <Form.Item
+                    label={<span className="portal-form-label">Your Full Name</span>}
+                    name="name"
+                    rules={[{ required: true, message: 'Please enter your name' }]}
+                    className="portal-mb-16"
+                  >
                     <Input
-                      prefix={<MailOutlined className="portal-text-link" />}
-                      placeholder="e.g. insolvency.specialist@domain.com"
+                      prefix={<UserOutlined className="portal-text-link" />}
+                      placeholder="e.g. Adv. Rajesh Mehta"
                       size="large"
-                      value={registerEmail}
-                      onChange={(e) => setRegisterEmail(e.target.value)}
-                      onPressEnter={handleSendOtp}
                       className="portal-auth-input"
                     />
+                  </Form.Item>
+
+                  {/* Role Selection */}
+                  <div className="portal-mb-16">
+                    <label className="portal-form-label-block-8">
+                      Register As:
+                    </label>
+                    <div className="portal-grid-2col-gap-10">
+                      <button type="button"
+                        onClick={() => setManualRole('CANDIDATE')} aria-pressed={manualRole === 'CANDIDATE'}
+                        className={`portal-manual-role-card ${manualRole === 'CANDIDATE' ? 'active' : ''}`}
+                      >
+                        <UserOutlined className={`portal-role-icon ${manualRole === 'CANDIDATE' ? 'active' : ''}`} />
+                        <div className="portal-role-title">Candidate / IP</div>
+                        <div className="portal-role-desc">Find and apply for jobs</div>
+                      </button>
+
+                      <button type="button"
+                        onClick={() => setManualRole('EMPLOYER')} aria-pressed={manualRole === 'EMPLOYER'}
+                        className={`portal-manual-role-card ${manualRole === 'EMPLOYER' ? 'active' : ''}`}
+                      >
+                        <BankOutlined className={`portal-role-icon ${manualRole === 'EMPLOYER' ? 'active' : ''}`} />
+                        <div className="portal-role-title">Employer / Entity</div>
+                        <div className="portal-role-desc">Post jobs and review applicants</div>
+                      </button>
+                    </div>
                   </div>
 
+
+
+                  <Form.Item
+                    label={<span className="portal-form-label">Set Account Password</span>}
+                    name="password"
+                    rules={[
+                      { required: true, message: 'Please enter password' },
+                      { min: 6, message: 'Password must be at least 6 characters' }
+                    ]}
+                    className="portal-mb-16"
+                  >
+                    <Input.Password autoComplete="new-password"
+                      prefix={<LockOutlined className="portal-text-link" />}
+                      placeholder="••••••••"
+                      size="large"
+                      className="portal-auth-input"
+                    />
+                  </Form.Item>
+
+
+
                   <button
-                    type="button"
+                    type="submit"
                     className="portal-btn-primary portal-btn-auth-full"
-                    onClick={handleSendOtp}
                     disabled={sendingOtp}
                   >
-                    {sendingOtp ? 'Sending Verification Code...' : 'Send Verification OTP →'}
+                    {sendingOtp ? 'Sending code...' : 'Continue to email verification →'}
                   </button>
-                </motion.div>
-              )}
+
+                  <div className="portal-auth-terms-note">
+                    By registering, you agree to our{' '}
+                    <Link to="/terms" className="portal-text-link">Terms</Link> and{' '}
+                    <Link to="/privacy" className="portal-text-link">Privacy Policy</Link>.
+                  </div>
+                </Form>
+              </div>}
 
               {/* STEP 1: Enter 6-digit OTP */}
               {registerStep === 1 && (
@@ -770,11 +788,11 @@ const Login = () => {
                   <div className="portal-mb-16">
                     <div className="portal-between-row portal-mb-8">
                       <label className="portal-form-label">
-                        Enter 6-Digit OTP Code
+                        Enter the code from your email
                       </label>
                       <button
                         type="button"
-                        onClick={() => setRegisterStep(0)}
+                        onClick={() => { setRegisterStep(0); setErrorMessage(''); }}
                         className="portal-btn-change-email"
                       >
                         Change Email ({registerEmail})
@@ -786,6 +804,7 @@ const Login = () => {
                       placeholder="Enter 6-digit OTP code"
                       size="large"
                       maxLength={6}
+                      inputMode="numeric" autoComplete="one-time-code" aria-label="Email verification code"
                       value={otpCode}
                       onChange={(e) => setOtpCode(e.target.value)}
                       onPressEnter={handleVerifyOtp}
@@ -812,11 +831,11 @@ const Login = () => {
                     </span>
                     <button
                       type="button"
-                      onClick={handleSendOtp}
+                      onClick={() => handleSendOtp()}
                       disabled={otpCountdown > 0 || sendingOtp}
                       className={`portal-btn-resend ${otpCountdown > 0 ? 'disabled' : ''}`}
                     >
-                      Resend OTP
+                      Resend code
                     </button>
                   </div>
 
@@ -824,136 +843,14 @@ const Login = () => {
                     type="button"
                     className="portal-btn-primary portal-btn-auth-full"
                     onClick={handleVerifyOtp}
-                    disabled={verifyingOtp}
+                    disabled={verifyingOtp || loading}
                   >
-                    {verifyingOtp ? 'Verifying...' : 'Verify & Continue →'}
+                    {verifyingOtp || loading ? 'Creating your account...' : 'Verify email & create account →'}
                   </button>
                 </motion.div>
               )}
 
-              {/* STEP 2: Name, Role Selection, Password & Confirm Password */}
-              {registerStep === 2 && (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                  <div className="portal-verified-email-banner">
-                    <CheckCircleOutlined /> Email verified: {registerEmail}
-                  </div>
 
-                  <Form form={passwordForm} layout="vertical" onFinish={onCompleteRegistration} requiredMark={false}>
-                    {/* Full Name */}
-                    <Form.Item
-                      label={<span className="portal-form-label">Your Full Name</span>}
-                      name="name"
-                      rules={[{ required: true, message: 'Please enter your name' }]}
-                      className="portal-mb-16"
-                    >
-                      <Input
-                        prefix={<UserOutlined className="portal-text-link" />}
-                        placeholder="e.g. Adv. Rajesh Mehta"
-                        size="large"
-                        className="portal-auth-input"
-                      />
-                    </Form.Item>
-
-                    {/* Role Selection */}
-                    <div className="portal-mb-16">
-                      <label className="portal-form-label-block-8">
-                        Register As:
-                      </label>
-                      <div className="portal-grid-2col-gap-10">
-                        <div
-                          onClick={() => setManualRole('CANDIDATE')}
-                          className={`portal-manual-role-card ${manualRole === 'CANDIDATE' ? 'active' : ''}`}
-                        >
-                          <UserOutlined className={`portal-role-icon ${manualRole === 'CANDIDATE' ? 'active' : ''}`} />
-                          <div className="portal-role-title">Candidate / IP</div>
-                          <div className="portal-role-desc">Job Seeker / Specialist</div>
-                        </div>
-
-                        <div
-                          onClick={() => setManualRole('EMPLOYER')}
-                          className={`portal-manual-role-card ${manualRole === 'EMPLOYER' ? 'active' : ''}`}
-                        >
-                          <BankOutlined className={`portal-role-icon ${manualRole === 'EMPLOYER' ? 'active' : ''}`} />
-                          <div className="portal-role-title">Employer / Entity</div>
-                          <div className="portal-role-desc">Hiring Organization</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* If Employer selected, Organization Name */}
-                    {manualRole === 'EMPLOYER' && (
-                      <Form.Item
-                        label={<span className="portal-form-label">Company / Organization Name</span>}
-                        name="companyName"
-                        rules={[{ required: true, message: 'Please enter company name' }]}
-                        className="portal-mb-16"
-                      >
-                        <Input
-                          prefix={<BankOutlined className="portal-text-link" />}
-                          placeholder="e.g. Insolvency Advisory Partners"
-                          size="large"
-                          className="portal-auth-input"
-                        />
-                      </Form.Item>
-                    )}
-
-                    <Form.Item
-                      label={<span className="portal-form-label">Set Account Password</span>}
-                      name="password"
-                      rules={[
-                        { required: true, message: 'Please enter password' },
-                        { min: 6, message: 'Password must be at least 6 characters' }
-                      ]}
-                      className="portal-mb-16"
-                    >
-                      <Input.Password
-                        prefix={<LockOutlined className="portal-text-link" />}
-                        placeholder="••••••••"
-                        size="large"
-                        className="portal-auth-input"
-                      />
-                    </Form.Item>
-
-                    <Form.Item
-                      label={<span className="portal-form-label">Confirm Password</span>}
-                      name="confirmPassword"
-                      rules={[
-                        { required: true, message: 'Please confirm password' },
-                        ({ getFieldValue }) => ({
-                          validator(_, value) {
-                            if (!value || getFieldValue('password') === value) {
-                              return Promise.resolve();
-                            }
-                            return Promise.reject(new Error('The two passwords do not match'));
-                          },
-                        }),
-                      ]}
-                      className="portal-mb-24"
-                    >
-                      <Input.Password
-                        prefix={<LockOutlined className="portal-text-link" />}
-                        placeholder="••••••••"
-                        size="large"
-                        className="portal-auth-input"
-                      />
-                    </Form.Item>
-
-                    <button
-                      type="submit"
-                      className="portal-btn-primary portal-btn-auth-full"
-                      disabled={loading}
-                    >
-                      {loading ? 'Creating Account...' : 'Complete Registration →'}
-                    </button>
-
-                    <div className="portal-auth-terms-note">
-                      By registering, you agree to our{' '}
-                      <Link to="/terms" className="portal-text-link">Terms</Link> and{' '}
-                      <Link to="/privacy" className="portal-text-link">Privacy Policy</Link>.
-                    </div>
-                  </Form>
-                </motion.div>
-              )}
             </div>
           )}
 
@@ -965,7 +862,7 @@ const Login = () => {
               </span>
               <button
                 type="button"
-                onClick={() => { setIsLogin(!isLogin); setErrorMessage(''); setRegisterStep(0); }}
+                onClick={() => { const params = new URLSearchParams(searchParams); if (isLogin) params.set('mode', 'signup'); else params.delete('mode'); navigate(`/login?${params}`); setErrorMessage(''); }}
                 className="portal-auth-switch-btn"
               >
                 {isLogin ? 'Sign Up' : 'Log In'}

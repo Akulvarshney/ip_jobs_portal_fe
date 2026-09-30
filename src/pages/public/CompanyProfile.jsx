@@ -23,6 +23,7 @@ import { getJobTypeLabel, getJobTypeColor, getSalaryRangeLabel, getExperienceLev
 import api from '../../api';
 
 const CompanyProfile = () => {
+  const navigate = useNavigate();
   const { id } = useParams();
   const dispatch = useDispatch();
   const [company, setCompany] = useState(null);
@@ -35,7 +36,6 @@ const CompanyProfile = () => {
   const [submittingApply, setSubmittingApply] = useState(false);
 
   const { isAuthenticated, user } = useSelector((state) => state.auth);
-  const navigate = useNavigate();
 
   const fetchCompanyDetails = async () => {
     try {
@@ -219,6 +219,8 @@ const CompanyProfile = () => {
                 key={job.id}
                 whileHover={{ y: -4 }}
                 className="portal-glass-card portal-company-job-card"
+                onClick={() => navigate(`/jobs/${job.id}`)}
+                style={{ cursor: 'pointer' }}
               >
                 <div>
                   <div className="portal-company-job-header">
@@ -262,13 +264,10 @@ const CompanyProfile = () => {
                 </div>
 
                 <div className="portal-company-job-footer">
-                  <Link to={`/jobs/${job.id}`} className="portal-company-view-link">
-                    View Job ↗
-                  </Link>
 
                   <button
                     className="portal-btn-primary portal-company-apply-btn"
-                    onClick={() => handleOpenApplyModal(job)}
+                    onClick={(e) => { e.stopPropagation(); handleOpenApplyModal(job); }}
                   >
                     Apply Now
                   </button>
