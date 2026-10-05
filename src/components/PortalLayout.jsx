@@ -4,6 +4,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Alert, Button, Spin } from 'antd';
 import { fetchCurrentUser, logout } from '../store/authSlice';
 import SidebarNav from './SidebarNav';
+import OrganisationProfile from '../pages/employer/OrganisationProfile';
+import EmployerPending from '../pages/employer/EmployerPending';
 
 const PortalLayout = () => {
   const { isAuthenticated, user, sessionChecked, loading, error } = useSelector((state) => state.auth);
@@ -11,7 +13,8 @@ const PortalLayout = () => {
   const dispatch = useDispatch();
 
   if (!isAuthenticated) {
-    return <Navigate to={`/login?redirect=${encodeURIComponent(location.pathname)}`} replace />;
+    const audience = location.pathname.startsWith('/employer') ? 'employer' : location.pathname.startsWith('/admin') ? 'admin' : 'candidate';
+    return <Navigate to={`/${audience}/login?redirect=${encodeURIComponent(location.pathname)}`} replace />;
   }
 
   if (!sessionChecked) {
@@ -20,8 +23,12 @@ const PortalLayout = () => {
       : <Spin tip="Checking your session…"><div className="portal-py-80" /></Spin>}</div>;
   }
 
-  if (user?.role === 'EMPLOYER' && user.onboarding?.required && !['/employer/organisation', '/employer/profile'].includes(location.pathname)) {
-    return <Navigate to="/employer/organisation" replace />;
+  if (user?.role === 'EMPLOYER') {
+    const stage = user.onboarding?.stage || (user.onboarding?.required ? 'SETUP' : 'READY');
+    if (stage === 'SETUP') return <div className="portal-page-wrapper" style={{ maxWidth: 1100, margin: '0 auto', padding: 24 }}><OrganisationProfile onboarding /></div>;
+    if (stage === 'PENDING') return <EmployerPending />;
+    if (stage === 'SUSPENDED') return <EmployerPending suspended />;
+    if (user.onboarding?.memberRole !== 'ADMIN' && ['/employer/organisation', '/employer/profile', '/employer/team'].includes(location.pathname)) return <Navigate to="/employer" replace />;
   }
 
   if (user?.role) {

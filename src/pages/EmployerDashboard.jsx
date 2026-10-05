@@ -6,15 +6,15 @@ import { useSelector, useDispatch } from 'react-redux';
 import { fetchEmployerJobs, createJob, inviteCandidate, fetchJobApplicants, fetchOrganisationProfile } from '../store/employerSlice';
 import { PlusOutlined, UserOutlined, MailOutlined, SendOutlined, CheckCircleOutlined, BankOutlined, DollarOutlined, SolutionOutlined, ArrowRightOutlined, LockOutlined } from '@ant-design/icons';
 import { motion } from 'framer-motion';
-import { 
-  JOB_TYPES, 
-  SALARY_RANGES, 
-  EXPERIENCE_LEVELS, 
-  getJobTypeLabel, 
-  getJobTypeColor, 
-  getSalaryRangeLabel, 
-  getExperienceLevelLabel, 
-  getExperienceLevelShortLabel 
+import {
+  JOB_TYPES,
+  SALARY_RANGES,
+  EXPERIENCE_LEVELS,
+  getJobTypeLabel,
+  getJobTypeColor,
+  getSalaryRangeLabel,
+  getExperienceLevelLabel,
+  getExperienceLevelShortLabel
 } from '../utils/jobEnums';
 
 const { Title, Text } = Typography;
@@ -36,12 +36,12 @@ const EmployerDashboard = () => {
 
   const fetchJobs = async () => {
     try {
-      if (!localStorage.getItem('token')) return navigate('/login');
+      if (!localStorage.getItem('token')) return navigate('/employer/login');
       await dispatch(fetchOrganisationProfile()).unwrap();
       await dispatch(fetchEmployerJobs()).unwrap();
     } catch (error) {
       if (error?.response?.status === 401 || error?.response?.status === 403) {
-        navigate('/login');
+        navigate('/employer/login');
       }
     }
   };
@@ -74,20 +74,20 @@ const EmployerDashboard = () => {
       const res = await dispatch(fetchJobApplicants(job.id)).unwrap();
       setSelectedJob({ ...job, applications: res.applications });
       setApplicantsModalVisible(true);
-    } catch(err) {
+    } catch (err) {
       message.error("Failed to load applicants");
     }
   };
 
   const columns = [
-    { 
-      title: 'Role Profile', 
-      dataIndex: 'title', 
+    {
+      title: 'Role Profile',
+      dataIndex: 'title',
       key: 'title',
       render: (text, record) => (
         <div>
           <div className="portal-flex-center-gap-8 portal-mb-4 portal-flex-wrap">
-            <span 
+            <span
               className="portal-card-link-title"
               onClick={() => navigate(`/employer/jobs/${record.id}`)}
             >
@@ -106,26 +106,26 @@ const EmployerDashboard = () => {
         </div>
       )
     },
-    { 
-      title: 'Listed Date', 
-      dataIndex: 'createdAt', 
-      key: 'createdAt', 
+    {
+      title: 'Listed Date',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
       render: (date) => <span className="portal-color-muted">{new Date(date).toLocaleDateString()}</span>
     },
-    { 
-      title: 'Candidates Matched', 
-      key: 'applicants', 
+    {
+      title: 'Candidates Matched',
+      key: 'applicants',
       render: (_, record) => (
         <Badge count={record.applications?.length || 0} showZero color="#0ea5e9" />
       )
     },
-    { 
-      title: 'Action', 
-      key: 'action', 
+    {
+      title: 'Action',
+      key: 'action',
       render: (_, record) => (
         <Tooltip title="View Job & Applicants">
-          <Button 
-            className="portal-btn-primary portal-btn-compact-apply" 
+          <Button
+            className="portal-btn-primary portal-btn-compact-apply"
             icon={<ArrowRightOutlined />}
             onClick={() => navigate(`/employer/jobs/${record.id}`)}
           />
@@ -161,154 +161,153 @@ const EmployerDashboard = () => {
         <p>You can update your organisation details and explore your dashboard. Publishing jobs becomes available after approval.</p>
         <Button onClick={() => navigate('/employer/organisation')}>Review organisation details</Button>
       </div>}
-      <motion.div 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="portal-page-header-row portal-mb-32"
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="portal-page-header-row portal-mb-32"
+      >
+        <div>
+          <h1 className="portal-section-title portal-text-36">Entity Dashboard</h1>
+        </div>
+
+        <button className="portal-btn-primary" disabled={organisation.status !== 'APPROVED'} onClick={() => setIsModalVisible(true)}>
+          <PlusOutlined />
+          <span>List New Job</span>
+        </button>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, scale: 0.98 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.4, delay: 0.1 }}
+        className="portal-glass-card portal-p-24"
+      >
+        <Table
+          dataSource={jobs}
+          columns={columns}
+          rowKey="id"
+          pagination={{ pageSize: 6 }}
+          className="portal-table"
+        />
+      </motion.div>
+
+      {/* Post Job Modal */}
+      <Modal
+        title={<span className="portal-modal-title">List a New Job/Role</span>}
+        open={isModalVisible}
+        onCancel={() => {
+          setIsModalVisible(false);
+          form.resetFields();
+        }}
+        footer={null}
+        width={640}
+        className="portal-modal-top-30"
+      >
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={handlePostJob}
+          initialValues={{
+            jobType: 'FULL_TIME',
+            salaryRange: 'NEGOTIABLE',
+            experienceLevel: 'MID_LEVEL'
+          }}
+          className="portal-modal-form"
         >
-          <div>
-            <h1 className="portal-section-title portal-text-36">Entity Dashboard</h1>
-            <p className="portal-section-subtitle">Manage jobs, review IBBI verified candidates, and send direct interview invitations.</p>
+          <Form.Item label="Role Title" name="title" rules={[{ required: true, message: 'Please enter job title' }]}>
+            <Input placeholder="e.g. Resolution Professional for MSME" size="large" />
+          </Form.Item>
+
+          <div className="portal-grid-3col-gap-12">
+            <Form.Item label="Job Type" name="jobType" rules={[{ required: true, message: 'Required' }]}>
+              <Select size="large" placeholder="Job type">
+                {JOB_TYPES.map(jt => (
+                  <Option key={jt.value} value={jt.value}>{jt.label}</Option>
+                ))}
+              </Select>
+            </Form.Item>
+
+            <Form.Item label="Salary Bracket" name="salaryRange" rules={[{ required: true, message: 'Required' }]}>
+              <Select size="large" placeholder="Salary bracket">
+                {SALARY_RANGES.map(sr => (
+                  <Option key={sr.value} value={sr.value}>{sr.label}</Option>
+                ))}
+              </Select>
+            </Form.Item>
+
+            <Form.Item label="Experience Level" name="experienceLevel" rules={[{ required: true, message: 'Required' }]}>
+              <Select size="large" placeholder="Experience">
+                {EXPERIENCE_LEVELS.map(el => (
+                  <Option key={el.value} value={el.value}>{el.label}</Option>
+                ))}
+              </Select>
+            </Form.Item>
           </div>
 
-          <button className="portal-btn-primary" disabled={organisation.status !== 'APPROVED'} onClick={() => setIsModalVisible(true)}>
-            <PlusOutlined />
-            <span>List New Job</span>
-          </button>
-        </motion.div>
+          <Form.Item label="Job locations" name="locations" rules={[{ required: true, message: 'Select at least one city where this job is based' }]} extra="Choose the job’s cities, which may differ from your headquarters.">
+            <CitySelect aria-label="Job locations" size="large" mode="multiple" />
+          </Form.Item>
+          <Form.Item label="Job Description" name="description" rules={[{ required: true, message: 'Please enter description' }]}>
+            <TextArea rows={4} placeholder="Describe the CIRP/Liquidation scope, ticket size, and expectations..." />
+          </Form.Item>
+          <Form.Item label="Eligibility & Compliance Requirements" name="requirements" rules={[{ required: true, message: 'Please enter requirements' }]}>
+            <TextArea rows={3} placeholder="e.g. 5+ years experience, Valid AFA, past NCLT experience in real estate..." />
+          </Form.Item>
+          <Form.Item className="portal-mb-0 portal-mt-24">
+            <button className="portal-btn-primary portal-w-full portal-p-12 portal-text-15" type="submit">
+              Publish Listing
+            </button>
+          </Form.Item>
+        </Form>
+      </Modal>
 
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.98 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.4, delay: 0.1 }}
-          className="portal-glass-card portal-p-24"
-        >
-          <Table 
-            dataSource={jobs} 
-            columns={columns} 
-            rowKey="id" 
-            pagination={{ pageSize: 6 }}
-            className="portal-table"
-          />
-        </motion.div>
-
-        {/* Post Job Modal */}
-        <Modal 
-          title={<span className="portal-modal-title">List a New Job/Role</span>} 
-          open={isModalVisible} 
-          onCancel={() => {
-            setIsModalVisible(false);
-            form.resetFields();
-          }} 
-          footer={null}
-          width={640}
-          className="portal-modal-top-30"
-        >
-          <Form 
-            form={form} 
-            layout="vertical" 
-            onFinish={handlePostJob} 
-            initialValues={{ 
-              jobType: 'FULL_TIME',
-              salaryRange: 'NEGOTIABLE',
-              experienceLevel: 'MID_LEVEL'
-            }} 
-            className="portal-modal-form"
-          >
-            <Form.Item label="Role Title" name="title" rules={[{ required: true, message: 'Please enter job title' }]}>
-              <Input placeholder="e.g. Resolution Professional for MSME" size="large" />
-            </Form.Item>
-
-            <div className="portal-grid-3col-gap-12">
-              <Form.Item label="Job Type" name="jobType" rules={[{ required: true, message: 'Required' }]}>
-                <Select size="large" placeholder="Job type">
-                  {JOB_TYPES.map(jt => (
-                    <Option key={jt.value} value={jt.value}>{jt.label}</Option>
-                  ))}
-                </Select>
-              </Form.Item>
-
-              <Form.Item label="Salary Bracket" name="salaryRange" rules={[{ required: true, message: 'Required' }]}>
-                <Select size="large" placeholder="Salary bracket">
-                  {SALARY_RANGES.map(sr => (
-                    <Option key={sr.value} value={sr.value}>{sr.label}</Option>
-                  ))}
-                </Select>
-              </Form.Item>
-
-              <Form.Item label="Experience Level" name="experienceLevel" rules={[{ required: true, message: 'Required' }]}>
-                <Select size="large" placeholder="Experience">
-                  {EXPERIENCE_LEVELS.map(el => (
-                    <Option key={el.value} value={el.value}>{el.label}</Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </div>
-
-            <Form.Item label="Job locations" name="locations" rules={[{ required: true, message: 'Select at least one city where this job is based' }]} extra="Choose the job’s cities, which may differ from your headquarters.">
-              <CitySelect aria-label="Job locations" size="large" mode="multiple" />
-            </Form.Item>
-            <Form.Item label="Job Description" name="description" rules={[{ required: true, message: 'Please enter description' }]}>
-              <TextArea rows={4} placeholder="Describe the CIRP/Liquidation scope, ticket size, and expectations..." />
-            </Form.Item>
-            <Form.Item label="Eligibility & Compliance Requirements" name="requirements" rules={[{ required: true, message: 'Please enter requirements' }]}>
-              <TextArea rows={3} placeholder="e.g. 5+ years experience, Valid AFA, past NCLT experience in real estate..." />
-            </Form.Item>
-            <Form.Item className="portal-mb-0 portal-mt-24">
-              <button className="portal-btn-primary portal-w-full portal-p-12 portal-text-15" type="submit">
-                Publish Listing
-              </button>
-            </Form.Item>
-          </Form>
-        </Modal>
-
-        {/* Applicants Modal */}
-        <Modal 
-          title={<span className="portal-modal-title">Candidates for "{selectedJob?.title}"</span>} 
-          open={applicantsModalVisible} 
-          onCancel={() => setApplicantsModalVisible(false)} 
-          footer={null} 
-          width={820}
-        >
-          <Table 
-            dataSource={selectedJob?.applications || []} 
-            rowKey="id"
-            columns={[
-              { title: 'Candidate Name', key: 'name', render: (_, record) => <span className="portal-font-semibold">{record.candidate?.name || 'Candidate'}</span> },
-              { title: 'Email', key: 'email', render: (_, record) => <span>{record.candidate?.email || 'N/A'}</span> },
-              { 
-                title: 'Status', 
-                dataIndex: 'status', 
-                key: 'status',
-                render: (status) => (
-                  <Tag color={status === 'INVITED' ? 'green' : 'blue'}>
-                    {status || 'APPLIED'}
-                  </Tag>
+      {/* Applicants Modal */}
+      <Modal
+        title={<span className="portal-modal-title">Candidates for "{selectedJob?.title}"</span>}
+        open={applicantsModalVisible}
+        onCancel={() => setApplicantsModalVisible(false)}
+        footer={null}
+        width={820}
+      >
+        <Table
+          dataSource={selectedJob?.applications || []}
+          rowKey="id"
+          columns={[
+            { title: 'Candidate Name', key: 'name', render: (_, record) => <span className="portal-font-semibold">{record.candidate?.name || 'Candidate'}</span> },
+            { title: 'Email', key: 'email', render: (_, record) => <span>{record.candidate?.email || 'N/A'}</span> },
+            {
+              title: 'Status',
+              dataIndex: 'status',
+              key: 'status',
+              render: (status) => (
+                <Tag color={status === 'INVITED' ? 'green' : 'blue'}>
+                  {status || 'APPLIED'}
+                </Tag>
+              )
+            },
+            { title: 'Applied Date', dataIndex: 'createdAt', key: 'createdAt', render: (date) => new Date(date).toLocaleDateString() },
+            {
+              title: 'Action',
+              key: 'action',
+              render: (_, record) => (
+                record.status !== 'INVITED' ? (
+                  <Tooltip title="Send Interview Invite">
+                    <Button type="primary" size="small" icon={<SendOutlined />} onClick={() => handleInvite(record.id)} className="portal-btn-cyan" />
+                  </Tooltip>
+                ) : (
+                  <Tooltip title="Interview Invitation Sent">
+                    <span className="portal-color-success portal-font-semibold portal-inline-flex-center-gap-4">
+                      <CheckCircleOutlined />
+                    </span>
+                  </Tooltip>
                 )
-              },
-              { title: 'Applied Date', dataIndex: 'createdAt', key: 'createdAt', render: (date) => new Date(date).toLocaleDateString() },
-              { 
-                title: 'Action', 
-                key: 'action', 
-                render: (_, record) => (
-                  record.status !== 'INVITED' ? (
-                    <Tooltip title="Send Interview Invite">
-                      <Button type="primary" size="small" icon={<SendOutlined />} onClick={() => handleInvite(record.id)} className="portal-btn-cyan" />
-                    </Tooltip>
-                  ) : (
-                    <Tooltip title="Interview Invitation Sent">
-                      <span className="portal-color-success portal-font-semibold portal-inline-flex-center-gap-4">
-                        <CheckCircleOutlined />
-                      </span>
-                    </Tooltip>
-                  )
-                )
-              }
-            ]} 
-          />
-        </Modal>
-      </div>
+              )
+            }
+          ]}
+        />
+      </Modal>
+    </div>
   );
 };
 

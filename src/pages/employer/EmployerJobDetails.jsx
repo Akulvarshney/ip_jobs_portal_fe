@@ -1,20 +1,16 @@
 import CitySelect from '../../components/CitySelect';
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { fetchJobById } from '../../store/jobsSlice';
 import { updateApplicationStatus, inviteCandidate, updateJob } from '../../store/employerSlice';
-import { updateAdminJobStatus } from '../../store/adminSlice';
 import { 
   ArrowLeftOutlined, 
   UserOutlined, 
   FileTextOutlined, 
   SendOutlined, 
   CheckCircleOutlined, 
-  CloseCircleOutlined, 
   EyeOutlined, 
-  DownloadOutlined, 
-  CalendarOutlined, 
   BankOutlined, 
   EnvironmentOutlined, 
   SolutionOutlined, 
@@ -22,11 +18,11 @@ import {
   PlayCircleOutlined, 
   MailOutlined, 
   PhoneOutlined,
-  DollarOutlined 
+  SearchOutlined
 } from '@ant-design/icons';
-import { Table, Button, Tag, Modal, Select, message, Space, Tooltip, Divider, Badge } from 'antd';
-import { motion } from 'framer-motion';
-import { getJobTypeLabel, getJobTypeColor, getSalaryRangeLabel, getExperienceLevelLabel } from '../../utils/jobType';
+import { Table, Button, Tag, Modal, Select, Input, message, Space, Tooltip } from 'antd';
+import { motion, useReducedMotion } from 'framer-motion';
+import { getJobTypeLabel, getSalaryRangeLabel, getExperienceLevelLabel } from '../../utils/jobType';
 
 const { Option } = Select;
 
@@ -34,6 +30,7 @@ const EmployerJobDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const reduceMotion = useReducedMotion();
 
   const [editingLocation, setEditingLocation] = useState(false);
   const [jobLocations, setJobLocations] = useState([]);
@@ -44,6 +41,9 @@ const EmployerJobDetails = () => {
   const [candidateModalOpen, setCandidateModalOpen] = useState(false);
   const [cvModalOpen, setCvModalOpen] = useState(false);
   const [actionLoadingId, setActionLoadingId] = useState(null);
+  const [statusSaving, setStatusSaving] = useState(false);
+  const [applicantFilter, setApplicantFilter] = useState('ALL');
+  const [applicantSearch, setApplicantSearch] = useState('');
 
   const fetchJobDetails = async () => {
     setLoading(true);
@@ -67,7 +67,7 @@ const EmployerJobDetails = () => {
     setSavingLocations(true);
     try {
       const updated = await dispatch(updateJob({ id, jobData: { locations: jobLocations } })).unwrap();
-      setJob(updated);
+      setJob(current => ({ ...current, ...updated, applications: current.applications }));
       setEditingLocation(false);
       message.success('Job locations updated.');
     } catch (error) { message.error(typeof error === 'string' ? error : 'Could not update job locations.'); }
@@ -109,14 +109,15 @@ const EmployerJobDetails = () => {
   };
 
   const handleToggleJobStatus = async (newStatus) => {
+    setStatusSaving(true);
     try {
-      await dispatch(updateAdminJobStatus({ id: job.id, status: newStatus })).unwrap();
-      message.success(`Job status updated to ${newStatus}`);
-      fetchJobDetails();
+      const updated = await dispatch(updateJob({ id: job.id, jobData: { status: newStatus } })).unwrap();
+      setJob(current => ({ ...current, ...updated, applications: current.applications }));
+      message.success(newStatus === 'PAUSED' ? 'Job paused.' : 'Job is active again.');
     } catch (error) {
       console.error('Error updating job status:', error);
       message.error(typeof error === 'string' ? error : 'Failed to update job status');
-    }
+    } finally { setStatusSaving(false); }
   };
 
   const openCandidateDossier = (application) => {
@@ -224,7 +225,7 @@ const EmployerJobDetails = () => {
               icon={<FileTextOutlined className="portal-text-link" />}
               onClick={() => openCVModal(record)}
               className="portal-btn-cyan-soft"
-            />
+            >CV</Button>
           </Tooltip>
 
           <Tooltip title="Candidate Profile">
@@ -233,7 +234,7 @@ const EmployerJobDetails = () => {
               icon={<EyeOutlined />}
               onClick={() => openCandidateDossier(record)}
               className="portal-btn-neutral"
-            />
+            >Profile</Button>
           </Tooltip>
 
           <Select
@@ -267,168 +268,100 @@ const EmployerJobDetails = () => {
   const interviewCount = applicationsList.filter(a => a.status === 'INTERVIEW').length;
   const selectedCount = applicationsList.filter(a => a.status === 'SELECTED').length;
 
+  const filteredApplications = applicationsList.filter(application => {
+    const matchesStatus = applicantFilter === 'ALL' || application.status === applicantFilter;
+    const query = applicantSearch.trim().toLowerCase();
+    const candidate = application.candidate;
+    return matchesStatus && (!query || [candidate?.name, candidate?.email, candidate?.candidateProfile?.designation].some(value => value?.toLowerCase().includes(query)));
+  });
+  const locationLabel = job?.locations?.length ? job.locations.join(', ') : job?.employer?.location || 'Location not specified';
+  const entrance = delay => reduceMotion ? {} : { initial: { opacity: 0, y: 16 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.42, delay } };
+
+  if (!job) return <div className="employer-job-empty portal-glass-card"><h2>Job not found</h2><p>The job may have been removed or is unavailable.</p><Button onClick={() => navigate('/employer/jobs')}>Back to jobs</Button></div>;
+
   return (
-    <div className="portal-w-full">
-      {/* Navigation & Header */}
-        <div className="portal-mb-24">
-          <button 
-            onClick={() => navigate('/employer')}
-            className="portal-btn-secondary portal-btn-back"
-          >
-            <ArrowLeftOutlined /> Back to Entity Dashboard
-          </button>
+    <div className="portal-w-full employer-job-page">
+      <div className="employer-job-breadcrumb">
+        <button type="button" onClick={() => navigate('/employer/jobs')}><ArrowLeftOutlined /> All jobs</button>
+        <span aria-hidden="true">/</span>
+        <span>Job overview</span>
+      </div>
+
+      <motion.section className="employer-job-hero" {...entrance(0)}>
+        <div className="employer-job-hero-top">
+          <div className="employer-job-eyebrow">JOB <span>/</span> {job.id.slice(0, 8).toUpperCase()}</div>
+          <span className={`employer-job-status employer-job-status-${(job.status || 'active').toLowerCase()}`}><span className="employer-job-status-dot" /> {job.status === 'ACTIVE' ? 'Live' : job.status === 'PAUSED' ? 'Paused' : job.status}</span>
         </div>
-
-        {/* Top Section: Job Overview Card */}
-        <motion.div 
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="portal-glass-card portal-p-28 portal-mb-32" 
-        >
-          <div className="portal-job-details-header">
-            <div>
-              <div className="portal-flex-center-wrap-gap-10 portal-mb-8">
-                <Tag color={job?.status === 'ACTIVE' ? 'green' : (job?.status === 'PAUSED' ? 'gold' : 'default')} className="portal-tag-badge">
-                  {job?.status}
-                </Tag>
-                <Tag color={getJobTypeColor(job?.jobType)} className="portal-tag-badge-rounded">
-                  {getJobTypeLabel(job?.jobType)}
-                </Tag>
-                <Tag color="geekblue" className="portal-tag-badge-rounded">
-                  {getExperienceLevelLabel(job?.experienceLevel)}
-                </Tag>
-                <span className="portal-text-muted-sm">
-                  Listed on {new Date(job?.createdAt).toLocaleDateString()}
-                </span>
-              </div>
-              <h1 className="portal-section-title portal-text-30 m-0">
-                {job?.title}
-              </h1>
-              <div className="portal-job-meta-row">
-                <BankOutlined /> {job?.employer?.name}
-                {(job?.locations?.length > 0 || job?.employer?.location) && (
-                  <span className="portal-text-muted ml-10">
-                    <EnvironmentOutlined /> {job?.locations?.length > 0 ? job.locations.join(', ') : job.employer?.location}
-                  </span>
-                )}
-                <span className="portal-text-success ml-10 font-semibold">
-                  <DollarOutlined /> {getSalaryRangeLabel(job?.salaryRange)}
-                </span>
-              </div>
-            </div>
-
-            <Button onClick={() => { setJobLocations(job.locations?.length > 0 ? job.locations : (job.employer?.location ? [job.employer.location] : [])); setEditingLocation(true); }}>Edit job locations</Button>
-            <Modal title="Job locations" open={editingLocation} onCancel={() => setEditingLocation(false)} onOk={saveLocations} confirmLoading={savingLocations} okButtonProps={{ disabled: jobLocations.length === 0 }} okText="Save locations">
-              <p>Select the cities where this job is based.</p>
-              <CitySelect aria-label="Job locations" value={jobLocations} onChange={setJobLocations} mode="multiple" />
-            </Modal>
-            {/* Quick Job Controls */}
-            <div className="portal-flex-gap-10">
-              {job?.status === 'ACTIVE' ? (
-                <Button 
-                  icon={<PauseCircleOutlined />} 
-                  onClick={() => handleToggleJobStatus('PAUSED')}
-                  className="portal-btn-warning-soft"
-                >
-                  Pause Job
-                </Button>
-              ) : (
-                <Button 
-                  type="primary"
-                  icon={<PlayCircleOutlined />} 
-                  onClick={() => handleToggleJobStatus('ACTIVE')}
-                  className="portal-btn-success"
-                >
-                  Re-Activate Job
-                </Button>
-              )}
-            </div>
-          </div>
-
-          {/* Quick Metrics Bar */}
-          <div className="portal-metrics-bar">
-            <div>
-              <span className="portal-text-muted-xs">Total Applications</span>
-              <div className="portal-metric-val link">{applicationsList.length}</div>
-            </div>
-            <div>
-              <span className="portal-text-muted-xs">Shortlisted</span>
-              <div className="portal-metric-val warning">{shortlistedCount}</div>
-            </div>
-            <div>
-              <span className="portal-text-muted-xs">Interviews Active</span>
-              <div className="portal-metric-val purple">{interviewCount}</div>
-            </div>
-            <div>
-              <span className="portal-text-muted-xs">Hired / Selected</span>
-              <div className="portal-metric-val success">{selectedCount}</div>
-            </div>
-          </div>
-
-          {/* Job Description & Requirements */}
-          <div className="portal-grid-2col-gap-20">
-            <div>
-              <h4 className="portal-subheading-cyan">
-                Job Scope & Description
-              </h4>
-              <div className="portal-box-desc">
-                {job?.description}
-              </div>
-            </div>
-            <div>
-              <h4 className="portal-subheading-cyan">
-                Compliance & Statutory Requirements
-              </h4>
-              <div className="portal-box-desc">
-                {job?.requirements}
-              </div>
-            </div>
-          </div>
-
-          {job?.skills?.length > 0 && (
-            <div className="portal-mt-20">
-              <h4 className="portal-subheading-cyan">
-                Job Specialisations & Skills
-              </h4>
-              <div className="portal-flex-wrap-gap-8">
-                {job.skills.map(s => (
-                  <Tag key={s.skill.id} color="blue" className="portal-tag-badge-rounded">
-                    {s.skill.name}
-                  </Tag>
-                ))}
-              </div>
-            </div>
-          )}
-        </motion.div>
-
-        {/* Bottom Section: Applied Candidates List */}
-        <div className="portal-applied-header">
+        <div className="employer-job-hero-main">
           <div>
-            <h2 className="portal-section-title portal-text-24 m-0">
-              Applied Candidates ({applicationsList.length})
-            </h2>
-            <p className="portal-section-subtitle portal-text-14 mt-4">
-              Review applicant qualifications, inspect complete CV portfolios, and schedule direct interviews.
-            </p>
+            <h1>{job.title}</h1>
+            <p className="employer-job-company"><BankOutlined /> {job.employer?.name || 'Organisation'}</p>
+          </div>
+          <div className="employer-job-actions">
+            <Button onClick={() => { setJobLocations(job.locations?.length ? job.locations : (job.employer?.location ? [job.employer.location] : [])); setEditingLocation(true); }} icon={<EnvironmentOutlined />}>Edit location</Button>
+            {job.status === 'ACTIVE' ? <Button onClick={() => handleToggleJobStatus('PAUSED')} icon={<PauseCircleOutlined />} loading={statusSaving}>Pause job</Button> : <Button type="primary" onClick={() => handleToggleJobStatus('ACTIVE')} icon={<PlayCircleOutlined />} loading={statusSaving}>Activate job</Button>}
           </div>
         </div>
+        <div className="employer-job-facts">
+          <div><small>LOCATION</small><strong>{locationLabel}</strong></div>
+          <div><small>JOB TYPE</small><strong>{getJobTypeLabel(job.jobType)}</strong></div>
+          <div><small>EXPERIENCE</small><strong>{getExperienceLevelLabel(job.experienceLevel)}</strong></div>
+          <div><small>SALARY RANGE</small><strong>{getSalaryRangeLabel(job.salaryRange)}</strong></div>
+          <div><small>POSTED</small><strong>{new Date(job.createdAt).toLocaleDateString()}</strong></div>
+        </div>
+      </motion.section>
 
-        <motion.div 
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="portal-glass-card portal-p-20" 
-        >
-          <Table 
-            columns={applicantColumns}
-            dataSource={applicationsList}
-            rowKey="id"
-            pagination={{ pageSize: 8 }}
-            className="portal-table"
-            locale={{
-              emptyText: <div className="portal-empty-table-text">No candidates have applied to this job yet.</div>
-            }}
-          />
-        </motion.div>
+      <Modal title="Job locations" open={editingLocation} onCancel={() => setEditingLocation(false)} onOk={saveLocations} confirmLoading={savingLocations} okButtonProps={{ disabled: jobLocations.length === 0 }} okText="Save locations">
+        <p>Select the cities where this job is based.</p>
+        <CitySelect aria-label="Job locations" value={jobLocations} onChange={setJobLocations} mode="multiple" />
+      </Modal>
+
+      <motion.section className="employer-job-metrics" aria-label="Applicant pipeline" {...entrance(0.08)}>
+        {[
+          { key: 'ALL', label: 'Total applicants', count: applicationsList.length, hint: 'All submissions' },
+          { key: 'SHORTLISTED', label: 'Shortlisted', count: shortlistedCount, hint: 'Ready for review' },
+          { key: 'INTERVIEW', label: 'Interviewing', count: interviewCount, hint: 'In conversation' },
+          { key: 'SELECTED', label: 'Selected', count: selectedCount, hint: 'Offers or hires' },
+        ].map(item => <button type="button" key={item.key} className={`employer-job-metric ${applicantFilter === item.key ? 'is-active' : ''}`} onClick={() => setApplicantFilter(item.key)} aria-pressed={applicantFilter === item.key}>
+          <span className="employer-job-metric-label">{item.label}</span>
+          <span className="employer-job-metric-count">{item.count}</span>
+          <span className="employer-job-metric-hint">{item.hint}</span>
+        </button>)}
+      </motion.section>
+
+      <motion.section className="employer-job-brief" {...entrance(0.15)}>
+        <div className="employer-job-section-head">
+          <div><span className="employer-job-kicker">THE POSITION</span><h2>About this role</h2></div>
+          <Link to={`/jobs/${job.id}`} className="employer-job-public-link" target="_blank" rel="noopener noreferrer">View public listing <EyeOutlined /></Link>
+        </div>
+        <div className="employer-job-brief-grid">
+          <div className="employer-job-copy"><h3>Description</h3><p>{job.description || 'No description has been added yet.'}</p></div>
+          <div className="employer-job-copy"><h3>Requirements</h3><p>{job.requirements || 'No requirements have been added yet.'}</p></div>
+        </div>
+        {job.skills?.length > 0 && <div className="employer-job-skills"><h3>Specialisations</h3><div>{job.skills.map(item => <span className="employer-job-skill" key={item.skill.id}>{item.skill.name}</span>)}</div></div>}
+      </motion.section>
+
+      <motion.section className="employer-job-applicants" {...entrance(0.22)}>
+        <div className="employer-job-applicants-head">
+          <div><span className="employer-job-kicker">HIRING PIPELINE</span><h2>Applicants <span>{applicationsList.length}</span></h2><p>Review profiles, open CVs, and update each candidate’s stage.</p></div>
+          <div className="employer-job-applicant-tools">
+            <Input prefix={<SearchOutlined />} value={applicantSearch} onChange={event => setApplicantSearch(event.target.value)} placeholder="Search candidates" aria-label="Search candidates" allowClear />
+            <Select value={applicantFilter} onChange={setApplicantFilter} aria-label="Filter candidate status" options={[{ value: 'ALL', label: 'All stages' }, { value: 'APPLIED', label: 'Applied' }, { value: 'SHORTLISTED', label: 'Shortlisted' }, { value: 'INTERVIEW', label: 'Interviewing' }, { value: 'SELECTED', label: 'Selected' }, { value: 'REJECTED', label: 'Rejected' }]} />
+          </div>
+        </div>
+        <div className="employer-job-table"><Table columns={applicantColumns} dataSource={filteredApplications} rowKey="id" pagination={{ pageSize: 8, hideOnSinglePage: true }} scroll={{ x: 900 }} className="portal-table" locale={{ emptyText: <div className="portal-empty-table-text">{applicationsList.length ? 'No candidates match these filters.' : 'No candidates have applied yet.'}</div> }} /></div>
+        <div className="employer-job-mobile-list">
+          {filteredApplications.length ? filteredApplications.map(application => {
+            const candidate = application.candidate;
+            const profile = candidate?.candidateProfile;
+            return <article className="employer-job-candidate-card" key={application.id}>
+              <div className="employer-job-candidate-top"><div className="portal-avatar-init">{candidate?.name?.charAt(0) || 'C'}</div><div><strong>{candidate?.name || 'Candidate'}</strong><small>{profile?.designation || 'Professional'}{profile?.experience ? ` · ${profile.experience} years` : ''}{profile?.city ? ` · ${profile.city}` : ''}</small></div></div>
+              <div className="employer-job-candidate-stage">{getStatusTag(application.status)} <span>Applied {new Date(application.createdAt).toLocaleDateString()}</span></div>
+              <div className="employer-job-candidate-actions"><Button size="small" onClick={() => openCVModal(application)} icon={<FileTextOutlined />}>CV</Button><Button size="small" onClick={() => openCandidateDossier(application)} icon={<EyeOutlined />}>Profile</Button><Select size="small" value={application.status} onChange={value => handleUpdateAppStatus(application.id, value)} loading={actionLoadingId === application.id} options={[{ value: 'APPLIED', label: 'Applied' }, { value: 'SHORTLISTED', label: 'Shortlisted' }, { value: 'INTERVIEW', label: 'Interview' }, { value: 'SELECTED', label: 'Selected' }, { value: 'REJECTED', label: 'Rejected' }]} /></div>
+            </article>;
+          }) : <div className="portal-empty-table-text">{applicationsList.length ? 'No candidates match these filters.' : 'No candidates have applied yet.'}</div>}
+        </div>
+      </motion.section>
 
         {/* Candidate CV / Resume Preview Modal */}
         <Modal

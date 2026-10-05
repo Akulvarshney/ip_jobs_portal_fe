@@ -174,7 +174,7 @@ const JobSearch = () => {
   const handleToggleSave = async (jobId) => {
     if (!isAuthenticated) {
       message.info('Please log in as a candidate to save jobs');
-      return navigate('/login');
+      return navigate('/candidate/login');
     }
     try {
       const res = await dispatch(toggleSaveJob(jobId)).unwrap();
@@ -188,7 +188,7 @@ const JobSearch = () => {
   const handleOpenApplyModal = (job) => {
     if (!isAuthenticated) {
       message.info('Please log in or create an account to apply');
-      return navigate('/login?mode=signup');
+      return navigate('/candidate/signup');
     }
     if (user?.role !== 'CANDIDATE') {
       message.warning('Only candidate accounts can apply to jobs');

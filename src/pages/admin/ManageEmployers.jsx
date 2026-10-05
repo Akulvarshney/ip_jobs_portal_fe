@@ -79,8 +79,9 @@ const ManageEmployers = () => {
   const handleUpdateStatus = async (employerId, newStatus) => {
     setActionLoadingId(employerId);
     try {
-      await dispatch(updateAdminEmployerStatus({ id: employerId, status: newStatus })).unwrap();
-      message.success(`Organisation status updated to ${newStatus}`);
+      const result = await dispatch(updateAdminEmployerStatus({ id: employerId, status: newStatus })).unwrap();
+      if (newStatus === 'APPROVED' && result.emailSent === false) message.warning('Organisation approved, but the confirmation email could not be delivered. Check SMTP configuration.');
+      else message.success(`Organisation status updated to ${newStatus}`);
       setEmployers((prev) => prev.map((e) => (e.id === employerId ? { ...e, status: newStatus } : e)));
       if (selectedEmployer?.id === employerId) {
         setSelectedEmployer((prev) => ({ ...prev, status: newStatus }));

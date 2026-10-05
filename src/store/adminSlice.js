@@ -24,7 +24,7 @@ export const fetchAdminUsers = createAsyncThunk('admin/fetchUsers', async (param
 export const updateAdminUserStatus = createAsyncThunk('admin/updateUserStatus', async ({ id, status }, { rejectWithValue }) => {
   try {
     const res = await api.put(`/api/admin/users/${id}/status`, { status });
-    return { id, status, ...(res.data?.data !== undefined ? res.data.data : res.data) };
+    return { id, status, ...(res.data?.data !== undefined ? res.data.data : res.data), emailSent: res.data?.emailSent };
   } catch (err) {
     return rejectWithValue(err.response?.data?.error || err.response?.data?.message || 'Failed to update user status');
   }
@@ -43,7 +43,7 @@ export const fetchAdminEmployers = createAsyncThunk('admin/fetchEmployers', asyn
 export const updateAdminEmployerStatus = createAsyncThunk('admin/updateEmployerStatus', async ({ id, status }, { rejectWithValue }) => {
   try {
     const res = await api.put(`/api/admin/employers/${id}/status`, { status });
-    return { id, status, ...(res.data?.data !== undefined ? res.data.data : res.data) };
+    return { id, status, ...(res.data?.data !== undefined ? res.data.data : res.data), emailSent: res.data?.emailSent };
   } catch (err) {
     return rejectWithValue(err.response?.data?.error || err.response?.data?.message || 'Failed to update employer status');
   }
@@ -62,7 +62,7 @@ export const fetchAdminJobs = createAsyncThunk('admin/fetchJobs', async (params,
 export const updateAdminJobStatus = createAsyncThunk('admin/updateJobStatus', async ({ id, status }, { rejectWithValue }) => {
   try {
     const res = await api.put(`/api/admin/jobs/${id}/status`, { status });
-    return { id, status, ...(res.data?.data !== undefined ? res.data.data : res.data) };
+    return { id, status, ...(res.data?.data !== undefined ? res.data.data : res.data), emailSent: res.data?.emailSent };
   } catch (err) {
     return rejectWithValue(err.response?.data?.error || err.response?.data?.message || 'Failed to update job status');
   }
@@ -90,7 +90,7 @@ export const fetchAdminApplications = createAsyncThunk('admin/fetchApplications'
 export const updateAdminApplicationStatus = createAsyncThunk('admin/updateApplicationStatus', async ({ id, status }, { rejectWithValue }) => {
   try {
     const res = await api.put(`/api/admin/applications/${id}/status`, { status });
-    return { id, status, ...(res.data?.data !== undefined ? res.data.data : res.data) };
+    return { id, status, ...(res.data?.data !== undefined ? res.data.data : res.data), emailSent: res.data?.emailSent };
   } catch (err) {
     return rejectWithValue(err.response?.data?.error || err.response?.data?.message || 'Failed to update application status');
   }
@@ -109,7 +109,7 @@ export const fetchAdminReports = createAsyncThunk('admin/fetchReports', async (p
 export const updateAdminReportStatus = createAsyncThunk('admin/updateReportStatus', async ({ id, status }, { rejectWithValue }) => {
   try {
     const res = await api.put(`/api/admin/reports/${id}/status`, { status });
-    return { id, status, ...(res.data?.data !== undefined ? res.data.data : res.data) };
+    return { id, status, ...(res.data?.data !== undefined ? res.data.data : res.data), emailSent: res.data?.emailSent };
   } catch (err) {
     return rejectWithValue(err.response?.data?.error || err.response?.data?.message || 'Failed to update report status');
   }

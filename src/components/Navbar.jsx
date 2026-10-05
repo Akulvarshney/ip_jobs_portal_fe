@@ -1,10 +1,9 @@
 import React from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../store/authSlice';
 import { Tag, Avatar, Dropdown } from 'antd';
 import {
-  RocketOutlined,
   UserOutlined,
   LogoutOutlined,
   DashboardOutlined,
@@ -12,7 +11,9 @@ import {
   SendOutlined,
   BookOutlined,
   CalendarOutlined,
-  SettingOutlined
+  SettingOutlined,
+  DownOutlined,
+  BankOutlined
 } from '@ant-design/icons';
 import { getFileUrl } from '../utils/fileUrl';
 import logoWithName from '../assets/logo_with_name.png';
@@ -21,11 +22,11 @@ const Navbar = () => {
   const { user, isAuthenticated } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const location = useLocation();
 
   const handleLogout = () => {
+    const signIn = user?.role === 'ADMIN' ? '/admin/login' : user?.role === 'EMPLOYER' ? '/employer/login' : '/candidate/login';
     dispatch(logout());
-    navigate('/login');
+    navigate(signIn);
   };
 
   const getUserDashboardPath = () => {
@@ -111,11 +112,13 @@ const Navbar = () => {
       },
     ];
 
-  const getDashboardLinkLabel = () => {
-    if (user?.role === 'ADMIN') return 'Admin Portal';
-    if (user?.role === 'EMPLOYER') return 'Post & Manage Jobs';
-    return 'Candidate Portal';
-  };
+  const loginMenuItems = [
+    { key: 'candidate-login', icon: <UserOutlined />, label: <Link to="/candidate/login">Candidate login</Link> },
+    { key: 'employer-login', icon: <BankOutlined />, label: <Link to="/employer/login">Employer / HR login</Link> },
+    { key: 'create-organisation', icon: <BankOutlined />, label: <Link to="/employer/signup">Create an organisation</Link> },
+    { type: 'divider' },
+    { key: 'admin-login', icon: <SafetyCertificateOutlined />, label: <Link to="/admin/login">Platform admin login</Link> },
+  ];
 
   return (
     <header className="portal-navbar">
@@ -123,19 +126,6 @@ const Navbar = () => {
         <Link to="/" className="portal-logo" style={{ textDecoration: 'none' }}>
           <img src={logoWithName} alt="Resolve Logo" style={{ height: '32px', display: 'block' }} />
         </Link>
-
-        {/* <nav className="portal-nav-links">
-
-          {isAuthenticated && (
-            <Link
-              to={getUserDashboardPath()}
-              className={`portal-nav-link ${location.pathname.startsWith('/candidate') || location.pathname.startsWith('/employer') || location.pathname.startsWith('/admin') ? 'active' : ''}`}
-            >
-              {getDashboardLinkLabel()}
-            </Link>
-          )}
-
-        </nav> */}
 
         <div className="portal-nav-actions">
           {isAuthenticated ? (
@@ -159,9 +149,11 @@ const Navbar = () => {
               </Dropdown>
             </div>
           ) : (
-              <Link to="/login" className="portal-btn-primary portal-nav-btn">
-                Log In
-              </Link>
+              <Dropdown menu={{ items: loginMenuItems }} placement="bottomRight" trigger={['click']}>
+                <button type="button" className="portal-btn-primary portal-nav-btn" aria-label="Choose login type" aria-haspopup="menu">
+                  Log in <DownOutlined aria-hidden="true" />
+                </button>
+              </Dropdown>
           )}
         </div>
       </div>

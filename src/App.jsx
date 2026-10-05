@@ -7,6 +7,7 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
 import Login from './pages/Login';
+import AuthEntry from './pages/AuthEntry';
 import CandidateDashboard from './pages/CandidateDashboard';
 import EmployerDashboard from './pages/EmployerDashboard';
 import './styles/portal-ui.css';
@@ -28,6 +29,8 @@ import CandidateInterviews from './pages/candidate/CandidateInterviews';
 import CandidateSettings from './pages/candidate/CandidateSettings';
 
 import OrganisationProfile from './pages/employer/OrganisationProfile';
+import Team from './pages/employer/Team';
+import InviteAcceptance from './pages/employer/InviteAcceptance';
 import ManageJobs from './pages/employer/ManageJobs';
 import ManageApplications from './pages/employer/ManageApplications';
 import EmployerJobDetails from './pages/employer/EmployerJobDetails';
@@ -42,7 +45,7 @@ import AdminManageReports from './pages/admin/ManageReports';
 function App() {
   const dispatch = useDispatch();
   const mode = useSelector(selectTheme);
-  const { token, isAuthenticated, user } = useSelector((state) => state.auth);
+  const { token, isAuthenticated, user, sessionChecked } = useSelector((state) => state.auth);
   const isDark = mode === 'dark';
 
   useLayoutEffect(() => {
@@ -51,8 +54,8 @@ function App() {
   }, [mode]);
 
   useEffect(() => {
-    if (token) dispatch(fetchCurrentUser());
-  }, [dispatch, token]);
+    if (token && !sessionChecked) dispatch(fetchCurrentUser());
+  }, [dispatch, token, sessionChecked]);
 
   useEffect(() => {
     const expire = () => dispatch(logout());
@@ -90,7 +93,15 @@ function App() {
                   <Home />
                 )
               } />
-              <Route path="/login" element={<Login />} />
+              <Route path="/login" element={<AuthEntry />} />
+              <Route path="/candidate/login" element={<Login audience="CANDIDATE" />} />
+              <Route path="/candidate/signup" element={<Login audience="CANDIDATE" />} />
+              <Route path="/employer/login" element={<Login audience="EMPLOYER" />} />
+              <Route path="/employer/signup" element={<Login audience="EMPLOYER" />} />
+              <Route path="/admin/login" element={<Login audience="ADMIN" />} />
+              <Route path="/invite/:token/login" element={<Login audience="HR" />} />
+              <Route path="/invite/:token/signup" element={<Login audience="HR" />} />
+              <Route path="/invite/:token" element={<InviteAcceptance />} />
               <Route path="/jobs" element={<Navigate to="/candidate/jobs" replace />} />
               <Route path="/jobs/:id" element={<JobDetails />} />
               <Route path="/companies/:id" element={<CompanyProfile />} />
@@ -120,6 +131,7 @@ function App() {
                 <Route path="/employer/dashboard" element={<EmployerDashboard />} />
                 <Route path="/employer/profile" element={<Navigate to="/employer/organisation" replace />} />
                 <Route path="/employer/organisation" element={<OrganisationProfile />} />
+                <Route path="/employer/team" element={<Team />} />
                 <Route path="/employer/jobs" element={<ManageJobs />} />
                 <Route path="/employer/jobs/:id" element={<EmployerJobDetails />} />
                 <Route path="/employer/applications" element={<ManageApplications />} />

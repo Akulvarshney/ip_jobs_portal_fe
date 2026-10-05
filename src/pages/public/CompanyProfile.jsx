@@ -59,7 +59,7 @@ const CompanyProfile = () => {
   const handleOpenApplyModal = (job) => {
     if (!isAuthenticated) {
       message.info('Please log in or sign up to apply');
-      return navigate('/login?mode=signup');
+      return navigate('/candidate/signup');
     }
     if (user?.role !== 'CANDIDATE') {
       message.warning('Only candidate accounts can apply to jobs');

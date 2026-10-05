@@ -1,36 +1,36 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Table, 
-  Tag, 
-  Button, 
-  Input, 
-  Select, 
-  Tabs, 
-  Modal, 
+import {
+  Table,
+  Tag,
+  Button,
+  Input,
+  Select,
+  Tabs,
+  Modal,
   Drawer,
-  message, 
-  Row, 
-  Col, 
-  Avatar, 
-  Divider, 
-  DatePicker, 
-  Form, 
+  message,
+  Row,
+  Col,
+  Avatar,
+  Divider,
+  DatePicker,
+  Form,
   Popconfirm,
   Badge,
   Tooltip
 } from 'antd';
-import { 
-  UserOutlined, 
-  SearchOutlined, 
-  CalendarOutlined, 
-  CheckCircleOutlined, 
-  CloseCircleOutlined, 
+import {
+  UserOutlined,
+  SearchOutlined,
+  CalendarOutlined,
+  CheckCircleOutlined,
+  CloseCircleOutlined,
   CheckOutlined,
-  EyeOutlined, 
-  FileTextOutlined, 
-  BankOutlined, 
-  BookOutlined, 
-  SafetyCertificateOutlined, 
+  EyeOutlined,
+  FileTextOutlined,
+  BankOutlined,
+  BookOutlined,
+  SafetyCertificateOutlined,
   VideoCameraOutlined,
   FilterOutlined,
   PhoneOutlined,
@@ -192,14 +192,14 @@ const ManageApplications = () => {
         const profile = record.candidate?.candidateProfile;
         return (
           <div className="portal-flex-center-gap-12">
-            <Avatar 
-              size={40} 
-              icon={<UserOutlined />} 
+            <Avatar
+              size={40}
+              icon={<UserOutlined />}
               src={getFileUrl(profile?.profilePhoto)}
               className="portal-avatar-purple"
             />
             <div>
-              <div 
+              <div
                 className="portal-card-link-title"
                 onClick={() => {
                   setSelectedApp(record);
@@ -336,212 +336,210 @@ const ManageApplications = () => {
   return (
     <div className="portal-w-full">
       {/* Page Header */}
-        <div className="portal-page-header-row portal-mb-28">
-          <div>
-            <div className="portal-flex-center-gap-8 portal-mb-6">
-              <Link to="/employer" className="portal-tag-link portal-text-13 portal-font-medium">
-                ← Back to Employer Dashboard
-              </Link>
-            </div>
-            <h1 className="portal-page-title">
-              Candidate Applications Manager
-            </h1>
-            <p className="portal-page-subtitle">
-              Review applicant resumes, verify IBC credentials, shortlist candidates, and schedule interviews.
-            </p>
+      <div className="portal-page-header-row portal-mb-28">
+        <div>
+          <div className="portal-flex-center-gap-8 portal-mb-6">
+            <Link to="/employer" className="portal-tag-link portal-text-13 portal-font-medium">
+              ← Back to Employer Dashboard
+            </Link>
           </div>
-
-          <Link to="/employer/jobs">
-            <Button className="portal-btn-neutral portal-btn-rounded-8">
-              Manage Jobs
-            </Button>
-          </Link>
+          <h1 className="portal-page-title">
+            Candidate Applications Manager
+          </h1>
+          <p className="portal-page-subtitle">
+            Review applicant resumes, verify IBC credentials, shortlist candidates, and schedule interviews.
+          </p>
         </div>
 
-        {/* Clean Search & Filter Toolbar */}
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="portal-glass-card portal-p-16 portal-mb-24"
-        >
-          <div className="portal-flex-center-gap-12 portal-flex-wrap">
-            <div className="portal-search-input-wrap">
-              <Input
-                prefix={<SearchOutlined className="portal-color-link" />}
-                placeholder="Search candidate name, email, qualifications, or skills..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                allowClear
-                className="portal-search-toolbar-input"
-              />
-            </div>
+        <Link to="/employer/jobs">
+          <Button className="portal-btn-neutral portal-btn-rounded-8">
+            Manage Jobs
+          </Button>
+        </Link>
+      </div>
 
-            <button 
-              type="button"
-              className={`portal-filter-trigger-btn ${selectedJobFilter !== 'ALL' || activeTab !== 'ALL' ? 'active' : ''}`}
-              onClick={() => setDrawerOpen(true)}
-            >
-              <FilterOutlined className={selectedJobFilter !== 'ALL' || activeTab !== 'ALL' ? 'portal-text-cyan' : ''} />
-              <span>Filters</span>
-              {(selectedJobFilter !== 'ALL' || activeTab !== 'ALL') && (
-                <span className="portal-badge-counter">
-                  {[selectedJobFilter !== 'ALL', activeTab !== 'ALL'].filter(Boolean).length}
-                </span>
-              )}
-            </button>
-
-            {(selectedJobFilter !== 'ALL' || activeTab !== 'ALL' || searchQuery) && (
-              <Tooltip title="Reset all filters">
-                <Button 
-                  icon={<ClearOutlined />} 
-                  onClick={() => {
-                    setSelectedJobFilter('ALL');
-                    setActiveTab('ALL');
-                    setSearchQuery('');
-                    setSearchParams({});
-                  }}
-                  className="portal-btn-reset-filters"
-                />
-              </Tooltip>
-            )}
-
-            <div className="portal-search-meta-count">
-              Showing <strong>{filteredApplications.length}</strong> candidate profiles
-            </div>
+      {/* Clean Search & Filter Toolbar */}
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="portal-glass-card portal-p-16 portal-mb-24"
+      >
+        <div className="portal-flex-center-gap-12 portal-flex-wrap">
+          <div className="portal-search-input-wrap">
+            <Input
+              prefix={<SearchOutlined className="portal-color-link" />}
+              placeholder="Search candidate name, email, qualifications, or skills..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              allowClear
+              className="portal-search-toolbar-input"
+            />
           </div>
 
-          {/* Active Filter Chips */}
-          {(selectedJobFilter !== 'ALL' || activeTab !== 'ALL') && (
-            <div className="portal-active-filters-bar">
-              <span className="portal-active-filters-label">Active Filters:</span>
-              
-              {selectedJobFilter !== 'ALL' && (
-                <span className="portal-filter-tag">
-                  <AuditOutlined /> Job: {jobs.find(j => j.id === selectedJobFilter)?.title || selectedJobFilter}
-                  <CloseOutlined onClick={() => { setSelectedJobFilter('ALL'); setSearchParams(activeTab !== 'ALL' ? { status: activeTab } : {}); }} />
-                </span>
-              )}
+          <button
+            type="button"
+            className={`portal-filter-trigger-btn ${selectedJobFilter !== 'ALL' || activeTab !== 'ALL' ? 'active' : ''}`}
+            onClick={() => setDrawerOpen(true)}
+          >
+            <FilterOutlined className={selectedJobFilter !== 'ALL' || activeTab !== 'ALL' ? 'portal-text-cyan' : ''} />
+            <span>Filters</span>
+            {(selectedJobFilter !== 'ALL' || activeTab !== 'ALL') && (
+              <span className="portal-badge-counter">
+                {[selectedJobFilter !== 'ALL', activeTab !== 'ALL'].filter(Boolean).length}
+              </span>
+            )}
+          </button>
 
-              {activeTab !== 'ALL' && (
-                <span className="portal-filter-tag">
-                  <TagOutlined /> Stage: {activeTab}
-                  <CloseOutlined onClick={() => { setActiveTab('ALL'); setSearchParams(selectedJobFilter !== 'ALL' ? { jobId: selectedJobFilter } : {}); }} />
-                </span>
-              )}
-            </div>
-          )}
-        </motion.div>
-
-        {/* Filter Drawer */}
-        <Drawer
-          title={
-            <div className="portal-flex-center-gap-8">
-              <FilterOutlined className="portal-color-link" />
-              <span>Filter Candidate Applications</span>
-            </div>
-          }
-          placement="right"
-          size={380}
-          open={drawerOpen}
-          onClose={() => setDrawerOpen(false)}
-          footer={
-            <div className="portal-drawer-footer-actions">
-              <Button 
+          {(selectedJobFilter !== 'ALL' || activeTab !== 'ALL' || searchQuery) && (
+            <Tooltip title="Reset all filters">
+              <Button
+                icon={<ClearOutlined />}
                 onClick={() => {
                   setSelectedJobFilter('ALL');
                   setActiveTab('ALL');
                   setSearchQuery('');
                   setSearchParams({});
                 }}
-                disabled={selectedJobFilter === 'ALL' && activeTab === 'ALL' && !searchQuery}
-                className="portal-btn-neutral portal-btn-rounded-8"
-              >
-                Reset All
-              </Button>
-              <Button 
-                type="primary" 
-                onClick={() => setDrawerOpen(false)}
-                className="portal-btn-cyan portal-btn-rounded-8 portal-font-semibold"
-              >
-                Apply & View ({filteredApplications.length})
-              </Button>
-            </div>
-          }
-        >
-          <div className="portal-filter-section">
-            <div className="portal-filter-section-title">
-              <AuditOutlined /> Listed Job / Role
-            </div>
-            <Select
-              value={selectedJobFilter}
-              onChange={(val) => {
-                setSelectedJobFilter(val);
-                setSearchParams(val !== 'ALL' ? { jobId: val } : {});
-              }}
-              className="portal-w-full"
-              size="large"
-            >
-              <Option value="ALL">All Active Jobs ({jobs.length})</Option>
-              {jobs.map(j => (
-                <Option key={j.id} value={j.id}>{j.title}</Option>
-              ))}
-            </Select>
+                className="portal-btn-reset-filters"
+              />
+            </Tooltip>
+          )}
+
+
+        </div>
+
+        {/* Active Filter Chips */}
+        {(selectedJobFilter !== 'ALL' || activeTab !== 'ALL') && (
+          <div className="portal-active-filters-bar">
+            <span className="portal-active-filters-label">Active Filters:</span>
+
+            {selectedJobFilter !== 'ALL' && (
+              <span className="portal-filter-tag">
+                <AuditOutlined /> Job: {jobs.find(j => j.id === selectedJobFilter)?.title || selectedJobFilter}
+                <CloseOutlined onClick={() => { setSelectedJobFilter('ALL'); setSearchParams(activeTab !== 'ALL' ? { status: activeTab } : {}); }} />
+              </span>
+            )}
+
+            {activeTab !== 'ALL' && (
+              <span className="portal-filter-tag">
+                <TagOutlined /> Stage: {activeTab}
+                <CloseOutlined onClick={() => { setActiveTab('ALL'); setSearchParams(selectedJobFilter !== 'ALL' ? { jobId: selectedJobFilter } : {}); }} />
+              </span>
+            )}
           </div>
+        )}
+      </motion.div>
 
-          <Divider className="portal-divider-subtle" />
-
-          <div className="portal-filter-section">
-            <div className="portal-filter-section-title">
-              <TagOutlined /> Application Pipeline Stage
-            </div>
-            <Select
-              value={activeTab}
-              onChange={(val) => {
-                setActiveTab(val);
-                setSearchParams(val !== 'ALL' ? { status: val } : {});
-              }}
-              className="portal-w-full"
-              size="large"
-            >
-              <Option value="ALL">All Application Stages ({applications.length})</Option>
-              <Option value="APPLIED">Under Review / Applied</Option>
-              <Option value="SHORTLISTED">Shortlisted Candidates</Option>
-              <Option value="INTERVIEW">Interview Scheduled</Option>
-              <Option value="SELECTED">Selected / Hired</Option>
-              <Option value="REJECTED">Not Selected / Rejected</Option>
-            </Select>
+      {/* Filter Drawer */}
+      <Drawer
+        title={
+          <div className="portal-flex-center-gap-8">
+            <FilterOutlined className="portal-color-link" />
+            <span>Filter Candidate Applications</span>
           </div>
-        </Drawer>
-
-        {/* Main Applications Table */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="portal-glass-card portal-p-32"
-        >
-          <Tabs
-            activeKey={activeTab}
-            onChange={setActiveTab}
-            items={tabItems}
-            className="portal-mb-16"
-          />
-
-          <Table
-            dataSource={filteredApplications}
-            columns={columns}
-            rowKey="id"
-            loading={loading}
-            pagination={{ pageSize: 8, showTotal: (total) => `Total ${total} candidates` }}
-            locale={{
-              emptyText: (
-                <div className="portal-empty-table-state">
-                  <UserOutlined className="portal-empty-icon" />
-                  <p>No candidate applications match the selected criteria.</p>
-                </div>
-              )
+        }
+        placement="right"
+        size={380}
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        footer={
+          <div className="portal-drawer-footer-actions">
+            <Button
+              onClick={() => {
+                setSelectedJobFilter('ALL');
+                setActiveTab('ALL');
+                setSearchQuery('');
+                setSearchParams({});
+              }}
+              disabled={selectedJobFilter === 'ALL' && activeTab === 'ALL' && !searchQuery}
+              className="portal-btn-neutral portal-btn-rounded-8"
+            >
+              Reset All
+            </Button>
+            <Button
+              type="primary"
+              onClick={() => setDrawerOpen(false)}
+              className="portal-btn-cyan portal-btn-rounded-8 portal-font-semibold"
+            >
+              Apply & View ({filteredApplications.length})
+            </Button>
+          </div>
+        }
+      >
+        <div className="portal-filter-section">
+          <div className="portal-filter-section-title">
+            <AuditOutlined /> Listed Job / Role
+          </div>
+          <Select
+            value={selectedJobFilter}
+            onChange={(val) => {
+              setSelectedJobFilter(val);
+              setSearchParams(val !== 'ALL' ? { jobId: val } : {});
             }}
-          />
-        </motion.div>
+            className="portal-w-full"
+            size="large"
+          >
+            <Option value="ALL">All Active Jobs ({jobs.length})</Option>
+            {jobs.map(j => (
+              <Option key={j.id} value={j.id}>{j.title}</Option>
+            ))}
+          </Select>
+        </div>
+
+        <Divider className="portal-divider-subtle" />
+
+        <div className="portal-filter-section">
+          <div className="portal-filter-section-title">
+            <TagOutlined /> Application Pipeline Stage
+          </div>
+          <Select
+            value={activeTab}
+            onChange={(val) => {
+              setActiveTab(val);
+              setSearchParams(val !== 'ALL' ? { status: val } : {});
+            }}
+            className="portal-w-full"
+            size="large"
+          >
+            <Option value="ALL">All Application Stages ({applications.length})</Option>
+            <Option value="APPLIED">Under Review / Applied</Option>
+            <Option value="SHORTLISTED">Shortlisted Candidates</Option>
+            <Option value="INTERVIEW">Interview Scheduled</Option>
+            <Option value="SELECTED">Selected / Hired</Option>
+            <Option value="REJECTED">Not Selected / Rejected</Option>
+          </Select>
+        </div>
+      </Drawer>
+
+      {/* Main Applications Table */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="portal-glass-card portal-p-32"
+      >
+        <Tabs
+          activeKey={activeTab}
+          onChange={setActiveTab}
+          items={tabItems}
+          className="portal-mb-16"
+        />
+
+        <Table
+          dataSource={filteredApplications}
+          columns={columns}
+          rowKey="id"
+          loading={loading}
+          pagination={{ pageSize: 8, showTotal: (total) => `Total ${total} candidates` }}
+          locale={{
+            emptyText: (
+              <div className="portal-empty-table-state">
+                <UserOutlined className="portal-empty-icon" />
+                <p>No candidate applications match the selected criteria.</p>
+              </div>
+            )
+          }}
+        />
+      </motion.div>
 
       {/* Candidate Profile Details Modal */}
       <Modal

@@ -51,7 +51,7 @@ const orgTypes = [
   { value: 'OTHER', label: 'Other Specialised Entity' },
 ];
 
-const OrganisationProfile = () => {
+const OrganisationProfile = ({ onboarding = false }) => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -126,10 +126,9 @@ const OrganisationProfile = () => {
     try {
       setSaving(true);
       const res = await dispatch(updateOrganisationProfile(values)).unwrap();
-      message.success(orgData ? 'Organisation profile updated.' : 'Organisation submitted for review. You can now explore your dashboard.');
+      message.success(onboarding ? 'Organisation submitted for platform review.' : 'Organisation profile updated.');
       setOrgData(res);
-      dispatch(updateUser({ onboarding: { required: false, path: '/employer/organisation' } }));
-      if (!orgData) navigate('/employer', { replace: true });
+      if (onboarding) dispatch(updateUser({ onboarding: { stage: 'PENDING', required: true, path: '/employer/organisation', organisation: res.name, memberRole: 'ADMIN' } }));
     } catch (error) {
       message.error(typeof error === 'string' ? error : 'Failed to update organisation details');
     } finally {
@@ -145,19 +144,19 @@ const OrganisationProfile = () => {
         <div className="portal-page-header-row portal-mb-32">
           <div>
             <div className="portal-flex-center-gap-8 portal-mb-6">
-              <Link to="/employer" className="portal-text-link portal-text-13 font-medium">
+              {!onboarding && <Link to="/employer" className="portal-text-link portal-text-13 font-medium">
                 ← Back to Employer Dashboard
-              </Link>
+              </Link>}
             </div>
             <h1 className="portal-text-28 font-bold portal-text-heading m-0">
-              Organisation Profile & Branding
+              {onboarding ? 'Set up your organisation' : 'Organisation Profile & Branding'}
             </h1>
             <p className="portal-text-muted-sm mt-4 m-0">
-              Manage your company information, insolvency credentials, and branding visible to candidates.
+              {onboarding ? 'Complete these details to submit your organisation for platform approval.' : 'Manage your company information, insolvency credentials, and branding visible to candidates.'}
             </p>
           </div>
 
-          {orgData?.id && (
+          {!onboarding && orgData?.id && (
             <Link to={`/companies/${orgData.id}`} target="_blank">
               <Button 
                 icon={<EyeOutlined />} 
@@ -320,7 +319,7 @@ const OrganisationProfile = () => {
                   loading={saving}
                   className="portal-btn-primary-compact"
                 >
-                  Save Profile Details
+                  {onboarding ? 'Submit for approval' : 'Save Profile Details'}
                 </Button>
               </Form>
             </motion.div>

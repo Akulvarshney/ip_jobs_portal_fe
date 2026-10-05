@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Input, Typography, message, Alert, Divider, Avatar, Tag, Modal } from 'antd';
 import { useDispatch } from 'react-redux';
-import { loginSuccess } from '../store/authSlice';
-import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { fetchCurrentUser, loginSuccess } from '../store/authSlice';
+import { useNavigate, useSearchParams, useLocation, useParams, Link } from 'react-router-dom';
 import api from '../api';
 import { motion } from 'framer-motion';
 import { useGoogleLogin } from '@react-oauth/google';
@@ -14,7 +14,6 @@ import {
   CheckCircleFilled,
   ArrowLeftOutlined,
   UserOutlined,
-  BankOutlined,
 } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
@@ -41,22 +40,27 @@ const GoogleIcon = () => (
   </svg>
 );
 
-const Login = () => {
+const Login = ({ audience = 'CANDIDATE' }) => {
   const [searchParams] = useSearchParams();
-  const isLogin = searchParams.get('mode') !== 'signup';
+  const location = useLocation();
+  const { token: inviteToken } = useParams();
+  const isLogin = !location.pathname.endsWith('/signup');
+  const isInvite = audience === 'HR';
+  const accountRole = audience === 'CANDIDATE' ? 'CANDIDATE' : 'EMPLOYER';
+  const basePath = isInvite ? `/invite/${inviteToken}` : audience === 'ADMIN' ? '/admin' : accountRole === 'CANDIDATE' ? '/candidate' : '/employer';
+  const [invite, setInvite] = useState(null);
+  const [inviteError, setInviteError] = useState('');
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
   // Google Onboarding State for new users
   const [googleOnboardingUser, setGoogleOnboardingUser] = useState(null); // { email, name, photoUrl }
-  const [googleRole, setGoogleRole] = useState('CANDIDATE'); // 'CANDIDATE' | 'EMPLOYER'
 
   // Register multi-step state (Self Email OTP flow)
   // Account details -> verify email and create account.
   const [registerStep, setRegisterStep] = useState(0);
   const [registerEmail, setRegisterEmail] = useState('');
-  const [manualRole, setManualRole] = useState(searchParams.get('role') === 'EMPLOYER' ? 'EMPLOYER' : 'CANDIDATE');
   const [registrationDetails, setRegistrationDetails] = useState(null);
   const [otpCode, setOtpCode] = useState('');
   const [sendingOtp, setSendingOtp] = useState(false);
@@ -84,6 +88,36 @@ const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  useEffect(() => {
+    if (!isInvite) return;
+    let active = true;
+    api.get(`/api/employer/invitations/${inviteToken}`)
+      .then(({ data }) => { if (active) { setInvite(data.data); passwordForm.setFieldsValue({ email: data.data.email }); loginForm.setFieldsValue({ email: data.data.email }); } })
+      .catch(error => { if (active) setInviteError(error.response?.data?.error || 'This invitation could not be loaded.'); });
+    return () => { active = false; };
+  }, [isInvite, inviteToken, passwordForm, loginForm]);
+
+  const correctAudience = user => audience === 'ADMIN' ? user.role === 'ADMIN' : user.role === accountRole && (!isInvite || user.email?.toLowerCase() === invite?.email?.toLowerCase());
+  const audienceError = () => isInvite ? `Sign in with the invited employer account (${invite?.email}).` : audience === 'CANDIDATE' ? 'This account is for hiring. Use employer sign in.' : audience === 'ADMIN' ? 'This is not a platform admin account.' : 'This is a candidate account. Use candidate sign in.';
+
+  const finishRegistration = async (payload) => {
+    dispatch(loginSuccess({ token: payload.token, user: payload.user }));
+    if (!isInvite) {
+      message.success(accountRole === 'EMPLOYER' ? 'Account created. Complete your organisation details for approval.' : 'Candidate account created.');
+      redirectUser(payload.user);
+      return;
+    }
+    try {
+      await api.post(`/api/employer/invitations/${inviteToken}/accept`);
+      await dispatch(fetchCurrentUser()).unwrap();
+      message.success(`You have joined ${invite.organisation} as an HR employee.`);
+      navigate('/employer', { replace: true });
+    } catch (error) {
+      message.warning(error.response?.data?.error || 'Your account was created, but the invitation could not be accepted. Please retry from the invitation page.');
+      navigate(`/invite/${inviteToken}`, { replace: true });
+    }
+  };
+
 
   // Countdown timer for registration OTP resend
   useEffect(() => {
@@ -109,6 +143,7 @@ const Login = () => {
     setErrorMessage('');
     try {
       const res = await api.post('/api/auth/login', values);
+      if (!correctAudience(res.data.user)) { setErrorMessage(audienceError()); return; }
       dispatch(loginSuccess({ token: res.data.token, user: res.data.user }));
       message.success('Welcome back! Sign in successful.');
       redirectUser(res.data.user);
@@ -125,7 +160,7 @@ const Login = () => {
   const handleSendOtp = async (details) => {
     if (sendingOtp) return;
     const account = details?.email ? details : registrationDetails;
-    const email = (account?.email || registerEmail).trim().toLowerCase();
+    const email = (isInvite ? invite?.email : account?.email || registerEmail)?.trim().toLowerCase() || '';
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       message.warning('Please enter a valid email address');
       return;
@@ -191,13 +226,11 @@ const Login = () => {
         email: registerEmail,
         password: values.password,
         name: values.name,
-        role: manualRole,
+        role: accountRole,
         verificationToken
       });
 
-      dispatch(loginSuccess({ token: res.data.token, user: res.data.user }));
-      message.success('Account created! Add your profile details or start browsing jobs.');
-      navigate(res.data.user.role === 'EMPLOYER' ? '/employer/organisation' : '/candidate/profile', { replace: true });
+      await finishRegistration(res.data);
     } catch (error) {
       const msg = error.response?.data?.error || 'Registration failed';
       setErrorMessage(msg);
@@ -214,22 +247,24 @@ const Login = () => {
       setErrorMessage('');
       try {
         const res = await api.post('/api/auth/google', { accessToken: tokenResponse.access_token });
-        const googleUser = { email: res.data.email, name: res.data.name, picture: res.data.photoUrl };
+        const googleUser = { email: res.data.email || res.data.user?.email, name: res.data.name || res.data.user?.name, picture: res.data.photoUrl };
 
+        if (isInvite && googleUser.email?.toLowerCase() !== invite?.email?.toLowerCase()) { setErrorMessage(`Use the invited Google account (${invite?.email}).`); return; }
         if (res.data.isNewUser) {
+          if (audience === 'ADMIN') { setErrorMessage('Platform admin accounts cannot be created here.'); return; }
           setGoogleOnboardingUser({
             email: googleUser.email,
             name: googleUser.name || googleUser.given_name || googleUser.email.split('@')[0],
             photoUrl: googleUser.picture,
             accessToken: tokenResponse.access_token
           });
-          setGoogleRole(manualRole);
+
           googleProfileForm.setFieldsValue({
-            name: googleUser.name || googleUser.given_name || googleUser.email.split('@')[0],
-            companyName: ''
+            name: googleUser.name || googleUser.given_name || googleUser.email.split('@')[0]
           });
-          message.info('Google verified! Please select your profile type to finish setup.');
+          message.info('Google verified. Finish creating your account.');
         } else {
+          if (!correctAudience(res.data.user)) { setErrorMessage(audienceError()); return; }
           dispatch(loginSuccess({ token: res.data.token, user: res.data.user }));
           message.success(`Signed in with Google as ${res.data.user.name || googleUser.email}!`);
           redirectUser(res.data.user);
@@ -249,7 +284,7 @@ const Login = () => {
     }
   });
 
-  // Submit Google Onboarding (Name + Role + Company)
+  // Finish Google signup in the account flow the user entered.
   const onCompleteGoogleOnboarding = async (values) => {
     if (!googleOnboardingUser) return;
     setLoading(true);
@@ -259,13 +294,11 @@ const Login = () => {
         accessToken: googleOnboardingUser.accessToken,
         name: values.name || googleOnboardingUser.name,
         photoUrl: googleOnboardingUser.photoUrl,
-        role: googleRole,
-        companyName: values.companyName
+        role: accountRole
       });
 
-      dispatch(loginSuccess({ token: res.data.token, user: res.data.user }));
-      message.success(`Welcome to Resolve, ${res.data.user.name}!`);
-      navigate(res.data.user.role === 'EMPLOYER' ? '/employer/organisation' : '/candidate/profile', { replace: true });
+      if (!correctAudience(res.data.user)) { setErrorMessage(audienceError()); return; }
+      await finishRegistration(res.data);
     } catch (error) {
       const msg = error.response?.data?.error || 'Failed to complete profile setup';
       setErrorMessage(msg);
@@ -368,11 +401,15 @@ const Login = () => {
 
   const redirectUser = (user) => {
     const userRole = user.role;
+    const redirectUrl = isInvite ? `/invite/${inviteToken}` : searchParams.get('redirect');
+    if (userRole === 'EMPLOYER' && /^\/invite\/[a-f0-9]{64}$/.test(redirectUrl || '')) {
+      navigate(redirectUrl, { replace: true });
+      return;
+    }
     if (user.onboarding?.required) {
       navigate(user.onboarding.path, { replace: true });
       return;
     }
-    const redirectUrl = searchParams.get('redirect');
     if (redirectUrl?.startsWith('/') && !redirectUrl.startsWith('//') && !redirectUrl.includes('\\') && !redirectUrl.startsWith('/login')) {
       navigate(redirectUrl, { replace: true });
       return;
@@ -387,32 +424,8 @@ const Login = () => {
     }
   };
 
-  const autofillDemo = (demoRole) => {
-    setErrorMessage('');
-    const params = new URLSearchParams(searchParams);
-    params.delete('mode');
-    navigate(`/login?${params}`);
-    setGoogleOnboardingUser(null);
-    if (demoRole === 'ADMIN') {
-      loginForm.setFieldsValue({
-        email: 'admin@resolve.com',
-        password: 'password123',
-      });
-      message.info('Loaded Platform Admin demo credentials');
-    } else if (demoRole === 'CANDIDATE') {
-      loginForm.setFieldsValue({
-        email: 'rajesh.mehta@example.com',
-        password: 'password123',
-      });
-      message.info('Loaded Insolvency Professional demo credentials');
-    } else {
-      loginForm.setFieldsValue({
-        email: 'hr@arcil.co.in',
-        password: 'password123',
-      });
-      message.info('Loaded Arcil Entity demo credentials');
-    }
-  };
+
+  if (isInvite && (!invite || inviteError)) return <div className="portal-page-wrapper" style={{ minHeight: '70vh', display: 'grid', placeItems: 'center', padding: 24 }}><div className="portal-glass-card portal-p-32"><h1 className="portal-text-heading">HR invitation</h1><p className="portal-text-muted-sm">{inviteError || 'Checking your invitation…'}</p>{inviteError && <Link to="/login">Return to sign in</Link>}</div></div>;
 
   return (
     <div className="portal-page-wrapper">
@@ -428,18 +441,20 @@ const Login = () => {
 
           <Title level={2} className="portal-auth-title">
             {googleOnboardingUser
-              ? 'Complete Your Profile'
-              : isLogin
-                ? 'Welcome Back'
-                : 'Join the Network'
+              ? isInvite ? 'Create your HR account' : 'Complete your account'
+              : isInvite ? (isLogin ? 'Sign in to join the team' : 'Create your HR account')
+              : audience === 'ADMIN' ? 'Platform admin sign in'
+              : accountRole === 'CANDIDATE' ? (isLogin ? 'Candidate sign in' : 'Create your candidate account')
+              : (isLogin ? 'Employer sign in' : 'Set up your organisation')
             }
           </Title>
           <Text className="portal-auth-subtitle">
             {googleOnboardingUser
-              ? 'Select how you want to use the Insolvency & Valuation ecosystem'
-              : isLogin
-                ? 'Sign in to access your specialized professional ecosystem'
-                : 'Create your account, verify your email, and get started.'
+              ? isInvite ? `Join ${invite?.organisation} as an HR employee.` : 'Confirm your details to continue.'
+              : isInvite ? `Use ${invite?.email} to join ${invite?.organisation}.`
+              : audience === 'ADMIN' ? 'Access platform governance.'
+              : accountRole === 'CANDIDATE' ? 'Find opportunities and manage applications.'
+              : 'Create or access your organisation workspace.'
             }
           </Text>
         </div>
@@ -508,42 +523,7 @@ const Login = () => {
                   />
                 </Form.Item>
 
-                {/* Role Selection Cards */}
-                <div className="portal-mb-20">
-                  <label className="portal-form-label-block">
-                    How would you like to register?
-                  </label>
-
-                  <div className="portal-role-grid">
-                    {/* Role Option 1: CANDIDATE / PROFESSIONAL */}
-                    <div
-                      onClick={() => setGoogleRole('CANDIDATE')}
-                      className={`portal-role-card ${googleRole === 'CANDIDATE' ? 'active' : ''}`}
-                    >
-                      <UserOutlined className={`portal-role-icon ${googleRole === 'CANDIDATE' ? 'active' : ''}`} />
-                      <div className="portal-role-title">
-                        Job Seeker / IP
-                      </div>
-                      <div className="portal-role-desc">
-                        Insolvency Professional, Valuer, CA, CS, Legal Expert
-                      </div>
-                    </div>
-
-                    {/* Role Option 2: EMPLOYER / RECRUITER */}
-                    <div
-                      onClick={() => setGoogleRole('EMPLOYER')}
-                      className={`portal-role-card ${googleRole === 'EMPLOYER' ? 'active' : ''}`}
-                    >
-                      <BankOutlined className={`portal-role-icon ${googleRole === 'EMPLOYER' ? 'active' : ''}`} />
-                      <div className="portal-role-title">
-                        Employer / Entity
-                      </div>
-                      <div className="portal-role-desc">
-                        IPE, Bank, ARC, Law Firm hiring professionals
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <p className="portal-text-muted-sm">{isInvite ? `You will join ${invite?.organisation} as an HR employee.` : accountRole === 'CANDIDATE' ? 'Your account is for finding and applying to jobs.' : 'Your account is for organisation hiring.'}</p>
 
                 <button
                   type="submit"
@@ -562,7 +542,7 @@ const Login = () => {
                 <div className="portal-text-center portal-mt-14">
                   <button
                     type="button"
-                    onClick={() => { setGoogleOnboardingUser(null); navigate('/login'); }}
+                    onClick={() => { setGoogleOnboardingUser(null); navigate(`${basePath}/login`); }}
                     className="portal-btn-link-switch"
                   >
                     <ArrowLeftOutlined /> Use a different account
@@ -606,6 +586,7 @@ const Login = () => {
                     placeholder="name@example.com"
                     size="large"
                     className="portal-auth-input"
+                    readOnly={isInvite}
                   />
                 </Form.Item>
 
@@ -643,35 +624,6 @@ const Login = () => {
                 </button>
               </Form>
 
-              {/* Quick Demo Login Fillers */}
-              <div className="portal-demo-accounts-box">
-                <div className="portal-demo-accounts-title">
-                  ⚡ Quick Demo Accounts
-                </div>
-                <div className="portal-grid-3col-gap-8">
-                  <button
-                    type="button"
-                    onClick={() => autofillDemo('CANDIDATE')}
-                    className="portal-demo-btn-candidate"
-                  >
-                    Candidate
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => autofillDemo('EMPLOYER')}
-                    className="portal-demo-btn-employer"
-                  >
-                    Employer
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => autofillDemo('ADMIN')}
-                    className="portal-demo-btn-admin"
-                  >
-                    Admin
-                  </button>
-                </div>
-              </div>
             </div>
           ) : (
 
@@ -700,9 +652,9 @@ const Login = () => {
                 <span className={`portal-step-item ${registerStep === 1 ? 'active' : ''}`}>2. Verify email</span>
               </div>
               {registerStep === 0 && <div>
-                <Form form={passwordForm} layout="vertical" onFinish={handleSendOtp} initialValues={{ email: registerEmail }} requiredMark={false}>
+                <Form form={passwordForm} layout="vertical" onFinish={handleSendOtp} initialValues={{ email: isInvite ? invite?.email : registerEmail }} requiredMark={false}>
                   <Form.Item label="Email address" name="email" rules={[{ required: true, message: 'Enter your email address' }, { type: 'email', message: 'Enter a valid email address' }]}>
-                    <Input autoComplete="email" type="email" size="large" className="portal-auth-input" placeholder="you@example.com" />
+                    <Input autoComplete="email" type="email" size="large" className="portal-auth-input" placeholder="you@example.com" readOnly={isInvite} />
                   </Form.Item>
                   {/* Full Name */}
                   <Form.Item
@@ -719,33 +671,7 @@ const Login = () => {
                     />
                   </Form.Item>
 
-                  {/* Role Selection */}
-                  <div className="portal-mb-16">
-                    <label className="portal-form-label-block-8">
-                      Register As:
-                    </label>
-                    <div className="portal-grid-2col-gap-10">
-                      <button type="button"
-                        onClick={() => setManualRole('CANDIDATE')} aria-pressed={manualRole === 'CANDIDATE'}
-                        className={`portal-manual-role-card ${manualRole === 'CANDIDATE' ? 'active' : ''}`}
-                      >
-                        <UserOutlined className={`portal-role-icon ${manualRole === 'CANDIDATE' ? 'active' : ''}`} />
-                        <div className="portal-role-title">Candidate / IP</div>
-                        <div className="portal-role-desc">Find and apply for jobs</div>
-                      </button>
-
-                      <button type="button"
-                        onClick={() => setManualRole('EMPLOYER')} aria-pressed={manualRole === 'EMPLOYER'}
-                        className={`portal-manual-role-card ${manualRole === 'EMPLOYER' ? 'active' : ''}`}
-                      >
-                        <BankOutlined className={`portal-role-icon ${manualRole === 'EMPLOYER' ? 'active' : ''}`} />
-                        <div className="portal-role-title">Employer / Entity</div>
-                        <div className="portal-role-desc">Post jobs and review applicants</div>
-                      </button>
-                    </div>
-                  </div>
-
-
+                  <p className="portal-text-muted-sm">{isInvite ? `This account will join ${invite?.organisation} as an HR employee.` : accountRole === 'CANDIDATE' ? 'Create a personal candidate account.' : 'Create an organisation admin account. Organisation details are reviewed before access. If you were invited as HR, use your invitation link instead.'}</p>
 
                   <Form.Item
                     label={<span className="portal-form-label">Set Account Password</span>}
@@ -855,18 +781,27 @@ const Login = () => {
           )}
 
           {/* Toggle Login/Register footer (Hidden when in Google onboarding) */}
-          {!googleOnboardingUser && (
+          {!googleOnboardingUser && audience !== 'ADMIN' && (
             <div className="portal-auth-switch-row">
               <span className="portal-text-muted-14">
                 {isLogin ? "Don't have an account? " : "Already have an account? "}
               </span>
               <button
                 type="button"
-                onClick={() => { const params = new URLSearchParams(searchParams); if (isLogin) params.set('mode', 'signup'); else params.delete('mode'); navigate(`/login?${params}`); setErrorMessage(''); }}
+                onClick={() => { navigate(`${basePath}/${isLogin ? 'signup' : 'login'}${searchParams.get('redirect') ? `?redirect=${encodeURIComponent(searchParams.get('redirect'))}` : ''}`); setErrorMessage(''); }}
                 className="portal-auth-switch-btn"
               >
-                {isLogin ? 'Sign Up' : 'Log In'}
+                {isLogin ? (isInvite ? 'Create your HR account' : 'Sign Up') : 'Log In'}
               </button>
+            </div>
+          )}
+
+          {!googleOnboardingUser && !isInvite && audience !== 'ADMIN' && (
+            <div className="portal-auth-switch-row">
+              <span className="portal-text-muted-14">{accountRole === 'CANDIDATE' ? 'Hiring for an organisation?' : 'Looking for a job?'}</span>{' '}
+              <Link className="portal-auth-switch-btn" to={accountRole === 'CANDIDATE' ? '/employer/login' : '/candidate/login'}>
+                {accountRole === 'CANDIDATE' ? 'Employer sign in' : 'Candidate sign in'}
+              </Link>
             </div>
           )}
 

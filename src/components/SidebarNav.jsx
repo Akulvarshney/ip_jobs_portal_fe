@@ -65,7 +65,8 @@ const ROLE_NAV_CONFIGS = {
       {
         title: 'Organisation',
         items: [
-          { path: '/employer/organisation', label: 'Organisation Profile', icon: <BankOutlined /> },
+          { path: '/employer/organisation', label: 'Organisation Profile', icon: <BankOutlined />, adminOnly: true },
+          { path: '/employer/team', label: 'Team & Invites', icon: <TeamOutlined />, adminOnly: true },
         ]
       },
       {
@@ -180,7 +181,7 @@ const SidebarNav = ({ activeKey }) => {
                 {group.title}
               </div>
             )}
-            {group.items.map((item) => {
+            {group.items.filter(item => !item.adminOnly || user?.onboarding?.memberRole === 'ADMIN').map((item) => {
               const active = isItemActive(item);
               return (
                 <Link

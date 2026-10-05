@@ -6149,6 +6149,11 @@ input[type="number"] {
 }
 
 .portal-auth-switch-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px;
   text-align: center;
   margin-top: 20px;
 }
@@ -6156,11 +6161,15 @@ input[type="number"] {
 .portal-auth-switch-btn {
   background: none;
   border: none;
+  padding: 0;
   color: var(--theme-link);
   font-weight: 600;
   cursor: pointer;
   font-size: 14px;
+  text-decoration: none;
 }
+
+.portal-auth-switch-btn:hover { text-decoration: underline; }
 
 .portal-modal-subtitle-13 {
   color: var(--theme-subtle);
@@ -8747,4 +8756,108 @@ input[type="number"] {
 
 .portal-job-card-h-bookmark.saved {
   color: var(--theme-danger);
+}
+
+/* Employer job workspace */
+.employer-job-page { max-width: 1380px; margin: 0 auto; padding-bottom: 48px; }
+.employer-job-breadcrumb { display: flex; align-items: center; gap: 11px; margin: 0 0 28px; color: var(--theme-muted); font-size: 13px; }
+.employer-job-breadcrumb button { padding: 0; border: 0; background: transparent; color: var(--theme-link); font: inherit; font-weight: 600; cursor: pointer; }
+.employer-job-breadcrumb button:hover { text-decoration: underline; }
+.employer-job-breadcrumb button:focus-visible, .employer-job-metric:focus-visible, .employer-job-public-link:focus-visible { outline: 2px solid var(--theme-link); outline-offset: 3px; }
+.employer-job-hero { padding: 0 0 26px; }
+.employer-job-hero-top, .employer-job-hero-main { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
+.employer-job-eyebrow, .employer-job-kicker { color: var(--theme-link); font-size: 11px; font-weight: 750; letter-spacing: .13em; }
+.employer-job-eyebrow span { margin: 0 4px; color: var(--theme-muted); }
+.employer-job-status { display: inline-flex; align-items: center; gap: 8px; padding: 6px 11px; border: 1px solid rgba(var(--theme-contrast-rgb), .1); border-radius: 99px; color: var(--theme-muted); font-size: 12px; font-weight: 700; text-transform: capitalize; white-space: nowrap; }
+.employer-job-status-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.employer-job-status-active { color: #10b981; background: rgba(16,185,129,.09); border-color: rgba(16,185,129,.2); }
+.employer-job-status-paused { color: #f59e0b; background: rgba(245,158,11,.08); border-color: rgba(245,158,11,.2); }
+.employer-job-hero-main { margin-top: 17px; align-items: flex-end; }
+.employer-job-hero h1 { max-width: 780px; margin: 0; color: var(--theme-heading); font-size: clamp(28px, 2.7vw, 40px); letter-spacing: -.035em; line-height: 1.16; }
+.employer-job-company { margin: 12px 0 0; color: var(--theme-muted); font-size: 14px; }
+.employer-job-company .anticon { color: var(--theme-link); margin-right: 6px; }
+.employer-job-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 9px; flex-shrink: 0; }
+.employer-job-actions .ant-btn { height: 38px; border-radius: 9px; font-weight: 600; }
+.employer-job-facts { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); margin-top: 31px; padding-top: 22px; border-top: 1px solid rgba(var(--theme-contrast-rgb), .13); }
+.employer-job-facts > div { min-width: 0; padding: 0 18px; border-right: 1px solid rgba(var(--theme-contrast-rgb), .1); }
+.employer-job-facts > div:first-child { padding-left: 0; }
+.employer-job-facts > div:last-child { border-right: 0; padding-right: 0; }
+.employer-job-facts small { display: block; color: var(--theme-muted); font-size: 10px; font-weight: 700; letter-spacing: .08em; }
+.employer-job-facts strong { display: block; margin-top: 7px; color: var(--theme-heading); font-size: 13px; line-height: 1.4; font-weight: 650; overflow-wrap: anywhere; }
+.employer-job-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 4px; border-top: 1px solid rgba(var(--theme-contrast-rgb), .13); border-bottom: 1px solid rgba(var(--theme-contrast-rgb), .13); }
+.employer-job-metric { display: flex; flex-direction: column; align-items: flex-start; text-align: left; min-height: 110px; padding: 17px 22px; cursor: pointer; background: transparent; color: var(--theme-heading); border: 0; border-right: 1px solid rgba(var(--theme-contrast-rgb), .1); transition: background .18s ease, box-shadow .18s ease; }
+.employer-job-metric:first-child { padding-left: 0; }
+.employer-job-metric:last-child { border-right: 0; }
+.employer-job-metric:hover { background: rgba(var(--theme-contrast-rgb), .025); }
+.employer-job-metric.is-active { box-shadow: inset 0 -2px var(--theme-link); }
+.employer-job-metric-label { color: var(--theme-muted); font-size: 12px; font-weight: 600; }
+.employer-job-metric-count { margin-top: 7px; color: var(--theme-heading); font-size: 28px; font-weight: 750; line-height: 1; letter-spacing: -.04em; }
+.employer-job-metric-hint { margin-top: 7px; color: var(--theme-muted); font-size: 11px; }
+.employer-job-brief { margin-top: 38px; }
+.employer-job-section-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; padding-bottom: 20px; border-bottom: 1px solid rgba(var(--theme-contrast-rgb), .13); }
+.employer-job-section-head h2, .employer-job-applicants h2 { margin: 7px 0 0; color: var(--theme-heading); font-size: 23px; line-height: 1.25; letter-spacing: -.02em; }
+.employer-job-brief-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 40px; padding-top: 22px; }
+.employer-job-copy h3, .employer-job-skills h3 { margin: 0 0 10px; color: var(--theme-heading); font-size: 14px; font-weight: 700; }
+.employer-job-copy p { margin: 0; white-space: pre-wrap; color: var(--theme-detail); font-size: 14px; line-height: 1.8; }
+.employer-job-skills { margin-top: 28px; padding-top: 20px; border-top: 1px solid rgba(var(--theme-contrast-rgb), .1); }
+.employer-job-skills > div { display: flex; flex-wrap: wrap; gap: 7px; }
+.employer-job-skill { padding: 6px 9px; border: 1px solid rgba(14,165,233,.16); border-radius: 7px; background: rgba(14,165,233,.08); color: var(--theme-link); font-size: 11px; font-weight: 600; }
+.employer-job-public-link { display: inline-flex; align-items: center; gap: 8px; color: var(--theme-link); font-size: 12px; font-weight: 700; text-decoration: none; white-space: nowrap; }
+.employer-job-public-link:hover { text-decoration: underline; }
+.employer-job-applicants { margin-top: 40px; background: rgba(var(--theme-surface-rgb), .72); border: 1px solid rgba(var(--theme-contrast-rgb), .1); border-radius: 16px; overflow: hidden; }
+.employer-job-applicants-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; padding: 28px 28px 20px; }
+.employer-job-applicants-head h2 span { display: inline-grid; place-items: center; min-width: 28px; height: 24px; margin-left: 5px; padding: 0 6px; border-radius: 7px; background: rgba(14,165,233,.12); color: var(--theme-link); font-size: 13px; vertical-align: middle; }
+.employer-job-applicants-head p { margin: 8px 0 0; color: var(--theme-muted); font-size: 12px; }
+.employer-job-applicant-tools { display: flex; gap: 9px; min-width: 0; }
+.employer-job-applicant-tools .ant-input-affix-wrapper { width: 220px; height: 36px; }
+.employer-job-applicant-tools .ant-select { width: 150px; }
+.employer-job-applicant-tools .ant-input-affix-wrapper, .employer-job-applicant-tools .ant-select-selector { border-radius: 9px !important; }
+.employer-job-table { padding: 0 16px 16px; }
+.employer-job-table .portal-table .ant-table-thead > tr > th { background: rgba(var(--theme-contrast-rgb), .025) !important; }
+.employer-job-table .portal-avatar-init { width: 38px; height: 38px; border-radius: 10px; }
+.employer-job-empty { max-width: 520px; margin: 80px auto; padding: 32px; text-align: center; }
+.employer-job-mobile-list { display: none; }
+@media (max-width: 1150px) {
+  .employer-job-facts { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px 0; }
+  .employer-job-facts > div:nth-child(3) { border-right: 0; }
+  .employer-job-facts > div:nth-child(4) { padding-left: 0; }
+}
+@media (max-width: 992px) {
+  .portal-main-content, .candidate-portal-content { width: 100%; flex: none; }
+}
+@media (max-width: 760px) {
+  .employer-job-breadcrumb { margin-bottom: 22px; }
+  .employer-job-hero-main, .employer-job-applicants-head { flex-direction: column; align-items: stretch; }
+  .employer-job-actions { justify-content: flex-start; }
+  .employer-job-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .employer-job-facts > div { padding: 0 14px; }
+  .employer-job-facts > div:nth-child(odd) { padding-left: 0; }
+  .employer-job-facts > div:nth-child(3) { border-right: 1px solid rgba(var(--theme-contrast-rgb), .1); }
+  .employer-job-facts > div:nth-child(even) { border-right: 0; }
+  .employer-job-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .employer-job-metric { min-height: 105px; padding: 15px; border-bottom: 1px solid rgba(var(--theme-contrast-rgb), .1); }
+  .employer-job-metric:nth-child(even) { border-right: 0; }
+  .employer-job-metric:nth-child(odd) { padding-left: 0; }
+  .employer-job-metric:nth-child(n+3) { border-bottom: 0; }
+  .employer-job-brief-grid { grid-template-columns: 1fr; gap: 22px; }
+  .employer-job-applicant-tools { width: 100%; }
+  .employer-job-applicant-tools .ant-input-affix-wrapper { width: 100%; }
+  .employer-job-applicant-tools .ant-select { flex: 0 0 142px; }
+  .employer-job-table { display: none; }
+  .employer-job-mobile-list { display: grid; gap: 12px; padding: 0 18px 20px; }
+  .employer-job-candidate-card { padding: 17px; border: 1px solid rgba(var(--theme-contrast-rgb), .09); border-radius: 13px; background: rgba(var(--theme-contrast-rgb), .025); }
+  .employer-job-candidate-top { display: flex; align-items: center; gap: 11px; min-width: 0; }
+  .employer-job-candidate-top strong { display: block; color: var(--theme-heading); font-size: 14px; }
+  .employer-job-candidate-top small { display: block; margin-top: 3px; color: var(--theme-muted); line-height: 1.5; }
+  .employer-job-candidate-stage { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 17px; color: var(--theme-muted); font-size: 11px; }
+  .employer-job-candidate-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .employer-job-candidate-actions .ant-select { min-width: 120px; flex: 1; }
+}
+@media (max-width: 480px) {
+  .employer-job-applicants-head { padding: 22px 18px 18px; }
+  .employer-job-applicant-tools { flex-wrap: wrap; }
+  .employer-job-applicant-tools .ant-select { flex: 1 1 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .employer-job-metric { transition: none; }
 }
