@@ -6,7 +6,8 @@ import {
   Breadcrumb, 
   message,
   Modal,
-  Input
+  Input,
+  Pagination
 } from 'antd';
 import { 
   GlobalOutlined, 
@@ -21,6 +22,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { applyToJob } from '../../store/candidateSlice';
 import { getJobTypeLabel, getJobTypeColor, getSalaryRangeLabel, getExperienceLevelShortLabel } from '../../utils/jobType';
 import api from '../../api';
+import { getFileUrl } from '../../utils/fileUrl';
 
 const CompanyProfile = () => {
   const navigate = useNavigate();
@@ -28,6 +30,8 @@ const CompanyProfile = () => {
   const dispatch = useDispatch();
   const [company, setCompany] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [jobsPage, setJobsPage] = useState(1);
+  const [jobsPagination, setJobsPagination] = useState({ total: 0, pageSize: 8 });
 
   // Apply Modal state
   const [applyModalOpen, setApplyModalOpen] = useState(false);
@@ -40,9 +44,10 @@ const CompanyProfile = () => {
   const fetchCompanyDetails = async () => {
     try {
       setLoading(true);
-      const res = await api.get(`/api/jobs/company/${id}`);
+      const res = await api.get(`/api/jobs/company/${id}`, { params: { page: jobsPage, pageSize: 8 } });
       if (res.data?.success) {
         setCompany(res.data.data);
+        setJobsPagination(res.data.pagination);
       }
     } catch (error) {
       console.error('Error loading company profile:', error);
@@ -54,7 +59,7 @@ const CompanyProfile = () => {
 
   useEffect(() => {
     fetchCompanyDetails();
-  }, [id]);
+  }, [id, jobsPage]);
 
   const handleOpenApplyModal = (job) => {
     if (!isAuthenticated) {
@@ -180,7 +185,7 @@ const CompanyProfile = () => {
 
             <div className="portal-company-stat-box">
               <div className="portal-company-stat-val">
-                {company.jobs?.length || 0}
+                {jobsPagination.total}
               </div>
               <div className="portal-company-stat-label">
                 Active Jobs
@@ -205,7 +210,7 @@ const CompanyProfile = () => {
           <div className="portal-company-jobs-header">
             <div>
               <h2 className="portal-company-jobs-title">
-                Open Jobs & Opportunities ({company.jobs?.length || 0})
+                Open Jobs & Opportunities ({jobsPagination.total})
               </h2>
               <p className="portal-company-jobs-subtitle">
                 Direct job openings posted by {company.name}
@@ -275,6 +280,8 @@ const CompanyProfile = () => {
               </motion.div>
             ))}
           </div>
+
+          {jobsPagination.total > jobsPagination.pageSize && <Pagination className="portal-list-pagination" current={jobsPage} pageSize={jobsPagination.pageSize} total={jobsPagination.total} onChange={setJobsPage} showSizeChanger={false} />}
 
           {(!company.jobs || company.jobs.length === 0) && (
             <div className="portal-glass-card portal-company-empty-box">

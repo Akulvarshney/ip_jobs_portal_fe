@@ -46,6 +46,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { getFileUrl } from '../../utils/fileUrl';
 import { fetchEmployerApplications, fetchEmployerJobs, updateApplicationStatus, scheduleInterview } from '../../store/employerSlice';
+import api from '../../api';
 import dayjs from 'dayjs';
 
 const { Option } = Select;
@@ -57,14 +58,16 @@ const ManageApplications = () => {
   const initialJobId = searchParams.get('jobId') || 'ALL';
 
   const dispatch = useDispatch();
-  const { applications: reduxApps, jobs: reduxJobs, loading: empLoading } = useSelector((state) => state.employer);
+  const { applications: reduxApps, pagination } = useSelector((state) => state.employer);
 
   const [applications, setApplications] = useState([]);
   const [jobs, setJobs] = useState([]);
+  const [jobSearch, setJobSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState(initialStatus);
   const [selectedJobFilter, setSelectedJobFilter] = useState(initialJobId);
   const [searchQuery, setSearchQuery] = useState('');
+  const [page, setPage] = useState(1);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   // Modals state
@@ -81,15 +84,9 @@ const ManageApplications = () => {
   const loadData = async () => {
     try {
       setLoading(true);
-      const [appsRes, jobsRes] = await Promise.all([
-        dispatch(fetchEmployerApplications()).unwrap(),
-        dispatch(fetchEmployerJobs()).unwrap()
-      ]);
-
+      const appsRes = await dispatch(fetchEmployerApplications({ page, pageSize: 8, status: activeTab, jobId: selectedJobFilter, search: searchQuery.trim() })).unwrap();
       const appsList = Array.isArray(appsRes) ? appsRes : appsRes?.data || [];
-      const jobsList = Array.isArray(jobsRes) ? jobsRes : jobsRes?.data || [];
       setApplications(appsList);
-      setJobs(jobsList);
     } catch (error) {
       console.error('Error loading employer applications:', error);
       message.error('Failed to load applications');
@@ -99,8 +96,31 @@ const ManageApplications = () => {
   };
 
   useEffect(() => {
-    loadData();
-  }, [dispatch]);
+    const timer = setTimeout(loadData, 250);
+    return () => clearTimeout(timer);
+  }, [dispatch, page, activeTab, selectedJobFilter, searchQuery]);
+
+  useEffect(() => { setPage(1); }, [activeTab, selectedJobFilter, searchQuery]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      dispatch(fetchEmployerJobs({ page: 1, pageSize: 20, search: jobSearch || undefined })).unwrap()
+        .then(response => setJobs(current => {
+          const options = response.data.map(({ id, title }) => ({ id, title }));
+          const selected = current.find(job => job.id === selectedJobFilter);
+          return selected && !options.some(job => job.id === selected.id) ? [selected, ...options] : options;
+        }))
+        .catch(() => message.error('Failed to load job filters'));
+    }, jobSearch ? 250 : 0);
+    return () => clearTimeout(timer);
+  }, [dispatch, jobSearch]);
+
+  useEffect(() => {
+    if (selectedJobFilter === 'ALL' || jobs.some(job => job.id === selectedJobFilter)) return;
+    api.get(`/api/jobs/${selectedJobFilter}`)
+      .then(response => setJobs(current => current.some(job => job.id === selectedJobFilter) ? current : [{ id: response.data.id, title: response.data.title }, ...current]))
+      .catch(() => {});
+  }, [selectedJobFilter, jobs]);
 
   const handleUpdateStatus = async (appId, status) => {
     try {
@@ -173,16 +193,7 @@ const ManageApplications = () => {
     }
   };
 
-  const filteredApplications = applications.filter((app) => {
-    const matchesTab = activeTab === 'ALL' || app.status === activeTab;
-    const matchesJob = selectedJobFilter === 'ALL' || app.jobId === Number(selectedJobFilter);
-    const matchesSearch = !searchQuery ||
-      app.candidate?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      app.candidate?.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      app.job?.title?.toLowerCase().includes(searchQuery.toLowerCase());
-
-    return matchesTab && matchesJob && matchesSearch;
-  });
+  const filteredApplications = applications;
 
   const columns = [
     {
@@ -256,7 +267,7 @@ const ManageApplications = () => {
       render: (status) => getStatusTag(status),
     },
     {
-      title: 'Recruiter Actions',
+      title: 'Actions',
       key: 'actions',
       render: (_, record) => (
         <div className="portal-actions-group portal-flex-wrap">
@@ -264,6 +275,7 @@ const ManageApplications = () => {
             <Button
               size="small"
               icon={<EyeOutlined />}
+              aria-label={`Review ${record.candidate?.name || 'candidate'} profile`}
               onClick={() => {
                 setSelectedApp(record);
                 setCandidateModalVisible(true);
@@ -278,6 +290,7 @@ const ManageApplications = () => {
                 size="small"
                 type="primary"
                 icon={<CheckOutlined />}
+                aria-label={`Shortlist ${record.candidate?.name || 'candidate'}`}
                 onClick={() => handleUpdateStatus(record.id, 'SHORTLISTED')}
                 className="portal-btn-purple"
               />
@@ -289,6 +302,7 @@ const ManageApplications = () => {
               <Button
                 size="small"
                 icon={<CalendarOutlined />}
+                aria-label={`Schedule interview with ${record.candidate?.name || 'candidate'}`}
                 onClick={() => handleOpenInterviewModal(record)}
                 className="portal-btn-gold"
               />
@@ -301,6 +315,7 @@ const ManageApplications = () => {
                 size="small"
                 type="primary"
                 icon={<CheckCircleOutlined />}
+                aria-label={`Select ${record.candidate?.name || 'candidate'}`}
                 onClick={() => handleUpdateStatus(record.id, 'SELECTED')}
                 className="portal-btn-green"
               />
@@ -315,7 +330,7 @@ const ManageApplications = () => {
               cancelText="Cancel"
             >
               <Tooltip title="Reject Candidate">
-                <Button size="small" danger icon={<CloseCircleOutlined />} className="portal-btn-rounded-6" />
+                <Button size="small" danger icon={<CloseCircleOutlined />} aria-label={`Reject ${record.candidate?.name || 'candidate'}`} className="portal-btn-rounded-6" />
               </Tooltip>
             </Popconfirm>
           )}
@@ -325,12 +340,12 @@ const ManageApplications = () => {
   ];
 
   const tabItems = [
-    { key: 'ALL', label: `All Candidates (${applications.length})` },
-    { key: 'APPLIED', label: `Pending Review (${applications.filter(a => a.status === 'APPLIED').length})` },
-    { key: 'SHORTLISTED', label: `Shortlisted (${applications.filter(a => a.status === 'SHORTLISTED').length})` },
-    { key: 'INTERVIEW', label: `Interview Stage (${applications.filter(a => a.status === 'INTERVIEW').length})` },
-    { key: 'SELECTED', label: `Selected / Hired (${applications.filter(a => a.status === 'SELECTED').length})` },
-    { key: 'REJECTED', label: `Rejected (${applications.filter(a => a.status === 'REJECTED').length})` },
+    { key: 'ALL', label: 'All Candidates' },
+    { key: 'APPLIED', label: 'Pending Review' },
+    { key: 'SHORTLISTED', label: 'Shortlisted' },
+    { key: 'INTERVIEW', label: 'Interview Stage' },
+    { key: 'SELECTED', label: 'Selected / Hired' },
+    { key: 'REJECTED', label: 'Rejected' },
   ];
 
   return (
@@ -461,7 +476,7 @@ const ManageApplications = () => {
               onClick={() => setDrawerOpen(false)}
               className="portal-btn-cyan portal-btn-rounded-8 portal-font-semibold"
             >
-              Apply & View ({filteredApplications.length})
+              Apply & View ({pagination.applications?.total || 0})
             </Button>
           </div>
         }
@@ -478,8 +493,11 @@ const ManageApplications = () => {
             }}
             className="portal-w-full"
             size="large"
+            showSearch
+            filterOption={false}
+            onSearch={setJobSearch}
           >
-            <Option value="ALL">All Active Jobs ({jobs.length})</Option>
+            <Option value="ALL">All jobs</Option>
             {jobs.map(j => (
               <Option key={j.id} value={j.id}>{j.title}</Option>
             ))}
@@ -501,7 +519,7 @@ const ManageApplications = () => {
             className="portal-w-full"
             size="large"
           >
-            <Option value="ALL">All Application Stages ({applications.length})</Option>
+            <Option value="ALL">All Application Stages</Option>
             <Option value="APPLIED">Under Review / Applied</Option>
             <Option value="SHORTLISTED">Shortlisted Candidates</Option>
             <Option value="INTERVIEW">Interview Scheduled</Option>
@@ -529,7 +547,7 @@ const ManageApplications = () => {
           columns={columns}
           rowKey="id"
           loading={loading}
-          pagination={{ pageSize: 8, showTotal: (total) => `Total ${total} candidates` }}
+          pagination={{ current: page, pageSize: 8, total: pagination.applications?.total || 0, showSizeChanger: false, onChange: setPage, showTotal: (total) => `Total ${total} candidates` }}
           locale={{
             emptyText: (
               <div className="portal-empty-table-state">

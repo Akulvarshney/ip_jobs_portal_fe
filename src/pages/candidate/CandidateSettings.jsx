@@ -24,14 +24,17 @@ import {
   BgColorsOutlined,
   SunOutlined,
   MoonOutlined,
-  CheckCircleFilled
+  CheckCircleFilled,
+  FileProtectOutlined,
+  FileTextOutlined
 } from '@ant-design/icons';
 import { motion } from 'framer-motion';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import { logout, saveTheme, selectTheme, setGuestTheme } from '../../store/authSlice';
+import { Link, useNavigate } from 'react-router-dom';
+import { logout, saveTheme, selectTheme } from '../../store/authSlice';
 import { fetchCandidateSettings, updateCandidateSettings } from '../../store/candidateSlice';
 import api from '../../api';
+import './SettingsResources.css';
 
 const CandidateSettings = () => {
   const [savingSettings, setSavingSettings] = useState(false);
@@ -44,6 +47,7 @@ const CandidateSettings = () => {
   const [applicationUpdates, setApplicationUpdates] = useState(true);
   const [interviewReminders, setInterviewReminders] = useState(true);
   const [stayUpdated, setStayUpdated] = useState(false);
+  const [checkingStayUpdated, setCheckingStayUpdated] = useState(true);
 
   const [passwordForm] = Form.useForm();
   const dispatch = useDispatch();
@@ -51,6 +55,7 @@ const CandidateSettings = () => {
   const { user, isAuthenticated, themeSaving } = useSelector((state) => state.auth);
   const currentTheme = useSelector(selectTheme);
   const { settings, loading } = useSelector((state) => state.candidate);
+  const supportEmail = import.meta.env.VITE_SUPPORT_EMAIL || 'support@resolveportal.com';
 
   useEffect(() => {
     if (user?.role === 'CANDIDATE') {
@@ -59,7 +64,7 @@ const CandidateSettings = () => {
   }, [dispatch, user?.role]);
 
   useEffect(() => {
-    if (settings) {
+    if (settings && user?.role === 'CANDIDATE') {
       if (settings.visibility) {
         setVisibility(settings.visibility);
       }
@@ -75,7 +80,17 @@ const CandidateSettings = () => {
         if (settings.notifications.stayUpdated !== undefined) setStayUpdated(settings.notifications.stayUpdated);
       }
     }
-  }, [settings]);
+  }, [settings, user?.role]);
+
+  useEffect(() => {
+    if (!user?.role || user.role === 'CANDIDATE') return;
+    let active = true;
+    api.get('/api/stay-updated/status')
+      .then((response) => { if (active) setStayUpdated(Boolean(response.data?.isRegistered)); })
+      .catch(() => { if (active) message.error('Could not check your Stay Updated subscription.'); })
+      .finally(() => { if (active) setCheckingStayUpdated(false); });
+    return () => { active = false; };
+  }, [user?.email, user?.role]);
 
   const handleVisibilityChange = async (newVisibility) => {
     if (newVisibility === visibility || savingVisibility) return;
@@ -117,7 +132,11 @@ const CandidateSettings = () => {
     };
 
     try {
-      await dispatch(updateCandidateSettings({ [key]: newValue })).unwrap();
+      if (key === 'stayUpdated' && user?.role !== 'CANDIDATE') {
+        await api.post(`/api/stay-updated/${newValue ? 'subscribe' : 'unsubscribe'}`, { email: user?.email });
+      } else {
+        await dispatch(updateCandidateSettings({ [key]: newValue })).unwrap();
+      }
       message.success(`${labels[key] || 'Notification preference'} ${newValue ? 'enabled' : 'disabled'}`);
     } catch (error) {
       // Revert upon failure
@@ -134,11 +153,7 @@ const CandidateSettings = () => {
 
   const handleThemeChange = async (newTheme) => {
     if (newTheme === currentTheme) return;
-    if (!isAuthenticated) {
-      dispatch(setGuestTheme(newTheme));
-      message.success(`Appearance switched to ${newTheme === 'dark' ? 'Dark' : 'Light'} Mode`);
-      return;
-    }
+    if (!isAuthenticated) return;
     try {
       await dispatch(saveTheme(newTheme)).unwrap();
       message.success(`Appearance updated to ${newTheme === 'dark' ? 'Dark' : 'Light'} Mode`);
@@ -168,16 +183,16 @@ const CandidateSettings = () => {
   const handlePasswordChange = async (values) => {
     try {
       setSavingPassword(true);
-      const res = await api.put('/api/candidate/settings', {
+      const res = await api.put('/api/auth/password', {
         currentPassword: values.currentPassword,
-        password: values.newPassword
+        newPassword: values.newPassword
       });
       if (res.data?.success) {
         message.success('Password updated successfully!');
         passwordForm.resetFields();
       }
     } catch (error) {
-      message.error(error?.response?.data?.message || 'Failed to change password');
+      message.error(error?.response?.data?.error || 'Failed to change password');
     } finally {
       setSavingPassword(false);
     }
@@ -479,26 +494,42 @@ const CandidateSettings = () => {
                   />
                 </div>
 
-                <div className="portal-notification-row">
-                  <div>
-                    <div className="portal-notification-title portal-notification-title-with-tag">
-                      Stay Updated & Insolvency Insights
-                      {stayUpdated && <Tag color="success" className="portal-notification-enrolled-tag">Enrolled</Tag>}
-                    </div>
-                    <div className="portal-notification-desc">Receive curated weekly IBC restructuring alerts, NCLT jurisprudence digests, and executive job digests.</div>
-                  </div>
-                  <Switch
-                    checked={stayUpdated}
-                    loading={savingNotificationKey === 'stayUpdated'}
-                    onChange={(checked) => handleToggleNotification('stayUpdated', checked)}
-                  />
-                </div>
               </div>
             </div>
 
             <Divider className="portal-settings-divider" />
           </>
         )}
+
+        {/* Stay Updated is available to every signed-in account. */}
+        <div className="portal-settings-section">
+          <div className="portal-settings-section-header">
+            <h3 className="portal-settings-section-title">
+              <BellOutlined className="portal-settings-icon" /> Stay Updated
+            </h3>
+            <p className="portal-settings-section-desc">
+              Get curated insolvency jobs and restructuring updates at your account email.
+            </p>
+          </div>
+          <div className="portal-settings-stay-updated">
+            <div>
+              <div className="portal-notification-title portal-notification-title-with-tag">
+                Weekly updates
+                {stayUpdated && <Tag color="success" className="portal-notification-enrolled-tag">Enrolled</Tag>}
+              </div>
+              <div className="portal-notification-desc">{user?.email || 'Your account email'}</div>
+            </div>
+            <Switch
+              aria-label="Stay Updated subscription"
+              checked={stayUpdated}
+              loading={savingNotificationKey === 'stayUpdated' || (user?.role !== 'CANDIDATE' && checkingStayUpdated)}
+              disabled={user?.role !== 'CANDIDATE' && checkingStayUpdated}
+              onChange={(checked) => handleToggleNotification('stayUpdated', checked)}
+            />
+          </div>
+        </div>
+
+        <Divider className="portal-settings-divider" />
 
         {/* Change Password */}
         <div className="portal-settings-section">
@@ -528,7 +559,7 @@ const CandidateSettings = () => {
               name="newPassword"
               rules={[
                 { required: true, message: 'Please enter new password' },
-                { min: 6, message: 'Password must be at least 6 characters' }
+                { min: 8, message: 'Password must be at least 8 characters' }
               ]}
             >
               <Input.Password placeholder="••••••••" className="portal-password-input" />
@@ -547,11 +578,32 @@ const CandidateSettings = () => {
 
         <Divider className="portal-settings-divider" />
 
+        {/* Platform information formerly shown in the signed-in footer. */}
+        <div className="portal-settings-section">
+          <h3 className="portal-settings-section-title">
+            <SafetyCertificateOutlined className="portal-settings-icon" /> About & Support
+          </h3>
+          <p className="portal-settings-section-desc portal-settings-about-copy">
+            Connecting insolvency, restructuring, and legal professionals with advisory firms and corporate debtors.
+          </p>
+          <div className="portal-settings-resource-links">
+            <Link to="/privacy"><FileProtectOutlined /> Privacy Policy</Link>
+            <Link to="/terms"><FileTextOutlined /> Terms of Service</Link>
+            <Link to="/security"><SafetyCertificateOutlined /> Security</Link>
+          </div>
+          <div className="portal-settings-support-meta">
+            <span>Support: <a href={`mailto:${supportEmail}`}>{supportEmail}</a></span>
+            <span>© {new Date().getFullYear()} Resolve Portal. All rights reserved.</span>
+          </div>
+        </div>
+
+        <Divider className="portal-settings-divider" />
+
         {/* Sign Out */}
         <div className="portal-session-row">
           <div>
             <div className="portal-session-title">Session Management</div>
-            <div className="portal-session-desc">Sign out of your candidate portal on this device.</div>
+            <div className="portal-session-desc">Sign out of your account on this device.</div>
           </div>
           <Popconfirm
             title="Sign out of your account?"

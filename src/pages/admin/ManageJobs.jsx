@@ -30,23 +30,27 @@ const ManageJobs = () => {
 
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState({ total: 0 });
   const [search, setSearch] = useState('');
+  const [submittedSearch, setSubmittedSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedJob, setSelectedJob] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [actionLoadingId, setActionLoadingId] = useState(null);
 
-  const fetchJobs = async () => {
+  const fetchJobs = async (requestedPage = page) => {
     setLoading(true);
     try {
-      const params = {};
-      if (search.trim()) params.search = search.trim();
+      const params = { page: requestedPage, pageSize: 8 };
+      if (submittedSearch) params.search = submittedSearch;
       if (statusFilter !== 'ALL') params.status = statusFilter;
 
       const res = await dispatch(fetchAdminJobs(params)).unwrap();
       const list = Array.isArray(res) ? res : res?.data || [];
       setJobs(list);
+      setPagination(res.pagination || { total: list.length });
     } catch (error) {
       console.error('Error fetching jobs:', error);
       message.error('Failed to load job listings');
@@ -55,22 +59,26 @@ const ManageJobs = () => {
     }
   };
 
-  useEffect(() => {
-    fetchJobs();
-  }, [statusFilter]);
-
   const activeFiltersCount = [
     statusFilter !== 'ALL' ? statusFilter : null
   ].filter(Boolean).length;
 
   const handleResetFilters = () => {
     setSearch('');
+    setSubmittedSearch('');
     setStatusFilter('ALL');
+    setPage(1);
   };
 
   useEffect(() => {
-    fetchJobs();
-  }, [statusFilter, dispatch]);
+    fetchJobs(page);
+  }, [statusFilter, submittedSearch, page, dispatch]);
+
+  const applySearch = () => {
+    const nextSearch = search.trim();
+    if (page === 1 && submittedSearch === nextSearch) fetchJobs(1);
+    else { setSubmittedSearch(nextSearch); setPage(1); }
+  };
 
   const handleUpdateStatus = async (jobId, newStatus) => {
     setActionLoadingId(jobId);
@@ -94,7 +102,8 @@ const ManageJobs = () => {
     try {
       await dispatch(deleteAdminJob(jobId)).unwrap();
       message.success('Job listing deleted successfully');
-      setJobs((prev) => prev.filter((j) => j.id !== jobId));
+      if (jobs.length === 1 && page > 1) setPage(page - 1);
+      else fetchJobs(page);
       if (selectedJob?.id === jobId) {
         setModalOpen(false);
       }
@@ -165,6 +174,7 @@ const ManageJobs = () => {
             <Button 
               size="small" 
               icon={<EyeOutlined />}
+              aria-label={`Review ${record.title}`}
               onClick={() => openJobModal(record)}
               className="portal-btn-review"
             />
@@ -177,6 +187,7 @@ const ManageJobs = () => {
                 type="primary"
                 loading={actionLoadingId === record.id}
                 icon={<CheckCircleOutlined />}
+                aria-label={`Approve and publish ${record.title}`}
                 onClick={() => handleUpdateStatus(record.id, 'ACTIVE')}
                 className="portal-btn-approve-sm"
               />
@@ -189,6 +200,7 @@ const ManageJobs = () => {
                 size="small"
                 loading={actionLoadingId === record.id}
                 icon={<PauseCircleOutlined />}
+                aria-label={`Pause ${record.title}`}
                 onClick={() => handleUpdateStatus(record.id, 'PAUSED')}
                 className="portal-btn-pause-sm"
               />
@@ -201,6 +213,7 @@ const ManageJobs = () => {
                 size="small"
                 loading={actionLoadingId === record.id}
                 icon={<CloseCircleOutlined />}
+                aria-label={`Close ${record.title}`}
                 onClick={() => handleUpdateStatus(record.id, 'CLOSED')}
                 className="portal-btn-close-sm"
               />
@@ -221,6 +234,7 @@ const ManageJobs = () => {
                 danger
                 loading={actionLoadingId === record.id}
                 icon={<DeleteOutlined />}
+                aria-label={`Delete ${record.title}`}
                 className="portal-btn-radius-6"
               />
             </Tooltip>
@@ -235,20 +249,10 @@ const ManageJobs = () => {
       <AdminHeader 
           title="Jobs & Job Listings Moderation" 
           subtitle="Audit, approve, pause, close, or remove insolvency and restructuring job jobs."
-          actions={
-            <Button 
-              icon={<ReloadOutlined />} 
-              onClick={fetchJobs}
-              loading={loading}
-              className="portal-btn-secondary"
-            >
-              Refresh
-            </Button>
-          }
         />
 
         {/* Clean Search & Filter Bar */}
-        <div className="portal-glass-card portal-p-16-20 portal-mb-24">
+        <div className="portal-mb-24">
           <div className="portal-flex-wrap-gap-12">
             <div className="portal-flex-grow-gap-8">
               <Input 
@@ -256,13 +260,13 @@ const ManageJobs = () => {
                 placeholder="Search job title, employer, requirements..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                onPressEnter={fetchJobs}
+                onPressEnter={applySearch}
                 className="portal-input-h44"
                 allowClear
               />
               <Button 
                 type="primary" 
-                onClick={fetchJobs} 
+                onClick={applySearch}
                 className="portal-btn-cyan-h44"
               >
                 Search
@@ -289,7 +293,6 @@ const ManageJobs = () => {
                   icon={<ClearOutlined />} 
                   onClick={() => {
                     handleResetFilters();
-                    fetchJobs();
                   }}
                   className="portal-btn-icon-h44"
                 />
@@ -305,7 +308,7 @@ const ManageJobs = () => {
               {statusFilter !== 'ALL' && (
                 <span className="portal-filter-tag">
                   <TagOutlined /> Status: {statusFilter}
-                  <CloseOutlined onClick={() => setStatusFilter('ALL')} />
+                  <CloseOutlined onClick={() => { setStatusFilter('ALL'); setPage(1); }} />
                 </span>
               )}
             </div>
@@ -340,7 +343,7 @@ const ManageJobs = () => {
                 type="primary" 
                 onClick={() => {
                   setDrawerOpen(false);
-                  fetchJobs();
+                  applySearch();
                 }}
                 className="portal-btn-cyan-apply"
               >
@@ -355,7 +358,7 @@ const ManageJobs = () => {
             </div>
             <Select 
               value={statusFilter} 
-              onChange={setStatusFilter}
+              onChange={(val) => { setStatusFilter(val); setPage(1); }}
               className="portal-w-full"
               size="large"
             >
@@ -379,7 +382,7 @@ const ManageJobs = () => {
             dataSource={jobs}
             rowKey="id"
             loading={loading}
-            pagination={{ pageSize: 8 }}
+            pagination={{ current: page, pageSize: 8, total: pagination.total, showSizeChanger: false, onChange: setPage }}
             className="portal-table"
           />
         </motion.div>
@@ -388,7 +391,7 @@ const ManageJobs = () => {
         <Modal
           title={
             <div className="portal-modal-header-row">
-              <FileTextOutlined className="portal-text-link" /> Job Review Dossier #{selectedJob?.id}
+              <FileTextOutlined className="portal-text-link" /> Job Review Details #{selectedJob?.id}
             </div>
           }
           open={modalOpen}
@@ -398,11 +401,11 @@ const ManageJobs = () => {
         >
           {selectedJob && (
             <div className="portal-text-secondary portal-mt-16">
-              <div className="portal-dossier-top-box">
+              <div className="portal-details-top-box">
                 <div className="portal-between-start">
                   <div>
                     <h3 className="portal-m-0 portal-text-heading portal-text-22">{selectedJob.title}</h3>
-                    <p className="portal-dossier-employer-sub">
+                    <p className="portal-details-employer-sub">
                       🏢 {selectedJob.employer?.name || 'Unknown Entity'}
                     </p>
                   </div>
@@ -414,26 +417,26 @@ const ManageJobs = () => {
 
               <div className="portal-flex-col-gap-18">
                 <div>
-                  <h4 className="portal-dossier-section-title">
+                  <h4 className="portal-details-section-title">
                     Job Scope & Description
                   </h4>
-                  <div className="portal-dossier-text-box">
+                  <div className="portal-details-text-box">
                     {selectedJob.description}
                   </div>
                 </div>
 
                 <div>
-                  <h4 className="portal-dossier-section-title">
+                  <h4 className="portal-details-section-title">
                     Eligibility & Statutory Requirements
                   </h4>
-                  <div className="portal-dossier-text-box">
+                  <div className="portal-details-text-box">
                     {selectedJob.requirements}
                   </div>
                 </div>
 
                 {selectedJob.skills?.length > 0 && (
                   <div>
-                    <h4 className="portal-dossier-section-title">
+                    <h4 className="portal-details-section-title">
                       Required Specialisations & Skills
                     </h4>
                     <div className="portal-flex-wrap-gap-6">

@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { fetchJobById } from '../../store/jobsSlice';
-import { updateApplicationStatus, inviteCandidate, updateJob } from '../../store/employerSlice';
+import { updateApplicationStatus, inviteCandidate, updateJob, fetchJobApplicants } from '../../store/employerSlice';
 import { 
   ArrowLeftOutlined, 
   UserOutlined, 
@@ -11,6 +11,7 @@ import {
   SendOutlined, 
   CheckCircleOutlined, 
   EyeOutlined, 
+  EditOutlined,
   BankOutlined, 
   EnvironmentOutlined, 
   SolutionOutlined, 
@@ -20,11 +21,9 @@ import {
   PhoneOutlined,
   SearchOutlined
 } from '@ant-design/icons';
-import { Table, Button, Tag, Modal, Select, Input, message, Space, Tooltip } from 'antd';
+import { Table, Button, Tag, Modal, Select, Input, Dropdown, message, Space, Tooltip, Pagination } from 'antd';
 import { motion, useReducedMotion } from 'framer-motion';
 import { getJobTypeLabel, getSalaryRangeLabel, getExperienceLevelLabel } from '../../utils/jobType';
-
-const { Option } = Select;
 
 const EmployerJobDetails = () => {
   const { id } = useParams();
@@ -44,6 +43,25 @@ const EmployerJobDetails = () => {
   const [statusSaving, setStatusSaving] = useState(false);
   const [applicantFilter, setApplicantFilter] = useState('ALL');
   const [applicantSearch, setApplicantSearch] = useState('');
+  const [applicantPage, setApplicantPage] = useState(1);
+  const [applicationsList, setApplicationsList] = useState([]);
+  const [applicantPagination, setApplicantPagination] = useState({ total: 0, pageSize: 8 });
+  const [applicantSummary, setApplicantSummary] = useState({ total: 0, statuses: {} });
+  const [applicantsLoading, setApplicantsLoading] = useState(false);
+
+  const loadApplicants = async () => {
+    setApplicantsLoading(true);
+    try {
+      const result = await dispatch(fetchJobApplicants({ jobId: id, page: applicantPage, pageSize: 8, status: applicantFilter, search: applicantSearch.trim() || undefined })).unwrap();
+      setApplicationsList(result.applications);
+      setApplicantPagination(result.pagination);
+      setApplicantSummary(result.summary);
+    } catch (error) {
+      message.error(typeof error === 'string' ? error : 'Failed to load applicants');
+    } finally {
+      setApplicantsLoading(false);
+    }
+  };
 
   const fetchJobDetails = async () => {
     setLoading(true);
@@ -62,12 +80,17 @@ const EmployerJobDetails = () => {
     fetchJobDetails();
   }, [id, dispatch]);
 
+  useEffect(() => {
+    const timer = setTimeout(loadApplicants, applicantSearch ? 250 : 0);
+    return () => clearTimeout(timer);
+  }, [id, dispatch, applicantPage, applicantFilter, applicantSearch]);
+
   const saveLocations = async () => {
     if (!jobLocations || jobLocations.length === 0) return message.warning('Select at least one city for this job.');
     setSavingLocations(true);
     try {
       const updated = await dispatch(updateJob({ id, jobData: { locations: jobLocations } })).unwrap();
-      setJob(current => ({ ...current, ...updated, applications: current.applications }));
+      setJob(current => ({ ...current, ...updated }));
       setEditingLocation(false);
       message.success('Job locations updated.');
     } catch (error) { message.error(typeof error === 'string' ? error : 'Could not update job locations.'); }
@@ -79,7 +102,7 @@ const EmployerJobDetails = () => {
     try {
       await dispatch(updateApplicationStatus({ id: appId, status: newStatus })).unwrap();
       message.success(`Candidate status updated to ${newStatus}`);
-      fetchJobDetails();
+      await loadApplicants();
       if (selectedCandidate?.appId === appId) {
         setSelectedCandidate(prev => ({ ...prev, status: newStatus }));
       }
@@ -96,7 +119,7 @@ const EmployerJobDetails = () => {
     try {
       await dispatch(inviteCandidate(appId)).unwrap();
       message.success('Direct interview invitation sent successfully!');
-      fetchJobDetails();
+      await loadApplicants();
       if (selectedCandidate?.appId === appId) {
         setSelectedCandidate(prev => ({ ...prev, status: 'INTERVIEW' }));
       }
@@ -112,7 +135,7 @@ const EmployerJobDetails = () => {
     setStatusSaving(true);
     try {
       const updated = await dispatch(updateJob({ id: job.id, jobData: { status: newStatus } })).unwrap();
-      setJob(current => ({ ...current, ...updated, applications: current.applications }));
+      setJob(current => ({ ...current, ...updated }));
       message.success(newStatus === 'PAUSED' ? 'Job paused.' : 'Job is active again.');
     } catch (error) {
       console.error('Error updating job status:', error);
@@ -120,7 +143,7 @@ const EmployerJobDetails = () => {
     } finally { setStatusSaving(false); }
   };
 
-  const openCandidateDossier = (application) => {
+  const openCandidateDetails = (application) => {
     setSelectedCandidate({
       ...application.candidate,
       appId: application.id,
@@ -215,7 +238,7 @@ const EmployerJobDetails = () => {
       render: (_, record) => getStatusTag(record.status)
     },
     {
-      title: 'Candidate Actions',
+      title: 'Actions',
       key: 'actions',
       render: (_, record) => (
         <Space size="small" wrap>
@@ -223,33 +246,39 @@ const EmployerJobDetails = () => {
             <Button 
               size="small"
               icon={<FileTextOutlined className="portal-text-link" />}
+              aria-label={`View ${record.candidate?.name || 'candidate'} CV`}
               onClick={() => openCVModal(record)}
               className="portal-btn-cyan-soft"
-            >CV</Button>
+            />
           </Tooltip>
 
           <Tooltip title="Candidate Profile">
             <Button 
               size="small"
               icon={<EyeOutlined />}
-              onClick={() => openCandidateDossier(record)}
+              aria-label={`View ${record.candidate?.name || 'candidate'} profile`}
+              onClick={() => openCandidateDetails(record)}
               className="portal-btn-neutral"
-            >Profile</Button>
+            />
           </Tooltip>
 
-          <Select
-            size="small"
-            value={record.status}
-            onChange={(val) => handleUpdateAppStatus(record.id, val)}
-            loading={actionLoadingId === record.id}
-            className="portal-w-140"
+          <Dropdown
+            trigger={['click']}
+            menu={{
+              items: [
+                { key: 'APPLIED', label: 'Applied' },
+                { key: 'SHORTLISTED', label: 'Shortlist' },
+                { key: 'INTERVIEW', label: 'Interview' },
+                { key: 'SELECTED', label: 'Hire / Select' },
+                { key: 'REJECTED', label: 'Reject' },
+              ].map((item) => ({ ...item, disabled: item.key === record.status })),
+              onClick: ({ key }) => handleUpdateAppStatus(record.id, key),
+            }}
           >
-            <Option value="APPLIED">Applied</Option>
-            <Option value="SHORTLISTED">Shortlist</Option>
-            <Option value="INTERVIEW">Interview</Option>
-            <Option value="SELECTED">Hire / Select</Option>
-            <Option value="REJECTED">Reject</Option>
-          </Select>
+            <Tooltip title="Change candidate status">
+              <Button size="small" icon={<EditOutlined />} loading={actionLoadingId === record.id} aria-label={`Change ${record.candidate?.name || 'candidate'} status`} className="portal-btn-neutral" />
+            </Tooltip>
+          </Dropdown>
         </Space>
       )
     }
@@ -263,17 +292,9 @@ const EmployerJobDetails = () => {
     );
   }
 
-  const applicationsList = job?.applications || [];
-  const shortlistedCount = applicationsList.filter(a => a.status === 'SHORTLISTED').length;
-  const interviewCount = applicationsList.filter(a => a.status === 'INTERVIEW').length;
-  const selectedCount = applicationsList.filter(a => a.status === 'SELECTED').length;
-
-  const filteredApplications = applicationsList.filter(application => {
-    const matchesStatus = applicantFilter === 'ALL' || application.status === applicantFilter;
-    const query = applicantSearch.trim().toLowerCase();
-    const candidate = application.candidate;
-    return matchesStatus && (!query || [candidate?.name, candidate?.email, candidate?.candidateProfile?.designation].some(value => value?.toLowerCase().includes(query)));
-  });
+  const shortlistedCount = applicantSummary.statuses?.SHORTLISTED || 0;
+  const interviewCount = applicantSummary.statuses?.INTERVIEW || 0;
+  const selectedCount = applicantSummary.statuses?.SELECTED || 0;
   const locationLabel = job?.locations?.length ? job.locations.join(', ') : job?.employer?.location || 'Location not specified';
   const entrance = delay => reduceMotion ? {} : { initial: { opacity: 0, y: 16 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.42, delay } };
 
@@ -318,11 +339,11 @@ const EmployerJobDetails = () => {
 
       <motion.section className="employer-job-metrics" aria-label="Applicant pipeline" {...entrance(0.08)}>
         {[
-          { key: 'ALL', label: 'Total applicants', count: applicationsList.length, hint: 'All submissions' },
+          { key: 'ALL', label: 'Total applicants', count: applicantSummary.total, hint: 'All submissions' },
           { key: 'SHORTLISTED', label: 'Shortlisted', count: shortlistedCount, hint: 'Ready for review' },
           { key: 'INTERVIEW', label: 'Interviewing', count: interviewCount, hint: 'In conversation' },
           { key: 'SELECTED', label: 'Selected', count: selectedCount, hint: 'Offers or hires' },
-        ].map(item => <button type="button" key={item.key} className={`employer-job-metric ${applicantFilter === item.key ? 'is-active' : ''}`} onClick={() => setApplicantFilter(item.key)} aria-pressed={applicantFilter === item.key}>
+        ].map(item => <button type="button" key={item.key} className={`employer-job-metric ${applicantFilter === item.key ? 'is-active' : ''}`} onClick={() => { setApplicantFilter(item.key); setApplicantPage(1); }} aria-pressed={applicantFilter === item.key}>
           <span className="employer-job-metric-label">{item.label}</span>
           <span className="employer-job-metric-count">{item.count}</span>
           <span className="employer-job-metric-hint">{item.hint}</span>
@@ -343,23 +364,42 @@ const EmployerJobDetails = () => {
 
       <motion.section className="employer-job-applicants" {...entrance(0.22)}>
         <div className="employer-job-applicants-head">
-          <div><span className="employer-job-kicker">HIRING PIPELINE</span><h2>Applicants <span>{applicationsList.length}</span></h2><p>Review profiles, open CVs, and update each candidate’s stage.</p></div>
+          <div><span className="employer-job-kicker">HIRING PIPELINE</span><h2>Applicants <span>{applicantSummary.total}</span></h2><p>Review profiles, open CVs, and update each candidate’s stage.</p></div>
           <div className="employer-job-applicant-tools">
-            <Input prefix={<SearchOutlined />} value={applicantSearch} onChange={event => setApplicantSearch(event.target.value)} placeholder="Search candidates" aria-label="Search candidates" allowClear />
-            <Select value={applicantFilter} onChange={setApplicantFilter} aria-label="Filter candidate status" options={[{ value: 'ALL', label: 'All stages' }, { value: 'APPLIED', label: 'Applied' }, { value: 'SHORTLISTED', label: 'Shortlisted' }, { value: 'INTERVIEW', label: 'Interviewing' }, { value: 'SELECTED', label: 'Selected' }, { value: 'REJECTED', label: 'Rejected' }]} />
+            <Input prefix={<SearchOutlined />} value={applicantSearch} onChange={event => { setApplicantSearch(event.target.value); setApplicantPage(1); }} placeholder="Search candidates" aria-label="Search candidates" allowClear />
+            <Select value={applicantFilter} onChange={value => { setApplicantFilter(value); setApplicantPage(1); }} aria-label="Filter candidate status" options={[{ value: 'ALL', label: 'All stages' }, { value: 'APPLIED', label: 'Applied' }, { value: 'SHORTLISTED', label: 'Shortlisted' }, { value: 'INTERVIEW', label: 'Interviewing' }, { value: 'SELECTED', label: 'Selected' }, { value: 'REJECTED', label: 'Rejected' }]} />
           </div>
         </div>
-        <div className="employer-job-table"><Table columns={applicantColumns} dataSource={filteredApplications} rowKey="id" pagination={{ pageSize: 8, hideOnSinglePage: true }} scroll={{ x: 900 }} className="portal-table" locale={{ emptyText: <div className="portal-empty-table-text">{applicationsList.length ? 'No candidates match these filters.' : 'No candidates have applied yet.'}</div> }} /></div>
+        <div className="employer-job-table"><Table columns={applicantColumns} dataSource={applicationsList} rowKey="id" loading={applicantsLoading} pagination={{ current: applicantPage, pageSize: 8, total: applicantPagination.total, hideOnSinglePage: true, showSizeChanger: false, onChange: setApplicantPage }} scroll={{ x: 900 }} className="portal-table" locale={{ emptyText: <div className="portal-empty-table-text">{applicantSummary.total ? 'No candidates match these filters.' : 'No candidates have applied yet.'}</div> }} /></div>
         <div className="employer-job-mobile-list">
-          {filteredApplications.length ? filteredApplications.map(application => {
+          {applicationsList.length ? applicationsList.map(application => {
             const candidate = application.candidate;
             const profile = candidate?.candidateProfile;
             return <article className="employer-job-candidate-card" key={application.id}>
               <div className="employer-job-candidate-top"><div className="portal-avatar-init">{candidate?.name?.charAt(0) || 'C'}</div><div><strong>{candidate?.name || 'Candidate'}</strong><small>{profile?.designation || 'Professional'}{profile?.experience ? ` · ${profile.experience} years` : ''}{profile?.city ? ` · ${profile.city}` : ''}</small></div></div>
               <div className="employer-job-candidate-stage">{getStatusTag(application.status)} <span>Applied {new Date(application.createdAt).toLocaleDateString()}</span></div>
-              <div className="employer-job-candidate-actions"><Button size="small" onClick={() => openCVModal(application)} icon={<FileTextOutlined />}>CV</Button><Button size="small" onClick={() => openCandidateDossier(application)} icon={<EyeOutlined />}>Profile</Button><Select size="small" value={application.status} onChange={value => handleUpdateAppStatus(application.id, value)} loading={actionLoadingId === application.id} options={[{ value: 'APPLIED', label: 'Applied' }, { value: 'SHORTLISTED', label: 'Shortlisted' }, { value: 'INTERVIEW', label: 'Interview' }, { value: 'SELECTED', label: 'Selected' }, { value: 'REJECTED', label: 'Rejected' }]} /></div>
+              <div className="employer-job-candidate-actions">
+                <Tooltip title="View CV"><Button size="small" onClick={() => openCVModal(application)} icon={<FileTextOutlined />} aria-label={`View ${candidate?.name || 'candidate'} CV`} /></Tooltip>
+                <Tooltip title="View profile"><Button size="small" onClick={() => openCandidateDetails(application)} icon={<EyeOutlined />} aria-label={`View ${candidate?.name || 'candidate'} profile`} /></Tooltip>
+                <Dropdown
+                  trigger={['click']}
+                  menu={{
+                    items: [
+                      { key: 'APPLIED', label: 'Applied' },
+                      { key: 'SHORTLISTED', label: 'Shortlisted' },
+                      { key: 'INTERVIEW', label: 'Interview' },
+                      { key: 'SELECTED', label: 'Selected' },
+                      { key: 'REJECTED', label: 'Rejected' },
+                    ].map((item) => ({ ...item, disabled: item.key === application.status })),
+                    onClick: ({ key }) => handleUpdateAppStatus(application.id, key),
+                  }}
+                >
+                  <Tooltip title="Change candidate status"><Button size="small" icon={<EditOutlined />} loading={actionLoadingId === application.id} aria-label={`Change ${candidate?.name || 'candidate'} status`} /></Tooltip>
+                </Dropdown>
+              </div>
             </article>;
-          }) : <div className="portal-empty-table-text">{applicationsList.length ? 'No candidates match these filters.' : 'No candidates have applied yet.'}</div>}
+          }) : <div className="portal-empty-table-text">{applicantSummary.total ? 'No candidates match these filters.' : 'No candidates have applied yet.'}</div>}
+          {applicantPagination.total > applicantPagination.pageSize && <Pagination className="portal-list-pagination" current={applicantPage} pageSize={applicantPagination.pageSize} total={applicantPagination.total} onChange={setApplicantPage} showSizeChanger={false} />}
         </div>
       </motion.section>
 
@@ -527,11 +567,11 @@ const EmployerJobDetails = () => {
           )}
         </Modal>
 
-        {/* Candidate Profile Dossier Modal */}
+        {/* Candidate Profile Details Modal */}
         <Modal
           title={
             <div className="portal-modal-title-row">
-              <UserOutlined className="portal-text-link" /> Candidate Profile Dossier
+              <UserOutlined className="portal-text-link" /> Candidate Profile Details
             </div>
           }
           open={candidateModalOpen}
@@ -541,7 +581,7 @@ const EmployerJobDetails = () => {
         >
           {selectedCandidate && (
             <div className="portal-mt-16 text-secondary">
-              <div className="portal-dossier-header-card">
+              <div className="portal-details-header-card">
                 <div>
                   <h3 className="portal-text-20 m-0 font-bold portal-text-heading">{selectedCandidate.name}</h3>
                   <p className="portal-text-muted-sm mt-4 m-0">{selectedCandidate.email}</p>
@@ -549,20 +589,20 @@ const EmployerJobDetails = () => {
                 {getStatusTag(selectedCandidate.status)}
               </div>
 
-              <div className="portal-dossier-grid">
-                <div className="portal-dossier-box">
+              <div className="portal-details-grid">
+                <div className="portal-details-box">
                   <span className="portal-text-muted-xs">Current Designation</span>
                   <div className="portal-text-heading font-semibold">{selectedCandidate.candidateProfile?.designation || 'N/A'}</div>
                 </div>
-                <div className="portal-dossier-box">
+                <div className="portal-details-box">
                   <span className="portal-text-muted-xs">Total Experience</span>
                   <div className="portal-text-heading font-semibold">{selectedCandidate.candidateProfile?.experience ? `${selectedCandidate.candidateProfile.experience} Years` : 'N/A'}</div>
                 </div>
-                <div className="portal-dossier-box">
+                <div className="portal-details-box">
                   <span className="portal-text-muted-xs">City / Location</span>
                   <div className="portal-text-heading font-semibold">{selectedCandidate.candidateProfile?.city || 'N/A'}</div>
                 </div>
-                <div className="portal-dossier-box">
+                <div className="portal-details-box">
                   <span className="portal-text-muted-xs">Notice Period</span>
                   <div className="portal-text-heading font-semibold">{selectedCandidate.candidateProfile?.noticePeriod || 'N/A'}</div>
                 </div>

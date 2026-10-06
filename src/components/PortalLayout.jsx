@@ -13,8 +13,8 @@ const PortalLayout = () => {
   const dispatch = useDispatch();
 
   if (!isAuthenticated) {
-    const audience = location.pathname.startsWith('/employer') ? 'employer' : location.pathname.startsWith('/admin') ? 'admin' : 'candidate';
-    return <Navigate to={`/${audience}/login?redirect=${encodeURIComponent(location.pathname)}`} replace />;
+    const audience = location.pathname.startsWith('/employer') ? '' : location.pathname.startsWith('/admin') ? 'admin' : 'candidate';
+    return <Navigate to={`${audience ? `/${audience}/login` : '/login'}?redirect=${encodeURIComponent(location.pathname)}`} replace />;
   }
 
   if (!sessionChecked) {

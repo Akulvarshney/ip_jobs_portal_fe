@@ -1,41 +1,35 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchAdminDashboard } from '../../store/adminSlice';
 import AdminHeader from '../../components/AdminHeader';
-import { 
-  UserOutlined, 
-  BankOutlined, 
-  FileTextOutlined, 
-  SolutionOutlined, 
+import {
+  UserOutlined,
+  BankOutlined,
+  FileTextOutlined,
+  SolutionOutlined,
   AlertOutlined,
   CheckCircleOutlined,
-  StopOutlined,
-  ClockCircleOutlined,
   ArrowRightOutlined,
   ReloadOutlined,
   WarningOutlined
 } from '@ant-design/icons';
-import { Tag, Table, Button, Progress, message, Tooltip } from 'antd';
+import { Alert, Tag, Button, Skeleton } from 'antd';
 import { motion } from 'framer-motion';
 
 const AdminDashboard = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { dashboard: reduxDashboard, loading } = useSelector((state) => state.admin);
+  const { dashboard: reduxDashboard, dashboardLoading, dashboardError } = useSelector((state) => state.admin);
+  const showSkeleton = !reduxDashboard && !dashboardError;
 
-  const fetchStats = async () => {
-    try {
-      await dispatch(fetchAdminDashboard()).unwrap();
-    } catch (error) {
-      console.error('Error fetching dashboard stats:', error);
-      message.error('Failed to load dashboard metrics');
-    }
-  };
+  const fetchStats = useCallback(() => {
+    dispatch(fetchAdminDashboard());
+  }, [dispatch]);
 
   useEffect(() => {
     fetchStats();
-  }, [dispatch]);
+  }, [fetchStats]);
 
   const stats = reduxDashboard;
 
@@ -67,32 +61,30 @@ const AdminDashboard = () => {
       icon: <SolutionOutlined className="portal-stat-icon-cyan" />,
       subtitle: 'Total candidate submissions',
       link: '/admin/applications',
-    },
-    {
-      title: 'Moderation Reports',
-      count: stats?.totalReports ?? 0,
-      icon: <AlertOutlined className="portal-stat-icon-cyan" />,
-      subtitle: `${stats?.openReports ?? 0} open investigation(s)`,
-      link: '/admin/reports',
-    },
+    }
   ];
 
   return (
     <div className="portal-w-full">
-      <AdminHeader 
-          title="Platform Governance & Analytics" 
-          subtitle="System overview of registered insolvency professionals, corporate employers, active jobs, and safety moderation."
-          actions={
-            <Button 
-              icon={<ReloadOutlined />} 
-              onClick={fetchStats}
-              loading={loading}
-              className="portal-btn-secondary portal-inline-flex-center"
-            >
-              Refresh Data
-            </Button>
-          }
+      <AdminHeader
+        title="Dashboard"
+        subtitle=""
+      />
+
+      {dashboardError && (
+        <Alert
+          type="error"
+          showIcon
+          message="Dashboard metrics could not be loaded"
+          description={dashboardError}
+          action={<Button onClick={fetchStats} loading={dashboardLoading}>Retry</Button>}
+          className="portal-mb-20"
         />
+      )}
+
+      {showSkeleton && <p role="status" className="portal-text-muted-14 portal-mb-20">Loading dashboard metrics…</p>}
+
+      {(showSkeleton || reduxDashboard) && <div aria-busy={showSkeleton}>
 
         {/* Top Metric Cards */}
         <div className="portal-stats-grid-auto portal-mb-32">
@@ -102,8 +94,8 @@ const AdminDashboard = () => {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: idx * 0.05 }}
-              className="portal-glass-card portal-admin-stat-card"
-              onClick={() => navigate(card.link)}
+              className={`portal-glass-card portal-admin-stat-card${showSkeleton ? ' portal-admin-stat-card-loading' : ''}`}
+              onClick={showSkeleton ? undefined : () => navigate(card.link)}
             >
               <div className="portal-admin-stat-top">
                 <span className="portal-admin-stat-title">
@@ -116,11 +108,10 @@ const AdminDashboard = () => {
 
               <div>
                 <div className="portal-admin-stat-count">
-                  {card.count}
+                  {showSkeleton ? <Skeleton.Input active size="small" style={{ width: 76, height: 36 }} /> : card.count}
                 </div>
                 <div className="portal-admin-stat-bottom">
-                  <span className="portal-text-detail portal-text-12">{card.subtitle}</span>
-                  <ArrowRightOutlined className="portal-text-link portal-text-12" />
+                  {showSkeleton ? <Skeleton.Input active size="small" style={{ width: 132 }} /> : <><span className="portal-text-detail portal-text-12">{card.subtitle}</span><ArrowRightOutlined className="portal-text-link portal-text-12" /></>}
                 </div>
               </div>
             </motion.div>
@@ -129,7 +120,7 @@ const AdminDashboard = () => {
 
         {/* Dashboard Activity Feeds Grid */}
         <div className="portal-grid-2col-gap-24 portal-mb-32">
-          
+
           {/* Recent Employers & Organisations */}
           <div className="portal-glass-card portal-p-24">
             <div className="portal-flex-between-center portal-mb-20">
@@ -139,8 +130,8 @@ const AdminDashboard = () => {
                 </h3>
                 <span className="portal-text-13 portal-text-muted">Entities and firms onboarding onto the platform</span>
               </div>
-              <Button 
-                type="link" 
+              <Button
+                type="link"
                 onClick={() => navigate('/admin/employers')}
                 className="portal-btn-link-p0"
               >
@@ -148,10 +139,14 @@ const AdminDashboard = () => {
               </Button>
             </div>
 
-            {stats?.recentEmployers && stats.recentEmployers.length > 0 ? (
+            {showSkeleton ? (
+              <div className="portal-flex-col-gap-12" aria-hidden="true">
+                {[0, 1, 2].map((item) => <div key={item} className="portal-admin-list-item portal-admin-skeleton-row"><Skeleton active avatar={{ size: 32 }} title={{ width: 130 }} paragraph={{ rows: 1, width: 90 }} /></div>)}
+              </div>
+            ) : stats?.recentEmployers && stats.recentEmployers.length > 0 ? (
               <div className="portal-flex-col-gap-12">
                 {stats.recentEmployers.map((emp) => (
-                  <div 
+                  <div
                     key={emp.id}
                     className="portal-admin-list-item"
                   >
@@ -184,8 +179,8 @@ const AdminDashboard = () => {
                 </h3>
                 <span className="portal-text-13 portal-text-muted">CIRP, Liquidation, and Restructuring listings</span>
               </div>
-              <Button 
-                type="link" 
+              <Button
+                type="link"
                 onClick={() => navigate('/admin/jobs')}
                 className="portal-btn-link-p0"
               >
@@ -193,10 +188,14 @@ const AdminDashboard = () => {
               </Button>
             </div>
 
-            {stats?.recentJobs && stats.recentJobs.length > 0 ? (
+            {showSkeleton ? (
+              <div className="portal-flex-col-gap-12" aria-hidden="true">
+                {[0, 1, 2].map((item) => <div key={item} className="portal-admin-list-item portal-admin-skeleton-row"><Skeleton active title={{ width: 150 }} paragraph={{ rows: 1, width: 110 }} /></div>)}
+              </div>
+            ) : stats?.recentJobs && stats.recentJobs.length > 0 ? (
               <div className="portal-flex-col-gap-12">
                 {stats.recentJobs.map((job) => (
-                  <div 
+                  <div
                     key={job.id}
                     className="portal-admin-list-item"
                   >
@@ -222,57 +221,9 @@ const AdminDashboard = () => {
 
         </div>
 
-        {/* Live Moderation & Safety Alerts */}
-        <div className="portal-glass-card portal-p-24">
-          <div className="portal-flex-between-center portal-mb-20">
-            <div>
-              <h3 className="portal-text-18 font-bold portal-text-heading m-0 portal-inline-flex-center-gap-8">
-                <WarningOutlined className="portal-text-warning" /> Active Safety & Moderation Feed
-              </h3>
-              <span className="portal-text-13 portal-text-muted">User reports regarding spam, duplicate jobs, and platform integrity</span>
-            </div>
-            <Button 
-              type="link" 
-              onClick={() => navigate('/admin/reports')}
-              className="portal-btn-link-p0"
-            >
-              Manage All Reports →
-            </Button>
-          </div>
 
-          {stats?.recentReports && stats.recentReports.length > 0 ? (
-            <div className="portal-reports-grid">
-              {stats.recentReports.map((rep) => (
-                <div 
-                  key={rep.id}
-                  className="portal-report-card-alert"
-                >
-                  <div className="portal-flex-between-center portal-mb-8">
-                    <Tag color={rep.type === 'Fake job' ? 'red' : (rep.type === 'Spam' ? 'orange' : 'volcano')}>
-                      {rep.type}
-                    </Tag>
-                    <Tag color={rep.status === 'OPEN' ? 'error' : (rep.status === 'INVESTIGATING' ? 'warning' : 'success')}>
-                      {rep.status}
-                    </Tag>
-                  </div>
-                  <p className="portal-report-desc">
-                    {rep.description}
-                  </p>
-                  <div className="portal-report-meta-row">
-                    <span>Report #{rep.id}</span>
-                    <span>{new Date(rep.createdAt).toLocaleDateString()}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="portal-reports-empty-state">
-              <CheckCircleOutlined className="portal-empty-check-icon" />
-              All moderation queues are clear! No pending issues.
-            </div>
-          )}
-        </div>
-      </div>
+      </div>}
+    </div>
   );
 };
 

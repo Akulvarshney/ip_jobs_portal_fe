@@ -1,7 +1,7 @@
 import { Button, Tooltip, message } from 'antd';
 import { MoonOutlined, SunOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
-import { saveTheme, selectTheme, setGuestTheme } from '../store/authSlice';
+import { saveTheme, selectTheme } from '../store/authSlice';
 
 export default function ThemeSwitcher() {
   const dispatch = useDispatch();
@@ -12,10 +12,7 @@ export default function ThemeSwitcher() {
   const label = `Switch to ${nextTheme} mode`;
 
   const toggleTheme = async () => {
-    if (!isAuthenticated) {
-      dispatch(setGuestTheme(nextTheme));
-      return;
-    }
+    if (!isAuthenticated) return;
     try {
       await dispatch(saveTheme(nextTheme)).unwrap();
     } catch (error) {
@@ -24,6 +21,8 @@ export default function ThemeSwitcher() {
       }
     }
   };
+
+  if (!isAuthenticated) return null;
 
   return (
     <>

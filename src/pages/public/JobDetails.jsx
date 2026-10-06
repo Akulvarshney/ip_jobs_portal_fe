@@ -29,7 +29,7 @@ import { motion } from 'framer-motion';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchJobById, fetchAllJobs } from '../../store/jobsSlice';
-import { fetchSavedJobs, fetchCandidateApplications, toggleSaveJob, applyToJob } from '../../store/candidateSlice';
+import { toggleSaveJob, applyToJob } from '../../store/candidateSlice';
 import { getJobTypeLabel, getJobTypeColor, getSalaryRangeLabel, getExperienceLevelLabel } from '../../utils/jobType';
 
 const JobDetails = () => {
@@ -42,7 +42,6 @@ const JobDetails = () => {
   const [loading, setLoading] = useState(true);
   const [isSaved, setIsSaved] = useState(false);
   const [appliedStatus, setAppliedStatus] = useState(null);
-  const [appliedJobsMap, setAppliedJobsMap] = useState({});
 
   // Apply Modal
   const [applyModalOpen, setApplyModalOpen] = useState(false);
@@ -62,27 +61,8 @@ const JobDetails = () => {
         dispatch(fetchAllJobs());
       }
 
-      if (isAuthenticated && user?.role === 'CANDIDATE') {
-        const [savedRes, appsRes] = await Promise.all([
-          dispatch(fetchSavedJobs()).unwrap().catch(() => []),
-          dispatch(fetchCandidateApplications()).unwrap().catch(() => [])
-        ]);
-
-        const savedList = Array.isArray(savedRes) ? savedRes : savedRes?.data || [];
-        const found = savedList.some(s => (s.jobId || s.job?.id || s.id) === Number(id));
-        setIsSaved(found);
-
-        const appsList = Array.isArray(appsRes) ? appsRes : appsRes?.data || [];
-
-        const appMap = {};
-        appsList.forEach(a => {
-          appMap[a.jobId || a.job?.id] = a.status;
-        });
-        setAppliedJobsMap(appMap);
-
-        const app = appsList.find(a => (a.jobId || a.job?.id) === Number(id));
-        if (app) setAppliedStatus(app.status);
-      }
+      setIsSaved(Boolean(jobData.savedBy?.length));
+      setAppliedStatus(jobData.applications?.[0]?.status || null);
     } catch (error) {
       console.error('Error fetching job details:', error);
       message.error('Failed to load job details');
@@ -125,7 +105,7 @@ const JobDetails = () => {
   const handleConfirmApply = async () => {
     try {
       setSubmittingApply(true);
-      await dispatch(applyToJob({ jobId: Number(id), coverNote })).unwrap();
+      await dispatch(applyToJob({ jobId: id, coverNote })).unwrap();
       message.success('Application submitted successfully!');
       setAppliedStatus('APPLIED');
       setApplyModalOpen(false);
@@ -419,7 +399,6 @@ const JobDetails = () => {
                   const filteredRecommendations = (jobsList || []).filter(j => {
                     if (j.id === Number(id)) return false;
 
-                    if (appliedJobsMap[j.id]) return false;
 
                     const matchesKeyword = !searchKeyword ||
                       j.title.toLowerCase().includes(searchKeyword.toLowerCase()) ||

@@ -8,16 +8,17 @@
   <title>Resolve - Insolvency Professionals Portal</title>
   <script>
 
+    const istHour = new Date(Date.now() + 5.5 * 60 * 60 * 1000).getUTCHours();
+    const loggedOutTheme = istHour >= 6 && istHour < 18 ? 'light' : 'dark';
+    let preference = loggedOutTheme;
     try {
-      const user = JSON.parse(localStorage.getItem('user') || 'null');
-      const preference = localStorage.getItem('token')
-        ? user?.theme
-        : localStorage.getItem('portalGuestTheme');
-      document.documentElement.dataset.theme = preference === 'light' ? 'light' : 'dark';
-      document.documentElement.style.colorScheme = document.documentElement.dataset.theme;
-    } catch {
-      document.documentElement.dataset.theme = 'dark';
-    }
+      if (localStorage.getItem('token')) {
+        const user = JSON.parse(localStorage.getItem('user') || 'null');
+        preference = user?.theme === 'light' ? 'light' : 'dark';
+      }
+    } catch { /* Use the IST theme when browser storage is unavailable. */ }
+    document.documentElement.dataset.theme = preference;
+    document.documentElement.style.colorScheme = preference;
   </script>
 </head>
 

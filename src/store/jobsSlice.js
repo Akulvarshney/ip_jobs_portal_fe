@@ -5,7 +5,7 @@ import api from '../api';
 export const fetchAllJobs = createAsyncThunk('jobs/fetchAll', async (params, { rejectWithValue }) => {
   try {
     const response = await api.get('/api/jobs', { params });
-    return response.data?.data !== undefined ? response.data.data : response.data;
+    return response.data;
   } catch (err) {
     return rejectWithValue(err.response?.data?.error || err.response?.data?.message || 'Failed to fetch jobs');
   }
@@ -33,6 +33,7 @@ export const applyForJob = createAsyncThunk('jobs/apply', async ({ jobId, applic
 
 const initialState = {
   jobsList: [],
+  pagination: null,
   listRequestId: null,
   selectedJob: null,
   searchQuery: '',
@@ -72,7 +73,8 @@ const jobsSlice = createSlice({
         if (state.listRequestId !== action.meta.requestId) return;
         state.listRequestId = null;
         state.loading = false;
-        state.jobsList = action.payload;
+        state.jobsList = action.payload.data;
+        state.pagination = action.payload.pagination;
       })
       .addCase(fetchAllJobs.rejected, (state, action) => {
         if (state.listRequestId !== action.meta.requestId) return;

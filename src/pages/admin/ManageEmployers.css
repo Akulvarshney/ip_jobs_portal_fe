@@ -1,0 +1,55 @@
+.portal-employer-status-tabs {
+  margin-bottom: 22px;
+}
+
+.portal-employer-status-tabs .ant-tabs-nav {
+  display: inline-flex !important;
+  max-width: 100%;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+}
+
+.portal-employer-status-tabs .ant-tabs-nav-list {
+  gap: 24px !important;
+}
+
+.portal-employer-status-tabs .ant-tabs-tab,
+.portal-employer-status-tabs .ant-tabs-tab.ant-tabs-tab-active {
+  margin: 0 !important;
+  padding: 10px 2px !important;
+  border: 0 !important;
+  border-bottom: 2px solid transparent !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  font-size: 14px !important;
+  line-height: 1.4 !important;
+}
+
+.portal-employer-status-tabs .ant-tabs-tab:hover {
+  background: transparent !important;
+  color: var(--theme-link) !important;
+}
+
+.portal-employer-status-tabs .ant-tabs-tab.ant-tabs-tab-active {
+  border-bottom-color: var(--theme-link) !important;
+}
+
+.portal-employer-status-tabs .ant-tabs-tab:focus-visible {
+  outline: 2px solid var(--theme-link);
+  outline-offset: 3px;
+}
+
+@media (max-width: 640px) {
+  .portal-employer-status-tabs .ant-tabs-nav-list {
+    gap: 16px !important;
+  }
+
+  .portal-employer-status-tabs .ant-tabs-tab,
+  .portal-employer-status-tabs .ant-tabs-tab.ant-tabs-tab-active {
+    font-size: 13px !important;
+  }
+}

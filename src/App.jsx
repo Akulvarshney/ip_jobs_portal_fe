@@ -1,6 +1,7 @@
 import React, { useEffect, useLayoutEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchCurrentUser, selectTheme, logout } from './store/authSlice';
+import { fetchCurrentUser, selectTheme, logout, syncGuestTheme } from './store/authSlice';
+import { millisecondsUntilNextThemeChange } from './utils/istTheme';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ConfigProvider, theme } from 'antd';
 import Navbar from './components/Navbar';
@@ -38,9 +39,10 @@ import EmployerJobDetails from './pages/employer/EmployerJobDetails';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ManageUsers from './pages/admin/ManageUsers';
 import ManageEmployers from './pages/admin/ManageEmployers';
+import EmployerDetails from './pages/admin/EmployerDetails';
+import EmployerDirectory from './pages/admin/EmployerDirectory';
 import AdminManageJobs from './pages/admin/ManageJobs';
 import AdminManageApplications from './pages/admin/ManageApplications';
-import AdminManageReports from './pages/admin/ManageReports';
 
 function App() {
   const dispatch = useDispatch();
@@ -61,6 +63,26 @@ function App() {
     const expire = () => dispatch(logout());
     window.addEventListener('portal:session-expired', expire);
     return () => window.removeEventListener('portal:session-expired', expire);
+  }, [dispatch]);
+
+  useEffect(() => {
+    let timer;
+    const syncAtNextBoundary = () => {
+      dispatch(syncGuestTheme());
+      clearTimeout(timer);
+      timer = setTimeout(syncAtNextBoundary, millisecondsUntilNextThemeChange() + 50);
+    };
+    const syncWhenVisible = () => {
+      if (!document.hidden) syncAtNextBoundary();
+    };
+    syncAtNextBoundary();
+    document.addEventListener('visibilitychange', syncWhenVisible);
+    window.addEventListener('focus', syncAtNextBoundary);
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener('visibilitychange', syncWhenVisible);
+      window.removeEventListener('focus', syncAtNextBoundary);
+    };
   }, [dispatch]);
 
   return (
@@ -96,11 +118,15 @@ function App() {
               <Route path="/login" element={<AuthEntry />} />
               <Route path="/candidate/login" element={<Login audience="CANDIDATE" />} />
               <Route path="/candidate/signup" element={<Login audience="CANDIDATE" />} />
-              <Route path="/employer/login" element={<Login audience="EMPLOYER" />} />
-              <Route path="/employer/signup" element={<Login audience="EMPLOYER" />} />
+              <Route path="/employee/login" element={<Login audience="EMPLOYEE" />} />
+              <Route path="/employee/signup" element={<Navigate to="/employee/login" replace />} />
+              <Route path="/organisation/login" element={<Login audience="ORG_ADMIN" />} />
+              <Route path="/organisation/signup" element={<Login audience="ORG_ADMIN" />} />
+              <Route path="/employer/login" element={<Navigate to="/organisation/login" replace />} />
+              <Route path="/employer/signup" element={<Navigate to="/organisation/signup" replace />} />
               <Route path="/admin/login" element={<Login audience="ADMIN" />} />
-              <Route path="/invite/:token/login" element={<Login audience="HR" />} />
-              <Route path="/invite/:token/signup" element={<Login audience="HR" />} />
+              <Route path="/invite/:token/login" element={<InviteAcceptance />} />
+              <Route path="/invite/:token/signup" element={<InviteAcceptance />} />
               <Route path="/invite/:token" element={<InviteAcceptance />} />
               <Route path="/jobs" element={<Navigate to="/candidate/jobs" replace />} />
               <Route path="/jobs/:id" element={<JobDetails />} />
@@ -142,9 +168,11 @@ function App() {
                 <Route path="/admin/dashboard" element={<AdminDashboard />} />
                 <Route path="/admin/users" element={<ManageUsers />} />
                 <Route path="/admin/employers" element={<ManageEmployers />} />
+                <Route path="/admin/employers/:id" element={<EmployerDetails />} />
+                <Route path="/admin/employers/:id/people" element={<EmployerDirectory kind="people" />} />
+                <Route path="/admin/employers/:id/jobs" element={<EmployerDirectory kind="jobs" />} />
                 <Route path="/admin/jobs" element={<AdminManageJobs />} />
                 <Route path="/admin/applications" element={<AdminManageApplications />} />
-                <Route path="/admin/reports" element={<AdminManageReports />} />
                 <Route path="/admin/settings" element={<CandidateSettings />} />
               </Route>
 
@@ -152,7 +180,7 @@ function App() {
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </main>
-          <Footer />
+          {!isAuthenticated && <Footer />}
         </div>
       </BrowserRouter>
     </ConfigProvider>

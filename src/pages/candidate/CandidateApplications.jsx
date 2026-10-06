@@ -34,19 +34,22 @@ const CandidateApplications = () => {
   const initialStatus = searchParams.get('status') || 'ALL';
 
   const dispatch = useDispatch();
-  const { applications: rawApps, loading } = useSelector((state) => state.candidate);
+  const { applications: rawApps, pagination, listLoading } = useSelector((state) => state.candidate);
   const applications = Array.isArray(rawApps) ? rawApps : (rawApps?.data || []);
+  const loading = listLoading.applications;
 
   const [activeTab, setActiveTab] = useState(initialStatus);
   const [searchQuery, setSearchQuery] = useState('');
+  const [page, setPage] = useState(1);
 
   // Selected application / interview details modal
   const [selectedAppModal, setSelectedAppModal] = useState(null);
   const [detailsModalVisible, setDetailsModalVisible] = useState(false);
 
   useEffect(() => {
-    dispatch(fetchCandidateApplications());
-  }, [dispatch]);
+    const timer = setTimeout(() => dispatch(fetchCandidateApplications({ page, pageSize: 8, status: activeTab, search: searchQuery.trim() })), 250);
+    return () => clearTimeout(timer);
+  }, [dispatch, page, activeTab, searchQuery]);
 
 
 
@@ -69,14 +72,7 @@ const CandidateApplications = () => {
     }
   };
 
-  const filteredApplications = applications.filter((app) => {
-    const matchesTab = activeTab === 'ALL' || app.status === activeTab;
-    const matchesSearch = !searchQuery ||
-      app.job?.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (app.job?.employer?.name && app.job.employer.name.toLowerCase().includes(searchQuery.toLowerCase()));
-
-    return matchesTab && matchesSearch;
-  });
+  const filteredApplications = applications;
 
   const columns = [
     {
@@ -121,37 +117,39 @@ const CandidateApplications = () => {
       render: (status) => getStatusTag(status),
     },
     {
-      title: 'Interview / Details',
+      title: 'Actions',
       key: 'interview',
       render: (_, record) => {
         if (record.status === 'INTERVIEW' || record.interviews?.length > 0) {
           return (
+            <Tooltip title="View interview details">
+              <Button
+                size="small"
+                type="primary"
+                icon={<CalendarOutlined />}
+                aria-label="View interview details"
+                onClick={() => {
+                  setSelectedAppModal(record);
+                  setDetailsModalVisible(true);
+                }}
+                className="portal-btn-interview"
+              />
+            </Tooltip>
+          );
+        }
+        return (
+          <Tooltip title="Review application details">
             <Button
               size="small"
-              type="primary"
-              icon={<CalendarOutlined />}
+              icon={<EyeOutlined />}
+              aria-label="Review application details"
               onClick={() => {
                 setSelectedAppModal(record);
                 setDetailsModalVisible(true);
               }}
-              className="portal-btn-interview"
-            >
-              View Interview
-            </Button>
-          );
-        }
-        return (
-          <Button
-            size="small"
-            icon={<EyeOutlined />}
-            onClick={() => {
-              setSelectedAppModal(record);
-              setDetailsModalVisible(true);
-            }}
-            className="portal-btn-review"
-          >
-            Review Details
-          </Button>
+              className="portal-btn-review"
+            />
+          </Tooltip>
         );
       },
     },
@@ -159,12 +157,12 @@ const CandidateApplications = () => {
   ];
 
   const tabItems = [
-    { key: 'ALL', label: `All (${applications.length})` },
-    { key: 'APPLIED', label: `Applied (${applications.filter(a => a.status === 'APPLIED').length})` },
-    { key: 'SHORTLISTED', label: `Shortlisted (${applications.filter(a => a.status === 'SHORTLISTED').length})` },
-    { key: 'INTERVIEW', label: `Interview (${applications.filter(a => a.status === 'INTERVIEW').length})` },
-    { key: 'SELECTED', label: `Selected (${applications.filter(a => a.status === 'SELECTED').length})` },
-    { key: 'REJECTED', label: `Not Selected (${applications.filter(a => a.status === 'REJECTED').length})` },
+    { key: 'ALL', label: 'All' },
+    { key: 'APPLIED', label: 'Applied' },
+    { key: 'SHORTLISTED', label: 'Shortlisted' },
+    { key: 'INTERVIEW', label: 'Interview' },
+    { key: 'SELECTED', label: 'Selected' },
+    { key: 'REJECTED', label: 'Not Selected' },
   ];
 
   return (
@@ -187,7 +185,7 @@ const CandidateApplications = () => {
               prefix={<SearchOutlined className="portal-search-prefix-icon" />}
               placeholder="Search role or employer..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
               className="portal-search-input"
             />
           </div>
@@ -197,6 +195,7 @@ const CandidateApplications = () => {
           activeKey={activeTab}
           onChange={(key) => {
             setActiveTab(key);
+            setPage(1);
             setSearchParams(key === 'ALL' ? {} : { status: key });
           }}
           items={tabItems}
@@ -208,7 +207,7 @@ const CandidateApplications = () => {
           columns={columns}
           rowKey="id"
           loading={loading}
-          pagination={{ pageSize: 8, showTotal: (total) => `Total ${total} applications` }}
+          pagination={{ current: page, pageSize: 8, total: pagination.applications?.total || 0, showSizeChanger: false, onChange: setPage, showTotal: (total) => `Total ${total} applications` }}
           locale={{
             emptyText: (
               <div className="portal-table-empty">

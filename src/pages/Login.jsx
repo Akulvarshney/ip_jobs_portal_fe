@@ -46,8 +46,10 @@ const Login = ({ audience = 'CANDIDATE' }) => {
   const { token: inviteToken } = useParams();
   const isLogin = !location.pathname.endsWith('/signup');
   const isInvite = audience === 'HR';
+  const isEmployee = audience === 'EMPLOYEE';
   const accountRole = audience === 'CANDIDATE' ? 'CANDIDATE' : 'EMPLOYER';
-  const basePath = isInvite ? `/invite/${inviteToken}` : audience === 'ADMIN' ? '/admin' : accountRole === 'CANDIDATE' ? '/candidate' : '/employer';
+  const authAudience = audience === 'ADMIN' ? 'PLATFORM_ADMIN' : audience;
+  const basePath = isInvite ? `/invite/${inviteToken}` : audience === 'ADMIN' ? '/admin' : audience === 'CANDIDATE' ? '/candidate' : isEmployee ? '/employee' : '/organisation';
   const [invite, setInvite] = useState(null);
   const [inviteError, setInviteError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -97,8 +99,8 @@ const Login = ({ audience = 'CANDIDATE' }) => {
     return () => { active = false; };
   }, [isInvite, inviteToken, passwordForm, loginForm]);
 
-  const correctAudience = user => audience === 'ADMIN' ? user.role === 'ADMIN' : user.role === accountRole && (!isInvite || user.email?.toLowerCase() === invite?.email?.toLowerCase());
-  const audienceError = () => isInvite ? `Sign in with the invited employer account (${invite?.email}).` : audience === 'CANDIDATE' ? 'This account is for hiring. Use employer sign in.' : audience === 'ADMIN' ? 'This is not a platform admin account.' : 'This is a candidate account. Use candidate sign in.';
+  const correctAudience = user => audience === 'ADMIN' ? user.role === 'ADMIN' : isEmployee ? user.role === 'EMPLOYER' && user.onboarding?.memberRole === 'RECRUITER' : audience === 'ORG_ADMIN' ? user.role === 'EMPLOYER' && (!user.onboarding?.memberRole || user.onboarding.memberRole === 'ADMIN') : user.role === 'CANDIDATE';
+  const audienceError = () => isEmployee ? 'Only employees who accepted an organisation invitation can sign in here.' : audience === 'ORG_ADMIN' ? 'This is not an organisation admin account. Invited employees should use employee sign in.' : audience === 'CANDIDATE' ? 'This is not a candidate account.' : 'This is not a platform admin account.';
 
   const finishRegistration = async (payload) => {
     dispatch(loginSuccess({ token: payload.token, user: payload.user }));
@@ -142,7 +144,7 @@ const Login = ({ audience = 'CANDIDATE' }) => {
     setLoading(true);
     setErrorMessage('');
     try {
-      const res = await api.post('/api/auth/login', values);
+      const res = await api.post('/api/auth/login', { ...values, audience: authAudience });
       if (!correctAudience(res.data.user)) { setErrorMessage(audienceError()); return; }
       dispatch(loginSuccess({ token: res.data.token, user: res.data.user }));
       message.success('Welcome back! Sign in successful.');
@@ -227,6 +229,7 @@ const Login = ({ audience = 'CANDIDATE' }) => {
         password: values.password,
         name: values.name,
         role: accountRole,
+        audience: authAudience,
         verificationToken
       });
 
@@ -246,12 +249,12 @@ const Login = ({ audience = 'CANDIDATE' }) => {
       setGoogleLoading(true);
       setErrorMessage('');
       try {
-        const res = await api.post('/api/auth/google', { accessToken: tokenResponse.access_token });
+        const res = await api.post('/api/auth/google', { accessToken: tokenResponse.access_token, audience: authAudience });
         const googleUser = { email: res.data.email || res.data.user?.email, name: res.data.name || res.data.user?.name, picture: res.data.photoUrl };
 
         if (isInvite && googleUser.email?.toLowerCase() !== invite?.email?.toLowerCase()) { setErrorMessage(`Use the invited Google account (${invite?.email}).`); return; }
         if (res.data.isNewUser) {
-          if (audience === 'ADMIN') { setErrorMessage('Platform admin accounts cannot be created here.'); return; }
+          if (audience === 'ADMIN' || isEmployee) { setErrorMessage('Accounts cannot be created in this sign-in flow.'); return; }
           setGoogleOnboardingUser({
             email: googleUser.email,
             name: googleUser.name || googleUser.given_name || googleUser.email.split('@')[0],
@@ -294,7 +297,8 @@ const Login = ({ audience = 'CANDIDATE' }) => {
         accessToken: googleOnboardingUser.accessToken,
         name: values.name || googleOnboardingUser.name,
         photoUrl: googleOnboardingUser.photoUrl,
-        role: accountRole
+        role: accountRole,
+        audience: authAudience
       });
 
       if (!correctAudience(res.data.user)) { setErrorMessage(audienceError()); return; }
@@ -445,7 +449,7 @@ const Login = ({ audience = 'CANDIDATE' }) => {
               : isInvite ? (isLogin ? 'Sign in to join the team' : 'Create your HR account')
               : audience === 'ADMIN' ? 'Platform admin sign in'
               : accountRole === 'CANDIDATE' ? (isLogin ? 'Candidate sign in' : 'Create your candidate account')
-              : (isLogin ? 'Employer sign in' : 'Set up your organisation')
+              : isEmployee ? 'Employee sign in' : (isLogin ? 'Organisation admin sign in' : 'Register your organisation')
             }
           </Title>
           <Text className="portal-auth-subtitle">
@@ -454,7 +458,7 @@ const Login = ({ audience = 'CANDIDATE' }) => {
               : isInvite ? `Use ${invite?.email} to join ${invite?.organisation}.`
               : audience === 'ADMIN' ? 'Access platform governance.'
               : accountRole === 'CANDIDATE' ? 'Find opportunities and manage applications.'
-              : 'Create or access your organisation workspace.'
+              : isEmployee ? 'Sign in after accepting your organisation invitation.' : 'Create or access your organisation workspace.'
             }
           </Text>
         </div>
@@ -557,7 +561,7 @@ const Login = ({ audience = 'CANDIDATE' }) => {
             /* ------------------------------------------------------------- */
             <div>
               {/* Google Live OAuth Button */}
-              <button
+              {!isEmployee && audience !== 'ADMIN' && <button
                 type="button"
                 className="google-btn portal-google-login-btn"
                 onClick={() => googleLoginTrigger()}
@@ -565,11 +569,11 @@ const Login = ({ audience = 'CANDIDATE' }) => {
               >
                 <GoogleIcon />
                 {googleLoading ? 'Connecting to Google...' : 'Continue with Google'}
-              </button>
+              </button>}
 
-              <Divider className="portal-auth-divider">
+              {!isEmployee && audience !== 'ADMIN' && <Divider className="portal-auth-divider">
                 OR SIGN IN WITH EMAIL
-              </Divider>
+              </Divider>}
 
               <Form form={loginForm} layout="vertical" onFinish={onLoginFinish} requiredMark={false}>
                 <Form.Item
@@ -781,7 +785,7 @@ const Login = ({ audience = 'CANDIDATE' }) => {
           )}
 
           {/* Toggle Login/Register footer (Hidden when in Google onboarding) */}
-          {!googleOnboardingUser && audience !== 'ADMIN' && (
+          {!googleOnboardingUser && audience !== 'ADMIN' && !isEmployee && (
             <div className="portal-auth-switch-row">
               <span className="portal-text-muted-14">
                 {isLogin ? "Don't have an account? " : "Already have an account? "}
@@ -791,19 +795,20 @@ const Login = ({ audience = 'CANDIDATE' }) => {
                 onClick={() => { navigate(`${basePath}/${isLogin ? 'signup' : 'login'}${searchParams.get('redirect') ? `?redirect=${encodeURIComponent(searchParams.get('redirect'))}` : ''}`); setErrorMessage(''); }}
                 className="portal-auth-switch-btn"
               >
-                {isLogin ? (isInvite ? 'Create your HR account' : 'Sign Up') : 'Log In'}
+                {isLogin ? (audience === 'ORG_ADMIN' ? 'Create an organisation' : 'Sign Up') : 'Log In'}
               </button>
             </div>
           )}
 
-          {!googleOnboardingUser && !isInvite && audience !== 'ADMIN' && (
+          {!googleOnboardingUser && !isInvite && audience !== 'ADMIN' && !isEmployee && (
             <div className="portal-auth-switch-row">
               <span className="portal-text-muted-14">{accountRole === 'CANDIDATE' ? 'Hiring for an organisation?' : 'Looking for a job?'}</span>{' '}
-              <Link className="portal-auth-switch-btn" to={accountRole === 'CANDIDATE' ? '/employer/login' : '/candidate/login'}>
-                {accountRole === 'CANDIDATE' ? 'Employer sign in' : 'Candidate sign in'}
+              <Link className="portal-auth-switch-btn" to={accountRole === 'CANDIDATE' ? '/organisation/login' : '/candidate/login'}>
+                {accountRole === 'CANDIDATE' ? 'Organisation admin sign in' : 'Candidate sign in'}
               </Link>
             </div>
           )}
+          {isEmployee && <div className="portal-auth-switch-row"><span className="portal-text-muted-14">Need access? Ask your organisation admin for an invitation. </span><Link className="portal-auth-switch-btn" to="/organisation/login">Organisation admin sign in</Link></div>}
 
         </motion.div>
       </div>

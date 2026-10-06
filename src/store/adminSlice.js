@@ -15,7 +15,7 @@ export const fetchAdminDashboard = createAsyncThunk('admin/fetchDashboard', asyn
 export const fetchAdminUsers = createAsyncThunk('admin/fetchUsers', async (params, { rejectWithValue }) => {
   try {
     const res = await api.get('/api/admin/users', { params });
-    return res.data?.data !== undefined ? res.data.data : res.data;
+    return res.data;
   } catch (err) {
     return rejectWithValue(err.response?.data?.error || err.response?.data?.message || 'Failed to fetch users');
   }
@@ -34,7 +34,7 @@ export const updateAdminUserStatus = createAsyncThunk('admin/updateUserStatus', 
 export const fetchAdminEmployers = createAsyncThunk('admin/fetchEmployers', async (params, { rejectWithValue }) => {
   try {
     const res = await api.get('/api/admin/employers', { params });
-    return res.data?.data !== undefined ? res.data.data : res.data;
+    return res.data;
   } catch (err) {
     return rejectWithValue(err.response?.data?.error || err.response?.data?.message || 'Failed to fetch employers');
   }
@@ -53,7 +53,7 @@ export const updateAdminEmployerStatus = createAsyncThunk('admin/updateEmployerS
 export const fetchAdminJobs = createAsyncThunk('admin/fetchJobs', async (params, { rejectWithValue }) => {
   try {
     const res = await api.get('/api/admin/jobs', { params });
-    return res.data?.data !== undefined ? res.data.data : res.data;
+    return res.data;
   } catch (err) {
     return rejectWithValue(err.response?.data?.error || err.response?.data?.message || 'Failed to fetch admin jobs');
   }
@@ -81,7 +81,7 @@ export const deleteAdminJob = createAsyncThunk('admin/deleteJob', async (id, { r
 export const fetchAdminApplications = createAsyncThunk('admin/fetchApplications', async (params, { rejectWithValue }) => {
   try {
     const res = await api.get('/api/admin/applications', { params });
-    return res.data?.data !== undefined ? res.data.data : res.data;
+    return res.data;
   } catch (err) {
     return rejectWithValue(err.response?.data?.error || err.response?.data?.message || 'Failed to fetch applications');
   }
@@ -126,11 +126,14 @@ export const createAdminReport = createAsyncThunk('admin/createReport', async (r
 
 const initialState = {
   dashboard: null,
+  dashboardLoading: false,
+  dashboardError: null,
   users: [],
   employers: [],
   jobs: [],
   applications: [],
   reports: [],
+  pagination: {},
   loading: false,
   error: null,
 };
@@ -141,11 +144,14 @@ export const adminSlice = createSlice({
   reducers: {
     clearAdminState: (state) => {
       state.dashboard = null;
+      state.dashboardLoading = false;
+      state.dashboardError = null;
       state.users = [];
       state.employers = [];
       state.jobs = [];
       state.applications = [];
       state.reports = [];
+      state.pagination = {};
       state.loading = false;
       state.error = null;
     }
@@ -153,8 +159,17 @@ export const adminSlice = createSlice({
   extraReducers: (builder) => {
     builder
       // Dashboard
+      .addCase(fetchAdminDashboard.pending, (state) => {
+        state.dashboardLoading = true;
+        state.dashboardError = null;
+      })
       .addCase(fetchAdminDashboard.fulfilled, (state, action) => {
+        state.dashboardLoading = false;
         state.dashboard = action.payload;
+      })
+      .addCase(fetchAdminDashboard.rejected, (state, action) => {
+        state.dashboardLoading = false;
+        state.dashboardError = action.payload || 'Failed to load dashboard metrics';
       })
       // Users
       .addCase(fetchAdminUsers.pending, (state) => {
@@ -162,7 +177,8 @@ export const adminSlice = createSlice({
       })
       .addCase(fetchAdminUsers.fulfilled, (state, action) => {
         state.loading = false;
-        state.users = action.payload;
+        state.users = action.payload.data;
+        state.pagination.users = action.payload.pagination;
       })
       .addCase(fetchAdminUsers.rejected, (state, action) => {
         state.loading = false;
@@ -178,7 +194,8 @@ export const adminSlice = createSlice({
       })
       .addCase(fetchAdminEmployers.fulfilled, (state, action) => {
         state.loading = false;
-        state.employers = action.payload;
+        state.employers = action.payload.data;
+        state.pagination.employers = action.payload.pagination;
       })
       .addCase(fetchAdminEmployers.rejected, (state, action) => {
         state.loading = false;
@@ -194,7 +211,8 @@ export const adminSlice = createSlice({
       })
       .addCase(fetchAdminJobs.fulfilled, (state, action) => {
         state.loading = false;
-        state.jobs = action.payload;
+        state.jobs = action.payload.data;
+        state.pagination.jobs = action.payload.pagination;
       })
       .addCase(fetchAdminJobs.rejected, (state, action) => {
         state.loading = false;
@@ -206,7 +224,8 @@ export const adminSlice = createSlice({
       })
       // Applications
       .addCase(fetchAdminApplications.fulfilled, (state, action) => {
-        state.applications = action.payload;
+        state.applications = action.payload.data;
+        state.pagination.applications = action.payload.pagination;
       })
       .addCase(updateAdminApplicationStatus.fulfilled, (state, action) => {
         const app = state.applications.find(a => a.id === action.payload.id);

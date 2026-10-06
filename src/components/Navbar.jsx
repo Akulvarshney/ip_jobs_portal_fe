@@ -7,7 +7,6 @@ import {
   UserOutlined,
   LogoutOutlined,
   DashboardOutlined,
-  SafetyCertificateOutlined,
   SendOutlined,
   BookOutlined,
   CalendarOutlined,
@@ -24,7 +23,7 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    const signIn = user?.role === 'ADMIN' ? '/admin/login' : user?.role === 'EMPLOYER' ? '/employer/login' : '/candidate/login';
+    const signIn = user?.role === 'ADMIN' ? '/admin/login' : user?.role === 'EMPLOYER' ? user?.onboarding?.memberRole === 'RECRUITER' ? '/employee/login' : '/organisation/login' : '/candidate/login';
     dispatch(logout());
     navigate(signIn);
   };
@@ -114,10 +113,8 @@ const Navbar = () => {
 
   const loginMenuItems = [
     { key: 'candidate-login', icon: <UserOutlined />, label: <Link to="/candidate/login">Candidate login</Link> },
-    { key: 'employer-login', icon: <BankOutlined />, label: <Link to="/employer/login">Employer / HR login</Link> },
-    { key: 'create-organisation', icon: <BankOutlined />, label: <Link to="/employer/signup">Create an organisation</Link> },
-    { type: 'divider' },
-    { key: 'admin-login', icon: <SafetyCertificateOutlined />, label: <Link to="/admin/login">Platform admin login</Link> },
+    { key: 'organisation-login', icon: <BankOutlined />, label: <Link to="/organisation/login">Organisation admin login</Link> },
+    { key: 'employee-login', icon: <BankOutlined />, label: <Link to="/employee/login">Invited employee login</Link> },
   ];
 
   return (

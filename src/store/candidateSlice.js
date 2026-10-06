@@ -107,10 +107,10 @@ export const deleteCertification = createAsyncThunk('candidate/deleteCertificati
 });
 
 // 7. Applications
-export const fetchCandidateApplications = createAsyncThunk('candidate/fetchApplications', async (_, { rejectWithValue }) => {
+export const fetchCandidateApplications = createAsyncThunk('candidate/fetchApplications', async (params, { rejectWithValue }) => {
   try {
-    const res = await api.get('/api/candidate/applications');
-    return res.data?.data !== undefined ? res.data.data : res.data;
+    const res = await api.get('/api/candidate/applications', { params });
+    return res.data;
   } catch (err) {
     return rejectWithValue(err.response?.data?.error || err.response?.data?.message || 'Failed to fetch applications');
   }
@@ -126,10 +126,10 @@ export const applyToJob = createAsyncThunk('candidate/applyToJob', async ({ jobI
 });
 
 // 8. Saved Jobs
-export const fetchSavedJobs = createAsyncThunk('candidate/fetchSavedJobs', async (_, { rejectWithValue }) => {
+export const fetchSavedJobs = createAsyncThunk('candidate/fetchSavedJobs', async (params, { rejectWithValue }) => {
   try {
-    const res = await api.get('/api/candidate/saved-jobs');
-    return res.data?.data !== undefined ? res.data.data : res.data;
+    const res = await api.get('/api/candidate/saved-jobs', { params });
+    return res.data;
   } catch (err) {
     return rejectWithValue(err.response?.data?.error || err.response?.data?.message || 'Failed to fetch saved jobs');
   }
@@ -145,10 +145,10 @@ export const toggleSaveJob = createAsyncThunk('candidate/toggleSaveJob', async (
 });
 
 // 9. Interviews
-export const fetchCandidateInterviews = createAsyncThunk('candidate/fetchInterviews', async (_, { rejectWithValue }) => {
+export const fetchCandidateInterviews = createAsyncThunk('candidate/fetchInterviews', async (params, { rejectWithValue }) => {
   try {
-    const res = await api.get('/api/candidate/interviews');
-    return res.data?.data !== undefined ? res.data.data : res.data;
+    const res = await api.get('/api/candidate/interviews', { params });
+    return res.data;
   } catch (err) {
     return rejectWithValue(err.response?.data?.error || err.response?.data?.message || 'Failed to fetch interviews');
   }
@@ -198,6 +198,8 @@ const initialState = {
   applications: [],
   savedJobs: [],
   interviews: [],
+  pagination: {},
+  listLoading: { applications: false, savedJobs: false, interviews: false },
   settings: null,
   loading: false,
   error: null,
@@ -213,6 +215,8 @@ export const candidateSlice = createSlice({
       state.applications = [];
       state.savedJobs = [];
       state.interviews = [];
+      state.pagination = {};
+      state.listLoading = { applications: false, savedJobs: false, interviews: false };
       state.settings = null;
       state.loading = false;
       state.error = null;
@@ -297,12 +301,28 @@ export const candidateSlice = createSlice({
         }
       })
       // Applications
+      .addCase(fetchCandidateApplications.pending, (state) => {
+        state.listLoading.applications = true;
+      })
       .addCase(fetchCandidateApplications.fulfilled, (state, action) => {
-        state.applications = action.payload;
+        state.listLoading.applications = false;
+        state.applications = action.payload.data;
+        state.pagination.applications = action.payload.pagination;
+      })
+      .addCase(fetchCandidateApplications.rejected, (state) => {
+        state.listLoading.applications = false;
       })
       // Saved Jobs
+      .addCase(fetchSavedJobs.pending, (state) => {
+        state.listLoading.savedJobs = true;
+      })
       .addCase(fetchSavedJobs.fulfilled, (state, action) => {
-        state.savedJobs = action.payload;
+        state.listLoading.savedJobs = false;
+        state.savedJobs = action.payload.data;
+        state.pagination.savedJobs = action.payload.pagination;
+      })
+      .addCase(fetchSavedJobs.rejected, (state) => {
+        state.listLoading.savedJobs = false;
       })
       .addCase(toggleSaveJob.fulfilled, (state, action) => {
         const { jobId, saved } = action.payload;
@@ -311,8 +331,16 @@ export const candidateSlice = createSlice({
         }
       })
       // Interviews
+      .addCase(fetchCandidateInterviews.pending, (state) => {
+        state.listLoading.interviews = true;
+      })
       .addCase(fetchCandidateInterviews.fulfilled, (state, action) => {
-        state.interviews = action.payload;
+        state.listLoading.interviews = false;
+        state.interviews = action.payload.data;
+        state.pagination.interviews = action.payload.pagination;
+      })
+      .addCase(fetchCandidateInterviews.rejected, (state) => {
+        state.listLoading.interviews = false;
       })
       // Settings
       .addCase(fetchCandidateSettings.fulfilled, (state, action) => {

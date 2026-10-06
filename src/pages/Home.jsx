@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRightOutlined, SearchOutlined } from '@ant-design/icons';
@@ -10,11 +10,11 @@ import CustomCursor from '../components/CustomCursor';
 import FullscreenLoader from '../components/FullscreenLoader';
 
 const specialties = [
-  { label: 'All', pattern: null },
-  { label: 'Insolvency', pattern: /insolvency|\bIBC\b|\bCIRP\b|\bNCLT\b|resolution professional/i },
-  { label: 'Restructuring', pattern: /restructur|turnaround|stressed asset/i },
-  { label: 'Legal', pattern: /legal|law|counsel|advocate|\bNCLT\b/i },
-  { label: 'Finance', pattern: /finance|financial|bank|credit|risk|recovery|chartered accountant/i },
+  { label: 'All', category: undefined },
+  { label: 'Insolvency', category: 'insolvency' },
+  { label: 'Restructuring', category: 'restructur' },
+  { label: 'Legal', category: 'legal' },
+  { label: 'Finance', category: 'finance' },
 ];
 
 const jobLocation = role => role.locations?.length ? role.locations.join(', ') : role.employer?.location || 'Location to be confirmed';
@@ -22,15 +22,18 @@ const jobLocation = role => role.locations?.length ? role.locations.join(', ') :
 const ResolveHome = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { jobsList, loading } = useSelector(state => state.jobs);
+  const { jobsList, pagination, loading } = useSelector(state => state.jobs);
   const reducedMotion = useReducedMotion();
   const [cursorState, setCursorState] = useState({ variant: 'default', label: '' });
   const [searchQuery, setSearchQuery] = useState('');
   const [activeSpecialty, setActiveSpecialty] = useState('All');
-  const [showAllRoles, setShowAllRoles] = useState(false);
+  const [rolesPage, setRolesPage] = useState(1);
   const heroRef = useRef(null);
 
-  useEffect(() => { dispatch(fetchAllJobs()); }, [dispatch]);
+  useEffect(() => {
+    const timer = setTimeout(() => dispatch(fetchAllJobs({ page: rolesPage, pageSize: 4, search: searchQuery.trim() || undefined, category: specialties.find(item => item.label === activeSpecialty)?.category })), searchQuery ? 250 : 0);
+    return () => clearTimeout(timer);
+  }, [dispatch, rolesPage, searchQuery, activeSpecialty]);
 
   const setCursor = (variant, label = '') => setCursorState({ variant, label });
   const resetCursor = () => setCursorState({ variant: 'default', label: '' });
@@ -42,15 +45,7 @@ const ResolveHome = () => {
     transition: { duration: reducedMotion ? 0 : 0.72, delay: reducedMotion ? 0 : delay, ease: [0.22, 1, 0.36, 1] },
   });
 
-  const activeJobs = useMemo(() => (jobsList || []).filter(role => role.status === 'ACTIVE'), [jobsList]);
-  const filteredRoles = useMemo(() => activeJobs.filter(role => {
-    const specialty = specialties.find(item => item.label === activeSpecialty);
-    const skillNames = role.skills?.map(item => item.skill?.name || '').join(' ') || '';
-    const searchable = [role.title, role.employer?.name, jobLocation(role), skillNames, role.description].join(' ');
-    return searchable.toLowerCase().includes(searchQuery.trim().toLowerCase()) &&
-      (!specialty?.pattern || specialty.pattern.test([role.title, skillNames, role.description].join(' ')));
-  }), [activeJobs, activeSpecialty, searchQuery]);
-  const visibleRoles = showAllRoles ? filteredRoles : filteredRoles.slice(0, 4);
+  const visibleRoles = jobsList || [];
 
   const showLoader = loading && !jobsList?.length;
   useEffect(() => {
@@ -100,7 +95,7 @@ const ResolveHome = () => {
           <motion.p className="resolve-hero-desc" {...reveal(0.14)}>Find opportunities in insolvency, restructuring, legal and finance, all in one focused place.</motion.p>
           <motion.div className="resolve-actions" {...reveal(0.2)}>
             <a href="#roles" className="resolve-button" {...hover('EXPLORE')}>Find jobs <ArrowRightOutlined /></a>
-            <Link to="/employer/signup" className="resolve-text-link" {...hover('HIRE')}>Post a job <ArrowRightOutlined /></Link>
+            <Link to="/organisation/login" className="resolve-text-link" {...hover('HIRE')}>Post a job <ArrowRightOutlined /></Link>
           </motion.div>
         </div>
       </section>
@@ -111,11 +106,11 @@ const ResolveHome = () => {
         </div>
         <motion.div className="resolve-roles-controls" {...reveal(0.08)}>
           <div className="resolve-filters" aria-label="Filter by specialty">
-            {specialties.map(spec => <button type="button" key={spec.label} className={`resolve-filter-chip ${activeSpecialty === spec.label ? 'active' : ''}`} aria-pressed={activeSpecialty === spec.label} onClick={() => { setActiveSpecialty(spec.label); setShowAllRoles(false); }} {...hover('FILTER')}>{spec.label}</button>)}
+            {specialties.map(spec => <button type="button" key={spec.label} className={`resolve-filter-chip ${activeSpecialty === spec.label ? 'active' : ''}`} aria-pressed={activeSpecialty === spec.label} onClick={() => { setActiveSpecialty(spec.label); setRolesPage(1); }} {...hover('FILTER')}>{spec.label}</button>)}
           </div>
-          <label className="resolve-roles-search"><SearchOutlined aria-hidden="true" /><input type="search" aria-label="Search open roles, organisations or locations" placeholder="Search role, company or city" value={searchQuery} onChange={event => { setSearchQuery(event.target.value); setShowAllRoles(false); }} {...hover('SEARCH')} /></label>
+          <label className="resolve-roles-search"><SearchOutlined aria-hidden="true" /><input type="search" aria-label="Search open roles, organisations or locations" placeholder="Search role, company or city" value={searchQuery} onChange={event => { setSearchQuery(event.target.value); setRolesPage(1); }} {...hover('SEARCH')} /></label>
         </motion.div>
-        <div className="resolve-list-caption"><span>RECENT OPPORTUNITIES</span><span role="status">{filteredRoles.length} {filteredRoles.length === 1 ? 'role' : 'roles'}</span></div>
+        <div className="resolve-list-caption"><span>RECENT OPPORTUNITIES</span><span role="status">{pagination?.total || 0} {pagination?.total === 1 ? 'role' : 'roles'}</span></div>
         <motion.div className="resolve-role-list" layout={!reducedMotion}>
           <AnimatePresence mode="popLayout">
             {visibleRoles.map((role, index) => <motion.button type="button" layout={!reducedMotion} {...reveal(Math.min(index * 0.06, 0.3))} exit={{ opacity: 0, transition: { duration: reducedMotion ? 0 : 0.15 } }} key={role.id} className="resolve-role-row" onClick={() => { navigate(`/jobs/${role.id}`); resetCursor(); }} {...hover('VIEW')}>
@@ -124,16 +119,16 @@ const ResolveHome = () => {
               <span className="resolve-row-meta">{jobLocation(role)}</span><span className="resolve-role-tag">{getJobTypeLabel(role.jobType)}</span><span className="resolve-row-arrow"><ArrowRightOutlined /></span>
             </motion.button>)}
           </AnimatePresence>
-          {filteredRoles.length === 0 && <div className="resolve-empty-state"><h3>No roles match your search.</h3><p>Try another keyword or explore all specialties.</p><button type="button" className="resolve-text-link" onClick={() => { setSearchQuery(''); setActiveSpecialty('All'); }} {...hover('CLEAR')}>Clear filters <ArrowRightOutlined /></button></div>}
+          {visibleRoles.length === 0 && <div className="resolve-empty-state"><h3>No roles match your search.</h3><p>Try another keyword or explore all specialties.</p><button type="button" className="resolve-text-link" onClick={() => { setSearchQuery(''); setActiveSpecialty('All'); setRolesPage(1); }} {...hover('CLEAR')}>Clear filters <ArrowRightOutlined /></button></div>}
         </motion.div>
-        {filteredRoles.length > 4 && <button type="button" className="resolve-more-roles resolve-text-link" onClick={() => setShowAllRoles(value => !value)} {...hover(showAllRoles ? 'LESS' : 'MORE')}>{showAllRoles ? 'Show fewer roles' : `Show ${filteredRoles.length - 4} more roles`} <ArrowRightOutlined /></button>}
+        {(pagination?.totalPages || 0) > 1 && <div className="resolve-more-roles"><button type="button" className="resolve-text-link" disabled={rolesPage <= 1} onClick={() => setRolesPage(page => page - 1)}>Previous</button><span>Page {rolesPage} of {pagination.totalPages}</span><button type="button" className="resolve-text-link" disabled={rolesPage >= pagination.totalPages} onClick={() => setRolesPage(page => page + 1)}>Next <ArrowRightOutlined /></button></div>}
       </section>
 
       <section className="resolve-entry resolve-section" aria-labelledby="resolve-entry-heading">
         <div className="resolve-entry-heading"><motion.p className="resolve-eyebrow" {...reveal()}>GET STARTED</motion.p><motion.h2 id="resolve-entry-heading" {...reveal(0.08)}>Choose your path.</motion.h2></div>
         <div className="resolve-entry-options">
           <motion.div {...reveal(0.07)}><span>FOR PROFESSIONALS</span><h3>Find work that fits.</h3><p>Search and track specialist roles.</p><Link to="/candidate/signup" className="resolve-text-link" {...hover('JOIN')}>Create a profile <ArrowRightOutlined /></Link></motion.div>
-          <motion.div {...reveal(0.14)}><span>FOR ORGANISATIONS</span><h3>Hire with focus.</h3><p>Post roles and review applicants.</p><Link to="/employer/signup" className="resolve-text-link" {...hover('HIRE')}>Start hiring <ArrowRightOutlined /></Link></motion.div>
+          <motion.div {...reveal(0.14)}><span>FOR ORGANISATIONS</span><h3>Hire with focus.</h3><p>Post roles and review applicants.</p><Link to="/organisation/login" className="resolve-text-link" {...hover('HIRE')}>Start hiring <ArrowRightOutlined /></Link></motion.div>
         </div>
       </section>
     </div>

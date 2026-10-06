@@ -15,7 +15,8 @@ import {
   message,
   Typography,
   Empty,
-  Tooltip
+  Tooltip,
+  Pagination
 } from 'antd';
 import {
   SearchOutlined,
@@ -42,7 +43,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchAllJobs } from '../../store/jobsSlice';
-import { fetchSavedJobs, toggleSaveJob, applyToJob } from '../../store/candidateSlice';
+import { toggleSaveJob, applyToJob } from '../../store/candidateSlice';
 import { saveFilters } from '../../store/authSlice';
 import {
   JOB_TYPES,
@@ -86,12 +87,12 @@ const CandidateJobs = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { isAuthenticated, user } = useSelector((state) => state.auth);
 
-  const { jobsList, loading: jobsLoading } = useSelector((state) => state.jobs);
-  const { savedJobs, applications } = useSelector((state) => state.candidate);
+  const { jobsList, pagination } = useSelector((state) => state.jobs);
 
   const [loading, setLoading] = useState(true);
   const [savedJobsMap, setSavedJobsMap] = useState({});
   const [appliedJobsMap, setAppliedJobsMap] = useState({});
+  const [page, setPage] = useState(1);
 
   // Helper to read initial state from URL params first, then DB, then localStorage
   const getInitialFilter = (key, queryParam) => {
@@ -159,16 +160,7 @@ const CandidateJobs = () => {
     const loadJobsAndStatuses = async () => {
     try {
       setLoading(true);
-      const [jobsRes, savedRes] = await Promise.all([
-        dispatch(fetchAllJobs({ location: selectedLocation || undefined })).unwrap(),
-        dispatch(fetchSavedJobs()).unwrap().catch(() => [])
-      ]);
-
-      const savedMap = {};
-      (Array.isArray(savedRes) ? savedRes : savedRes?.data || []).forEach(item => {
-        savedMap[item.jobId || item.job?.id || item.id] = true;
-      });
-      setSavedJobsMap(savedMap);
+      await dispatch(fetchAllJobs({ page, pageSize: 12, search: searchKeyword.trim() || undefined, location: selectedLocation || undefined, category: selectedCategory || undefined, orgType: selectedOrgType || undefined, jobType: selectedJobType || undefined, salaryRange: selectedSalaryRange || undefined, experienceLevel: selectedExpLevel || undefined })).unwrap();
 
       // The backend already filters out jobs the user has applied to.
       // We only keep appliedJobsMap for tracking state when applying in current session.
@@ -182,8 +174,11 @@ const CandidateJobs = () => {
   };
 
   useEffect(() => {
-    loadJobsAndStatuses();
-  }, [selectedLocation, dispatch]);
+    const timer = setTimeout(loadJobsAndStatuses, 250);
+    return () => clearTimeout(timer);
+  }, [page, searchKeyword, selectedLocation, selectedCategory, selectedOrgType, selectedJobType, selectedSalaryRange, selectedExpLevel, dispatch]);
+
+  useEffect(() => { setPage(1); }, [searchKeyword, selectedLocation, selectedCategory, selectedOrgType, selectedJobType, selectedSalaryRange, selectedExpLevel]);
 
   const handleToggleSave = async (jobId) => {
     try {
@@ -209,6 +204,7 @@ const CandidateJobs = () => {
       message.success('Application submitted successfully!');
       setAppliedJobsMap(prev => ({ ...prev, [selectedJobForApply.id]: 'APPLIED' }));
       setApplyModalOpen(false);
+      loadJobsAndStatuses();
     } catch (error) {
       message.error(typeof error === 'string' ? error : 'Failed to apply');
     } finally {
@@ -238,36 +234,7 @@ const CandidateJobs = () => {
   ].filter(Boolean).length;
 
   // Filter jobs logic with unapplied-first priority sorting
-  const filteredJobs = jobs
-    .filter(job => {
-      const isApplied = Boolean(appliedJobsMap[job.id]);
-
-      if (isApplied) return false;
-
-      const matchesKeyword = !searchKeyword ||
-        job.title.toLowerCase().includes(searchKeyword.toLowerCase()) ||
-        job.description?.toLowerCase().includes(searchKeyword.toLowerCase()) ||
-        job.requirements?.toLowerCase().includes(searchKeyword.toLowerCase()) ||
-        (job.employer?.name && job.employer.name.toLowerCase().includes(searchKeyword.toLowerCase()));
-
-
-      const matchesCategory = !selectedCategory ||
-        job.title.toLowerCase().includes(selectedCategory.toLowerCase()) ||
-        job.requirements?.toLowerCase().includes(selectedCategory.toLowerCase());
-
-      const matchesOrgType = !selectedOrgType ||
-        job.employer?.type === selectedOrgType;
-
-      const matchesJobType = !selectedJobType || job.jobType === selectedJobType;
-      const matchesSalary = !selectedSalaryRange || job.salaryRange === selectedSalaryRange;
-      const matchesExp = !selectedExpLevel || job.experienceLevel === selectedExpLevel;
-
-      return matchesKeyword && matchesCategory && matchesOrgType && matchesJobType && matchesSalary && matchesExp;
-    })
-    .sort((a, b) => {
-      // Then newest first
-      return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
-    });
+  const filteredJobs = jobs.filter(job => !appliedJobsMap[job.id]);
 
   return (
     <div>
@@ -524,7 +491,7 @@ const CandidateJobs = () => {
       <div className="portal-cards-list">
         <AnimatePresence>
           {filteredJobs.map((job) => {
-            const isSaved = Boolean(savedJobsMap[job.id]);
+            const isSaved = savedJobsMap[job.id] ?? Boolean(job.savedBy?.length);
             const applicationStatus = appliedJobsMap[job.id];
 
             return (
@@ -630,6 +597,8 @@ const CandidateJobs = () => {
           </Button>
         </div>
       )}
+
+      {(pagination?.total || 0) > 12 && <Pagination current={page} pageSize={12} total={pagination.total} showSizeChanger={false} onChange={setPage} className="portal-list-pagination" />}
 
       {/* Apply Modal */}
       <Modal

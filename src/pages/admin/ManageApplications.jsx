@@ -6,6 +6,7 @@ import {
   SearchOutlined,
   SolutionOutlined,
   EyeOutlined,
+  EditOutlined,
   ReloadOutlined,
   CalendarOutlined,
   FilterOutlined,
@@ -13,7 +14,7 @@ import {
   CloseOutlined,
   TagOutlined
 } from '@ant-design/icons';
-import { Table, Input, Select, Tag, Button, Modal, Drawer, Divider, message, Space, Tooltip } from 'antd';
+import { Table, Input, Select, Tag, Button, Modal, Drawer, Divider, Dropdown, message, Space, Tooltip } from 'antd';
 import { motion } from 'framer-motion';
 
 const { Option } = Select;
@@ -24,23 +25,27 @@ const ManageApplications = () => {
 
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState({ total: 0 });
   const [search, setSearch] = useState('');
+  const [submittedSearch, setSubmittedSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedApp, setSelectedApp] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [actionLoadingId, setActionLoadingId] = useState(null);
 
-  const fetchApplications = async () => {
+  const fetchApplications = async (requestedPage = page) => {
     setLoading(true);
     try {
-      const params = {};
-      if (search.trim()) params.search = search.trim();
+      const params = { page: requestedPage, pageSize: 8 };
+      if (submittedSearch) params.search = submittedSearch;
       if (statusFilter !== 'ALL') params.status = statusFilter;
 
       const res = await dispatch(fetchAdminApplications(params)).unwrap();
       const list = Array.isArray(res) ? res : res?.data || [];
       setApplications(list);
+      setPagination(res.pagination || { total: list.length });
     } catch (error) {
       console.error('Error fetching applications:', error);
       message.error('Failed to load application activity');
@@ -49,22 +54,26 @@ const ManageApplications = () => {
     }
   };
 
-  useEffect(() => {
-    fetchApplications();
-  }, [statusFilter]);
-
   const activeFiltersCount = [
     statusFilter !== 'ALL' ? statusFilter : null
   ].filter(Boolean).length;
 
   const handleResetFilters = () => {
     setSearch('');
+    setSubmittedSearch('');
     setStatusFilter('ALL');
+    setPage(1);
   };
 
   useEffect(() => {
-    fetchApplications();
-  }, [statusFilter, dispatch]);
+    fetchApplications(page);
+  }, [statusFilter, submittedSearch, page, dispatch]);
+
+  const applySearch = () => {
+    const nextSearch = search.trim();
+    if (page === 1 && submittedSearch === nextSearch) fetchApplications(1);
+    else { setSubmittedSearch(nextSearch); setPage(1); }
+  };
 
   const handleUpdateStatus = async (appId, newStatus) => {
     setActionLoadingId(appId);
@@ -158,25 +167,30 @@ const ManageApplications = () => {
             <Button
               size="small"
               icon={<EyeOutlined />}
+              aria-label="View application details"
               onClick={() => openAppModal(record)}
               className="portal-btn-review"
             />
           </Tooltip>
 
-          <Select
-            size="small"
-            value={record.status}
-            onChange={(val) => handleUpdateStatus(record.id, val)}
-            loading={actionLoadingId === record.id}
-            className="portal-w-130"
+          <Dropdown
+            trigger={['click']}
+            menu={{
+              items: [
+                { key: 'APPLIED', label: 'Applied' },
+                { key: 'SHORTLISTED', label: 'Shortlisted' },
+                { key: 'INTERVIEW', label: 'Interview' },
+                { key: 'SELECTED', label: 'Selected' },
+                { key: 'REJECTED', label: 'Rejected' },
+                { key: 'WITHDRAWN', label: 'Withdrawn' },
+              ].map((item) => ({ ...item, disabled: item.key === record.status })),
+              onClick: ({ key }) => handleUpdateStatus(record.id, key),
+            }}
           >
-            <Option value="APPLIED">Applied</Option>
-            <Option value="SHORTLISTED">Shortlisted</Option>
-            <Option value="INTERVIEW">Interview</Option>
-            <Option value="SELECTED">Selected</Option>
-            <Option value="REJECTED">Rejected</Option>
-            <Option value="WITHDRAWN">Withdrawn</Option>
-          </Select>
+            <Tooltip title="Change application status">
+              <Button size="small" icon={<EditOutlined />} loading={actionLoadingId === record.id} aria-label="Change application status" className="portal-btn-neutral" />
+            </Tooltip>
+          </Dropdown>
         </Space>
       ),
     },
@@ -187,20 +201,10 @@ const ManageApplications = () => {
       <AdminHeader
         title="Application Pipeline & Moderation"
         subtitle="Audit candidate submissions, track hiring pipeline health, and assist resolution support."
-        actions={
-          <Button
-            icon={<ReloadOutlined />}
-            onClick={fetchApplications}
-            loading={loading}
-            className="portal-btn-secondary"
-          >
-            Refresh
-          </Button>
-        }
       />
 
       {/* Clean Search & Filter Bar */}
-      <div className="portal-glass-card portal-p-16-20 portal-mb-24">
+      <div className="portal-mb-24">
         <div className="portal-flex-wrap-gap-12">
           <div className="portal-flex-grow-gap-8">
             <Input
@@ -208,13 +212,13 @@ const ManageApplications = () => {
               placeholder="Search candidate, email, job, or entity..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              onPressEnter={fetchApplications}
+              onPressEnter={applySearch}
               className="portal-input-h44"
               allowClear
             />
             <Button
               type="primary"
-              onClick={fetchApplications}
+              onClick={applySearch}
               className="portal-btn-cyan-h44"
             >
               Search
@@ -241,7 +245,6 @@ const ManageApplications = () => {
                 icon={<ClearOutlined />}
                 onClick={() => {
                   handleResetFilters();
-                  fetchApplications();
                 }}
                 className="portal-btn-icon-h44"
               />
@@ -257,7 +260,7 @@ const ManageApplications = () => {
             {statusFilter !== 'ALL' && (
               <span className="portal-filter-tag">
                 <TagOutlined /> Status: {statusFilter}
-                <CloseOutlined onClick={() => setStatusFilter('ALL')} />
+                <CloseOutlined onClick={() => { setStatusFilter('ALL'); setPage(1); }} />
               </span>
             )}
           </div>
@@ -292,7 +295,7 @@ const ManageApplications = () => {
               type="primary"
               onClick={() => {
                 setDrawerOpen(false);
-                fetchApplications();
+                applySearch();
               }}
               className="portal-btn-cyan-apply"
             >
@@ -307,7 +310,7 @@ const ManageApplications = () => {
           </div>
           <Select
             value={statusFilter}
-            onChange={setStatusFilter}
+              onChange={(val) => { setStatusFilter(val); setPage(1); }}
             className="portal-w-full"
             size="large"
           >
@@ -333,7 +336,7 @@ const ManageApplications = () => {
           dataSource={applications}
           rowKey="id"
           loading={loading}
-          pagination={{ pageSize: 8 }}
+          pagination={{ current: page, pageSize: 8, total: pagination.total, showSizeChanger: false, onChange: setPage }}
           className="portal-table"
         />
       </motion.div>
@@ -342,7 +345,7 @@ const ManageApplications = () => {
       <Modal
         title={
           <div className="portal-modal-header-row">
-            <SolutionOutlined className="portal-text-link" /> Application Dossier #{selectedApp?.id}
+            <SolutionOutlined className="portal-text-link" /> Application Details #{selectedApp?.id}
           </div>
         }
         open={modalOpen}
@@ -352,7 +355,7 @@ const ManageApplications = () => {
       >
         {selectedApp && (
           <div className="portal-text-secondary portal-mt-16">
-            <div className="portal-dossier-card-head">
+            <div className="portal-details-card-head">
               <div>
                 <h3 className="portal-m-0 portal-text-heading portal-text-20">{selectedApp.job?.title}</h3>
                 <p className="portal-job-sub-link">

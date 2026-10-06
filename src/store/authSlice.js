@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api from '../api';
+import { getLoggedOutTheme } from '../utils/istTheme';
 
 export const saveTheme = createAsyncThunk('auth/saveTheme', async (theme, { rejectWithValue }) => {
   try {
@@ -38,6 +39,8 @@ export const fetchCurrentUser = createAsyncThunk('auth/fetchCurrentUser', async 
   } catch (err) {
     return rejectWithValue(err.response?.data || 'Failed to fetch user session');
   }
+}, {
+  condition: (_, { getState }) => !getState().auth.sessionRequestId
 });
 
 const initialState = {
@@ -47,7 +50,7 @@ const initialState = {
   loading: false,
   sessionChecked: !localStorage.getItem('token'),
   error: null,
-  guestTheme: localStorage.getItem('portalGuestTheme') === 'light' ? 'light' : 'dark',
+  guestTheme: getLoggedOutTheme(),
   themeSaving: false,
   themeRequestId: null,
   sessionRequestId: null,
@@ -87,10 +90,8 @@ export const authSlice = createSlice({
       localStorage.removeItem('token');
       localStorage.removeItem('user');
     },
-    setGuestTheme: (state, action) => {
-      if (!['light', 'dark'].includes(action.payload)) return;
-      state.guestTheme = action.payload;
-      localStorage.setItem('portalGuestTheme', action.payload);
+    syncGuestTheme: (state) => {
+      state.guestTheme = getLoggedOutTheme();
     },
   },
   extraReducers: (builder) => {
@@ -140,7 +141,7 @@ export const authSlice = createSlice({
   },
 });
 
-export const { loginSuccess, updateUser, logout, setGuestTheme } = authSlice.actions;
+export const { loginSuccess, updateUser, logout, syncGuestTheme } = authSlice.actions;
 export const selectTheme = (state) => state.auth.isAuthenticated
   ? (state.auth.user?.theme === 'light' ? 'light' : 'dark')
   : state.auth.guestTheme;

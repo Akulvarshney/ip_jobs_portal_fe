@@ -30,7 +30,10 @@ const ManageUsers = () => {
 
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState({ total: 0 });
   const [search, setSearch] = useState('');
+  const [submittedSearch, setSubmittedSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState(searchParams.get('role') || 'ALL');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -38,17 +41,18 @@ const ManageUsers = () => {
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [actionLoadingId, setActionLoadingId] = useState(null);
 
-  const fetchUsers = async () => {
+  const fetchUsers = async (requestedPage = page) => {
     setLoading(true);
     try {
-      const params = {};
-      if (search.trim()) params.search = search.trim();
+      const params = { page: requestedPage, pageSize: 8 };
+      if (submittedSearch) params.search = submittedSearch;
       if (roleFilter !== 'ALL') params.role = roleFilter;
       if (statusFilter !== 'ALL') params.status = statusFilter;
 
       const res = await dispatch(fetchAdminUsers(params)).unwrap();
       const list = Array.isArray(res) ? res : res?.data || [];
       setUsers(list);
+      setPagination(res.pagination || { total: list.length });
     } catch (error) {
       console.error('Error fetching users:', error);
       message.error('Failed to load users');
@@ -57,10 +61,6 @@ const ManageUsers = () => {
     }
   };
 
-  useEffect(() => {
-    fetchUsers();
-  }, [roleFilter, statusFilter]);
-
   const activeFiltersCount = [
     roleFilter !== 'ALL' ? roleFilter : null,
     statusFilter !== 'ALL' ? statusFilter : null
@@ -68,18 +68,22 @@ const ManageUsers = () => {
 
   const handleResetFilters = () => {
     setSearch('');
+    setSubmittedSearch('');
     setRoleFilter('ALL');
     setStatusFilter('ALL');
+    setPage(1);
     setSearchParams({});
   };
 
   useEffect(() => {
-    fetchUsers();
-  }, [roleFilter, statusFilter, dispatch]);
+    fetchUsers(page);
+  }, [roleFilter, statusFilter, submittedSearch, page, dispatch]);
 
   const handleSearchSubmit = (e) => {
     e?.preventDefault();
-    fetchUsers();
+    const nextSearch = search.trim();
+    if (page === 1 && submittedSearch === nextSearch) fetchUsers(1);
+    else { setSubmittedSearch(nextSearch); setPage(1); }
   };
 
   const handleToggleStatus = async (user) => {
@@ -180,6 +184,7 @@ const ManageUsers = () => {
             <Button 
               size="small" 
               icon={<EyeOutlined />}
+              aria-label={`View ${record.name} details`}
               onClick={() => openUserDetails(record)}
               className="portal-btn-neutral"
             />
@@ -192,6 +197,7 @@ const ManageUsers = () => {
                 danger={record.status === 'ACTIVE'}
                 loading={actionLoadingId === record.id}
                 icon={record.status === 'ACTIVE' ? <StopOutlined /> : <CheckCircleOutlined />}
+                aria-label={`${record.status === 'ACTIVE' ? 'Suspend' : 'Activate'} ${record.name}`}
                 onClick={() => handleToggleStatus(record)}
                 className={record.status === 'ACTIVE' ? 'portal-btn-danger-soft' : 'portal-btn-success-soft'}
               />
@@ -207,20 +213,10 @@ const ManageUsers = () => {
       <AdminHeader 
           title="User Governance" 
           subtitle="Directory of insolvency candidates, employer representatives, and administrative accounts."
-          actions={
-            <Button 
-              icon={<ReloadOutlined />} 
-              onClick={fetchUsers}
-              loading={loading}
-              className="portal-btn-secondary"
-            >
-              Refresh
-            </Button>
-          }
         />
 
         {/* Clean Search & Filter Bar */}
-        <div className="portal-glass-card portal-p-16-20 portal-mb-24">
+        <div className="portal-mb-24">
           <div className="portal-flex-center-gap-12 flex-wrap">
             <form onSubmit={handleSearchSubmit} className="portal-admin-search-form">
               <Input 
@@ -233,7 +229,7 @@ const ManageUsers = () => {
               />
               <Button 
                 type="primary" 
-                onClick={fetchUsers} 
+                onClick={() => fetchUsers(page)}
                 className="portal-btn-cyan-h44"
               >
                 Search
@@ -260,7 +256,6 @@ const ManageUsers = () => {
                   icon={<ClearOutlined />} 
                   onClick={() => {
                     handleResetFilters();
-                    fetchUsers();
                   }}
                   className="portal-btn-reset-filters"
                 />
@@ -276,14 +271,14 @@ const ManageUsers = () => {
               {roleFilter !== 'ALL' && (
                 <span className="portal-filter-tag">
                   <UserOutlined /> Role: {roleFilter}
-                  <CloseOutlined onClick={() => { setRoleFilter('ALL'); setSearchParams({}); }} />
+                  <CloseOutlined onClick={() => { setRoleFilter('ALL'); setPage(1); setSearchParams({}); }} />
                 </span>
               )}
 
               {statusFilter !== 'ALL' && (
                 <span className="portal-filter-tag">
                   <TagOutlined /> Status: {statusFilter}
-                  <CloseOutlined onClick={() => setStatusFilter('ALL')} />
+                  <CloseOutlined onClick={() => { setStatusFilter('ALL'); setPage(1); }} />
                 </span>
               )}
             </div>
@@ -318,7 +313,7 @@ const ManageUsers = () => {
                 type="primary" 
                 onClick={() => {
                   setDrawerOpen(false);
-                  fetchUsers();
+                  handleSearchSubmit();
                 }}
                 className="portal-btn-cyan-apply"
               >
@@ -335,6 +330,7 @@ const ManageUsers = () => {
               value={roleFilter} 
               onChange={(val) => { 
                 setRoleFilter(val); 
+                setPage(1);
                 setSearchParams(val !== 'ALL' ? { role: val } : {}); 
               }}
               className="portal-w-full"
@@ -355,7 +351,7 @@ const ManageUsers = () => {
             </div>
             <Select 
               value={statusFilter} 
-              onChange={setStatusFilter}
+              onChange={(val) => { setStatusFilter(val); setPage(1); }}
               className="portal-w-full"
               size="large"
             >
@@ -377,16 +373,16 @@ const ManageUsers = () => {
             dataSource={users}
             rowKey="id"
             loading={loading}
-            pagination={{ pageSize: 8 }}
+            pagination={{ current: page, pageSize: 8, total: pagination.total, showSizeChanger: false, onChange: setPage }}
             className="portal-table"
           />
         </motion.div>
 
-        {/* User Dossier Modal */}
+        {/* User Details Modal */}
         <Modal
           title={
             <div className="portal-modal-title-row">
-              <UserOutlined /> User Profile Dossier #{selectedUser?.id}
+              <UserOutlined /> User Profile Details #{selectedUser?.id}
             </div>
           }
           open={detailModalOpen}
@@ -396,7 +392,7 @@ const ManageUsers = () => {
         >
           {selectedUser && (
             <div className="portal-mt-16 text-secondary">
-              <div className="portal-dossier-header-card">
+              <div className="portal-details-header-card">
                 <div>
                   <h3 className="portal-text-20 font-bold portal-text-heading m-0">{selectedUser.name}</h3>
                   <p className="portal-text-muted-sm mt-4 m-0">{selectedUser.email}</p>
@@ -413,20 +409,20 @@ const ManageUsers = () => {
 
               {selectedUser.role === 'CANDIDATE' && selectedUser.candidateProfile && (
                 <div className="portal-flex-col-gap-16">
-                  <div className="portal-dossier-grid">
-                    <div className="portal-dossier-box">
+                  <div className="portal-details-grid">
+                    <div className="portal-details-box">
                       <span className="portal-text-muted-xs">Designation</span>
                       <div className="portal-text-heading font-semibold">{selectedUser.candidateProfile.designation || 'N/A'}</div>
                     </div>
-                    <div className="portal-dossier-box">
+                    <div className="portal-details-box">
                       <span className="portal-text-muted-xs">Experience</span>
                       <div className="portal-text-heading font-semibold">{selectedUser.candidateProfile.experience ? `${selectedUser.candidateProfile.experience} Years` : 'N/A'}</div>
                     </div>
-                    <div className="portal-dossier-box">
+                    <div className="portal-details-box">
                       <span className="portal-text-muted-xs">City / Location</span>
                       <div className="portal-text-heading font-semibold">{selectedUser.candidateProfile.city || 'N/A'}</div>
                     </div>
-                    <div className="portal-dossier-box">
+                    <div className="portal-details-box">
                       <span className="portal-text-muted-xs">Notice Period</span>
                       <div className="portal-text-heading font-semibold">{selectedUser.candidateProfile.noticePeriod || 'N/A'}</div>
                     </div>

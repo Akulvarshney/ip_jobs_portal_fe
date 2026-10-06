@@ -11,7 +11,8 @@ import {
   message,
   Spin,
   Tooltip,
-  Divider
+  Divider,
+  Pagination
 } from 'antd';
 import {
   SearchOutlined,
@@ -33,7 +34,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchAllJobs } from '../../store/jobsSlice';
-import { fetchSavedJobs, fetchCandidateApplications, toggleSaveJob, applyToJob } from '../../store/candidateSlice';
+import { toggleSaveJob, applyToJob } from '../../store/candidateSlice';
 import { saveFilters } from '../../store/authSlice';
 import {
   JOB_TYPES,
@@ -63,12 +64,13 @@ const professionalCategories = [
 const JobSearch = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const dispatch = useDispatch();
-  const { jobsList } = useSelector((state) => state.jobs);
+  const { jobsList, pagination } = useSelector((state) => state.jobs);
   const { isAuthenticated, user } = useSelector((state) => state.auth);
 
   const [loading, setLoading] = useState(true);
   const [savedJobsMap, setSavedJobsMap] = useState({});
   const [appliedJobsMap, setAppliedJobsMap] = useState({});
+  const [page, setPage] = useState(1);
   // Helper to read initial state from URL params first, then DB, then localStorage
   const getInitialFilter = (key, queryParam) => {
     if (queryParam) {
@@ -139,26 +141,7 @@ const JobSearch = () => {
   const loadJobs = async () => {
     try {
       setLoading(true);
-      await dispatch(fetchAllJobs({ location: selectedLocation || undefined })).unwrap();
-
-      if (isAuthenticated && user?.role === 'CANDIDATE') {
-        const [savedRes, appsRes] = await Promise.all([
-          dispatch(fetchSavedJobs()).unwrap().catch(() => []),
-          dispatch(fetchCandidateApplications()).unwrap().catch(() => [])
-        ]);
-
-        const savedMap = {};
-        (Array.isArray(savedRes) ? savedRes : savedRes?.data || []).forEach(item => {
-          savedMap[item.jobId || item.job?.id || item.id] = true;
-        });
-        setSavedJobsMap(savedMap);
-
-        const appsMap = {};
-        (Array.isArray(appsRes) ? appsRes : appsRes?.data || []).forEach(app => {
-          appsMap[app.jobId] = app.status;
-        });
-        setAppliedJobsMap(appsMap);
-      }
+      await dispatch(fetchAllJobs({ page, pageSize: 12, search: searchKeyword.trim() || undefined, location: selectedLocation || undefined, category: selectedCategory || undefined, orgType: selectedOrgType || undefined, jobType: selectedJobType || undefined, salaryRange: selectedSalaryRange || undefined, experienceLevel: selectedExpLevel || undefined })).unwrap();
     } catch (error) {
       console.error('Error loading public jobs:', error);
       message.error('Failed to load jobs directory');
@@ -168,8 +151,11 @@ const JobSearch = () => {
   };
 
   useEffect(() => {
-    loadJobs();
-  }, [selectedLocation, dispatch, isAuthenticated]);
+    const timer = setTimeout(loadJobs, 250);
+    return () => clearTimeout(timer);
+  }, [page, searchKeyword, selectedLocation, selectedCategory, selectedOrgType, selectedJobType, selectedSalaryRange, selectedExpLevel, dispatch, isAuthenticated]);
+
+  useEffect(() => { setPage(1); }, [searchKeyword, selectedLocation, selectedCategory, selectedOrgType, selectedJobType, selectedSalaryRange, selectedExpLevel]);
 
   const handleToggleSave = async (jobId) => {
     if (!isAuthenticated) {
@@ -207,6 +193,7 @@ const JobSearch = () => {
       message.success('Application submitted successfully!');
       setAppliedJobsMap(prev => ({ ...prev, [selectedJobForApply.id]: 'APPLIED' }));
       setApplyModalOpen(false);
+      loadJobs();
     } catch (error) {
       message.error(typeof error === 'string' ? error : 'Failed to apply');
     } finally {
@@ -237,36 +224,7 @@ const JobSearch = () => {
     selectedOrgType
   ].filter(Boolean).length;
 
-  const filteredJobs = jobs.filter(job => {
-    const matchesKeyword = !searchKeyword ||
-      job.title.toLowerCase().includes(searchKeyword.toLowerCase()) ||
-      job.description?.toLowerCase().includes(searchKeyword.toLowerCase()) ||
-      job.requirements?.toLowerCase().includes(searchKeyword.toLowerCase()) ||
-      (job.employer?.name && job.employer.name.toLowerCase().includes(searchKeyword.toLowerCase()));
-
-
-    const matchesLocation = !selectedLocation ||
-      job.locations?.some(loc => loc.toLowerCase().includes(selectedLocation.toLowerCase())) ||
-      (job.employer?.location && job.employer.location.toLowerCase().includes(selectedLocation.toLowerCase()));
-
-    const matchesJobType = !selectedJobType ||
-      (job.jobType && job.jobType.toLowerCase() === selectedJobType.toLowerCase());
-
-    const matchesSalary = !selectedSalaryRange ||
-      (job.salaryRange && job.salaryRange.toLowerCase() === selectedSalaryRange.toLowerCase());
-
-    const matchesExp = !selectedExpLevel ||
-      (job.experienceLevel && job.experienceLevel.toLowerCase() === selectedExpLevel.toLowerCase());
-
-    const matchesCategory = !selectedCategory ||
-      job.title.toLowerCase().includes(selectedCategory.toLowerCase()) ||
-      job.requirements?.toLowerCase().includes(selectedCategory.toLowerCase());
-
-    const matchesOrgType = !selectedOrgType ||
-      job.employer?.type === selectedOrgType;
-
-    return matchesKeyword && matchesLocation && matchesJobType && matchesSalary && matchesExp && matchesCategory && matchesOrgType;
-  });
+  const filteredJobs = jobs.filter(job => !appliedJobsMap[job.id]);
 
   return (
     <div className="portal-page-wrapper">
@@ -380,7 +338,7 @@ const JobSearch = () => {
 
         {/* Counter */}
         <div className="portal-search-results-header">
-          <span>Showing <strong className="portal-search-results-count">{filteredJobs.length}</strong> available positions</span>
+          <span>Showing <strong className="portal-search-results-count">{filteredJobs.length}</strong> of {pagination?.total || 0} available positions</span>
         </div>
 
         {/* Filter Drawer */}
@@ -542,7 +500,7 @@ const JobSearch = () => {
           <div className="portal-company-jobs-grid">
             <AnimatePresence>
               {filteredJobs.map((job) => {
-                const isSaved = Boolean(savedJobsMap[job.id]);
+                const isSaved = savedJobsMap[job.id] ?? Boolean(job.savedBy?.length);
                 const applicationStatus = appliedJobsMap[job.id];
 
                 return (
@@ -654,6 +612,8 @@ const JobSearch = () => {
             </Button>
           </div>
         )}
+
+        {(pagination?.total || 0) > 12 && <Pagination current={page} pageSize={12} total={pagination.total} showSizeChanger={false} onChange={setPage} className="portal-list-pagination" />}
 
       </div>
 

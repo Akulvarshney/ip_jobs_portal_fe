@@ -13,19 +13,20 @@ import {
 } from '../../utils/jobEnums';
 
 const ManageJobs = () => {
-  const { jobs } = useSelector((state) => state.employer);
+  const { jobs, pagination } = useSelector((state) => state.employer);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     loadJobs();
-  }, [dispatch]);
+  }, [dispatch, page]);
 
   const loadJobs = async () => {
     setLoading(true);
     try {
-      await dispatch(fetchEmployerJobs()).unwrap();
+      await dispatch(fetchEmployerJobs({ page, pageSize: 8 })).unwrap();
     } catch (err) {
       console.error(err);
     } finally {
@@ -74,20 +75,30 @@ const ManageJobs = () => {
       )
     },
     {
-      title: 'Applications Received',
-      key: 'applicants',
+      title: 'Posted By',
+      key: 'createdBy',
       render: (_, record) => (
-        <Badge count={record.applications?.length || 0} showZero color="#0ea5e9" />
+        <div className="portal-text-13 portal-color-muted">
+          {record.createdBy?.name || 'Organisation Admin'}
+        </div>
       )
     },
     {
-      title: 'Action',
+      title: 'Applications Received',
+      key: 'applicants',
+      render: (_, record) => (
+        <Badge count={record._count?.applications || 0} showZero color="#0ea5e9" />
+      )
+    },
+    {
+      title: 'Actions',
       key: 'action',
       render: (_, record) => (
         <Tooltip title="View Candidates & Details">
           <Button 
             className="portal-btn-primary portal-btn-compact-apply"
             icon={<ArrowRightOutlined />}
+            aria-label={`View ${record.title} candidates and details`}
             onClick={() => navigate(`/employer/jobs/${record.id}`)}
           />
         </Tooltip>
@@ -100,7 +111,6 @@ const ManageJobs = () => {
       <div className="portal-page-header-row portal-mb-28">
         <div>
           <h1 className="portal-section-title portal-text-30">Active Jobs</h1>
-          <p className="portal-section-subtitle">Manage your listed CIRP & Liquidation roles and review candidate submissions.</p>
         </div>
         <button className="portal-btn-primary" onClick={() => navigate('/employer')}>
           <PlusOutlined />
@@ -118,7 +128,7 @@ const ManageJobs = () => {
           columns={columns}
           rowKey="id"
           loading={loading}
-          pagination={{ pageSize: 8 }}
+          pagination={{ current: page, pageSize: 8, total: pagination.jobs?.total || 0, showSizeChanger: false, onChange: setPage }}
           className="portal-table"
         />
       </motion.div>

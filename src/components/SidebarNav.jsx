@@ -99,7 +99,6 @@ const ROLE_NAV_CONFIGS = {
       {
         title: 'System & Safety',
         items: [
-          { path: '/admin/reports', label: 'Moderation Reports', icon: <AlertOutlined /> },
           { path: '/admin/settings', label: 'Settings', icon: <SettingOutlined /> },
         ]
       }

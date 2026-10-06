@@ -23,7 +23,7 @@ const Footer = () => {
         setIsRegistered(true);
       }
     }
-  }, [user]);
+  }, [user?.email, user?.stayUpdated]);
 
   // Check Stay Updated registration status from API
   useEffect(() => {
@@ -48,7 +48,7 @@ const Footer = () => {
     if (user?.email) {
       checkStatus();
     }
-  }, [user]);
+  }, [user?.email]);
 
   const handleSubscribe = async (e) => {
     e.preventDefault();

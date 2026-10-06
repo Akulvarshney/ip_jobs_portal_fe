@@ -8,7 +8,8 @@ import {
   Row, 
   Col, 
   Tooltip,
-  Divider
+  Divider,
+  Pagination
 } from 'antd';
 import { 
   CalendarOutlined, 
@@ -29,17 +30,18 @@ import api from '../../api';
 
 const CandidateInterviews = () => {
   const dispatch = useDispatch();
-  const { interviews: rawInterviews, loading } = useSelector((state) => state.candidate);
+  const { interviews: rawInterviews, pagination, listLoading } = useSelector((state) => state.candidate);
   const interviews = Array.isArray(rawInterviews) ? rawInterviews : (rawInterviews?.data || []);
+  const loading = listLoading.interviews;
   const [activeTab, setActiveTab] = useState('upcoming');
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
-    dispatch(fetchCandidateInterviews());
-  }, [dispatch]);
+    dispatch(fetchCandidateInterviews({ page, pageSize: 8, period: activeTab }));
+  }, [dispatch, page, activeTab]);
 
-  const now = new Date();
-  const upcomingInterviews = interviews.filter(i => new Date(i.interviewDate) >= now && i.status === 'SCHEDULED');
-  const pastInterviews = interviews.filter(i => new Date(i.interviewDate) < now || i.status !== 'SCHEDULED');
+  const upcomingInterviews = activeTab === 'upcoming' ? interviews : [];
+  const pastInterviews = activeTab === 'past' ? interviews : [];
 
   const getInterviewTypeIcon = (type) => {
     switch (type) {
@@ -122,7 +124,7 @@ const CandidateInterviews = () => {
   const tabItems = [
     {
       key: 'upcoming',
-      label: `Upcoming Schedule (${upcomingInterviews.length})`,
+      label: 'Upcoming Schedule',
       children: (
         <div>
           {upcomingInterviews.map(renderInterviewCard)}
@@ -140,7 +142,7 @@ const CandidateInterviews = () => {
     },
     {
       key: 'past',
-      label: `Past / Completed (${pastInterviews.length})`,
+      label: 'Past / Completed',
       children: (
         <div>
           {pastInterviews.map(renderInterviewCard)}
@@ -167,10 +169,13 @@ const CandidateInterviews = () => {
 
       <Tabs
         activeKey={activeTab}
-        onChange={setActiveTab}
+        onChange={(tab) => { setActiveTab(tab); setPage(1); }}
         items={tabItems}
         type="card"
       />
+      {(pagination.interviews?.total || 0) > 8 && (
+        <Pagination current={page} pageSize={8} total={pagination.interviews.total} showSizeChanger={false} onChange={setPage} className="portal-list-pagination" />
+      )}
     </div>
   );
 };

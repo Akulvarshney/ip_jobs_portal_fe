@@ -21,10 +21,10 @@ export const updateOrganisationProfile = createAsyncThunk('employer/updateOrgani
 });
 
 // 2. Manage Jobs
-export const fetchEmployerJobs = createAsyncThunk('employer/fetchJobs', async (_, { rejectWithValue }) => {
+export const fetchEmployerJobs = createAsyncThunk('employer/fetchJobs', async (params, { rejectWithValue }) => {
   try {
-    const res = await api.get('/api/jobs/employer');
-    return res.data?.data !== undefined ? res.data.data : res.data;
+    const res = await api.get('/api/jobs/employer', { params });
+    return res.data;
   } catch (err) {
     return rejectWithValue(err.response?.data?.error || err.response?.data?.message || 'Failed to fetch employer jobs');
   }
@@ -61,16 +61,16 @@ export const deleteJob = createAsyncThunk('employer/deleteJob', async (id, { rej
 export const fetchEmployerApplications = createAsyncThunk('employer/fetchApplications', async (params, { rejectWithValue }) => {
   try {
     const res = await api.get('/api/applications/employer', { params });
-    return res.data?.data !== undefined ? res.data.data : res.data;
+    return res.data;
   } catch (err) {
     return rejectWithValue(err.response?.data?.error || err.response?.data?.message || 'Failed to fetch applications');
   }
 });
 
-export const fetchJobApplicants = createAsyncThunk('employer/fetchJobApplicants', async (jobId, { rejectWithValue }) => {
+export const fetchJobApplicants = createAsyncThunk('employer/fetchJobApplicants', async ({ jobId, ...params }, { rejectWithValue }) => {
   try {
-    const res = await api.get(`/api/applications/job/${jobId}`);
-    return { jobId, applications: res.data?.data !== undefined ? res.data.data : res.data };
+    const res = await api.get(`/api/applications/job/${jobId}`, { params });
+    return { jobId, applications: res.data.data, pagination: res.data.pagination, summary: res.data.summary };
   } catch (err) {
     return rejectWithValue(err.response?.data?.error || err.response?.data?.message || 'Failed to fetch job applicants');
   }
@@ -108,6 +108,7 @@ const initialState = {
   jobs: [],
   applications: [],
   dashboardStats: null,
+  pagination: {},
   loading: false,
   error: null,
 };
@@ -121,6 +122,7 @@ export const employerSlice = createSlice({
       state.jobs = [];
       state.applications = [];
       state.dashboardStats = null;
+      state.pagination = {};
       state.loading = false;
       state.error = null;
     }
@@ -148,7 +150,9 @@ export const employerSlice = createSlice({
       })
       .addCase(fetchEmployerJobs.fulfilled, (state, action) => {
         state.loading = false;
-        state.jobs = action.payload;
+        state.jobs = action.payload.data;
+        state.pagination.jobs = action.payload.pagination;
+        state.dashboardStats = action.payload.summary;
       })
       .addCase(fetchEmployerJobs.rejected, (state, action) => {
         state.loading = false;
@@ -172,7 +176,8 @@ export const employerSlice = createSlice({
       })
       .addCase(fetchEmployerApplications.fulfilled, (state, action) => {
         state.loading = false;
-        state.applications = action.payload;
+        state.applications = action.payload.data;
+        state.pagination.applications = action.payload.pagination;
       })
       .addCase(fetchEmployerApplications.rejected, (state, action) => {
         state.loading = false;

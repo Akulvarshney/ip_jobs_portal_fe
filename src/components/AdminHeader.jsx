@@ -9,11 +9,6 @@ const AdminHeader = ({ title, subtitle, stats, actions }) => {
           <h1 className="portal-section-title portal-admin-header-title">
             {title}
           </h1>
-          {subtitle && (
-            <p className="portal-section-subtitle portal-admin-header-subtitle">
-              {subtitle}
-            </p>
-          )}
         </div>
 
         {actions && (

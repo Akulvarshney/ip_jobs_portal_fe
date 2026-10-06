@@ -22,26 +22,29 @@ const { TextArea } = Input;
 const { Option } = Select;
 
 const EmployerDashboard = () => {
-  const { jobs, organisation, loading: orgLoading } = useSelector((state) => state.employer);
+  const { jobs, organisation, dashboardStats, pagination, loading: orgLoading } = useSelector((state) => state.employer);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [applicantsModalVisible, setApplicantsModalVisible] = useState(false);
   const [selectedJob, setSelectedJob] = useState(null);
+  const [page, setPage] = useState(1);
+  const [applicantsPage, setApplicantsPage] = useState(1);
+  const [applicantsPagination, setApplicantsPagination] = useState({ total: 0 });
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   useEffect(() => {
     fetchJobs();
-  }, [dispatch]);
+  }, [dispatch, page]);
 
   const fetchJobs = async () => {
     try {
-      if (!localStorage.getItem('token')) return navigate('/employer/login');
+      if (!localStorage.getItem('token')) return navigate('/login?redirect=/employer/dashboard');
       await dispatch(fetchOrganisationProfile()).unwrap();
-      await dispatch(fetchEmployerJobs()).unwrap();
+      await dispatch(fetchEmployerJobs({ page, pageSize: 6 })).unwrap();
     } catch (error) {
       if (error?.response?.status === 401 || error?.response?.status === 403) {
-        navigate('/employer/login');
+        navigate('/login?redirect=/employer/dashboard');
       }
     }
   };
@@ -71,8 +74,10 @@ const EmployerDashboard = () => {
 
   const viewApplicants = async (job) => {
     try {
-      const res = await dispatch(fetchJobApplicants(job.id)).unwrap();
+      const res = await dispatch(fetchJobApplicants({ jobId: job.id, page: 1, pageSize: 8 })).unwrap();
       setSelectedJob({ ...job, applications: res.applications });
+      setApplicantsPage(1);
+      setApplicantsPagination(res.pagination);
       setApplicantsModalVisible(true);
     } catch (err) {
       message.error("Failed to load applicants");
@@ -113,26 +118,38 @@ const EmployerDashboard = () => {
       render: (date) => <span className="portal-color-muted">{new Date(date).toLocaleDateString()}</span>
     },
     {
-      title: 'Candidates Matched',
-      key: 'applicants',
+      title: 'Posted By',
+      key: 'createdBy',
       render: (_, record) => (
-        <Badge count={record.applications?.length || 0} showZero color="#0ea5e9" />
+        <div className="portal-text-13 portal-color-muted">
+          {record.createdBy?.name || 'Organisation Admin'}
+        </div>
       )
     },
     {
-      title: 'Action',
+      title: 'Candidates Matched',
+      key: 'applicants',
+      render: (_, record) => (
+        <Badge count={record._count?.applications || 0} showZero color="#0ea5e9" />
+      )
+    },
+    {
+      title: 'Actions',
       key: 'action',
       render: (_, record) => (
         <Tooltip title="View Job & Applicants">
           <Button
             className="portal-btn-primary portal-btn-compact-apply"
             icon={<ArrowRightOutlined />}
+            aria-label={`View ${record.title} and applicants`}
             onClick={() => navigate(`/employer/jobs/${record.id}`)}
           />
         </Tooltip>
       )
     }
   ];
+
+  const branchStats = dashboardStats?.branches || [];
 
   if (orgLoading && !organisation) {
     return <div className="portal-loading-container portal-py-80"><Typography.Text>Loading Dashboard...</Typography.Text></div>;
@@ -177,6 +194,21 @@ const EmployerDashboard = () => {
         </button>
       </motion.div>
 
+      <div className="portal-grid-3col-gap-12 portal-mb-24" aria-label="Hiring key performance indicators">
+        {[
+          ['My jobs', dashboardStats?.myJobs || 0],
+          ['Organisation jobs', dashboardStats?.organisationJobs || 0],
+          ['Active jobs', dashboardStats?.activeJobs || 0],
+          ['Applications', dashboardStats?.applications || 0],
+          ['Shortlisted', dashboardStats?.shortlisted || 0],
+          ['Interviews', dashboardStats?.interviews || 0],
+        ].map(([label, value]) => <div className="portal-glass-card portal-p-24" key={label}><div className="portal-text-muted-sm">{label}</div><strong className="portal-text-heading" style={{ fontSize: 30 }}>{value}</strong></div>)}
+      </div>
+      <div className="portal-glass-card portal-p-24 portal-mb-24">
+        <h2 className="portal-text-heading">Branch performance</h2>
+        <Table size="small" rowKey="branch" dataSource={branchStats} pagination={false} locale={{ emptyText: 'No jobs have been posted yet.' }} columns={[{ title: 'Branch', dataIndex: 'branch' }, { title: 'Total jobs', dataIndex: 'jobs' }, { title: 'Active jobs', dataIndex: 'active' }, { title: 'Applications', dataIndex: 'applications' }]} />
+      </div>
+
       <motion.div
         initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -187,7 +219,7 @@ const EmployerDashboard = () => {
           dataSource={jobs}
           columns={columns}
           rowKey="id"
-          pagination={{ pageSize: 6 }}
+          pagination={{ current: page, pageSize: 6, total: pagination.jobs?.total || 0, showSizeChanger: false, onChange: setPage }}
           className="portal-table"
         />
       </motion.div>
@@ -273,6 +305,12 @@ const EmployerDashboard = () => {
         <Table
           dataSource={selectedJob?.applications || []}
           rowKey="id"
+          pagination={{ current: applicantsPage, pageSize: 8, total: applicantsPagination.total, showSizeChanger: false, onChange: async (nextPage) => {
+            const result = await dispatch(fetchJobApplicants({ jobId: selectedJob.id, page: nextPage, pageSize: 8 })).unwrap();
+            setSelectedJob(current => ({ ...current, applications: result.applications }));
+            setApplicantsPage(nextPage);
+            setApplicantsPagination(result.pagination);
+          } }}
           columns={[
             { title: 'Candidate Name', key: 'name', render: (_, record) => <span className="portal-font-semibold">{record.candidate?.name || 'Candidate'}</span> },
             { title: 'Email', key: 'email', render: (_, record) => <span>{record.candidate?.email || 'N/A'}</span> },
@@ -288,16 +326,16 @@ const EmployerDashboard = () => {
             },
             { title: 'Applied Date', dataIndex: 'createdAt', key: 'createdAt', render: (date) => new Date(date).toLocaleDateString() },
             {
-              title: 'Action',
+              title: 'Actions',
               key: 'action',
               render: (_, record) => (
                 record.status !== 'INVITED' ? (
                   <Tooltip title="Send Interview Invite">
-                    <Button type="primary" size="small" icon={<SendOutlined />} onClick={() => handleInvite(record.id)} className="portal-btn-cyan" />
+                    <Button type="primary" size="small" icon={<SendOutlined />} aria-label="Send interview invite" onClick={() => handleInvite(record.id)} className="portal-btn-cyan" />
                   </Tooltip>
                 ) : (
                   <Tooltip title="Interview Invitation Sent">
-                    <span className="portal-color-success portal-font-semibold portal-inline-flex-center-gap-4">
+                    <span className="portal-color-success portal-font-semibold portal-inline-flex-center-gap-4" aria-label="Interview invitation sent">
                       <CheckCircleOutlined />
                     </span>
                   </Tooltip>

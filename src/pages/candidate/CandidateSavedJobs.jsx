@@ -9,7 +9,8 @@ import {
   Input, 
   Tooltip,
   Row,
-  Col
+  Col,
+  Pagination
 } from 'antd';
 import { 
   BookOutlined, 
@@ -29,8 +30,10 @@ import api from '../../api';
 const CandidateSavedJobs = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { savedJobs: rawSavedJobs, loading } = useSelector((state) => state.candidate);
+  const { savedJobs: rawSavedJobs, pagination, listLoading } = useSelector((state) => state.candidate);
   const savedJobs = Array.isArray(rawSavedJobs) ? rawSavedJobs : (rawSavedJobs?.data || []);
+  const loading = listLoading.savedJobs;
+  const [page, setPage] = useState(1);
 
   // Apply Modal
   const [applyModalOpen, setApplyModalOpen] = useState(false);
@@ -39,13 +42,15 @@ const CandidateSavedJobs = () => {
   const [applying, setApplying] = useState(false);
 
   useEffect(() => {
-    dispatch(fetchSavedJobs());
-  }, [dispatch]);
+    dispatch(fetchSavedJobs({ page, pageSize: 8 }));
+  }, [dispatch, page]);
 
   const handleRemoveSaved = async (jobId) => {
     try {
       const res = await dispatch(toggleSaveJob(jobId)).unwrap();
       message.success('Removed from bookmarks');
+      if (savedJobs.length === 1 && page > 1) setPage(page - 1);
+      else dispatch(fetchSavedJobs({ page, pageSize: 8 }));
     } catch (error) {
       message.error(error || 'Failed to remove bookmark');
     }
@@ -68,7 +73,7 @@ const CandidateSavedJobs = () => {
       if (res.data?.success) {
         message.success('Application submitted successfully!');
         setApplyModalOpen(false);
-        fetchSavedJobs();
+        dispatch(fetchSavedJobs({ page, pageSize: 8 }));
       }
     } catch (error) {
       message.error(error?.response?.data?.message || 'Failed to apply');
@@ -185,6 +190,10 @@ const CandidateSavedJobs = () => {
             <Button type="primary" className="portal-empty-state-btn">Explore Jobs</Button>
           </Link>
         </div>
+      )}
+
+      {(pagination.savedJobs?.total || 0) > 8 && (
+        <Pagination current={page} pageSize={8} total={pagination.savedJobs.total} showSizeChanger={false} onChange={setPage} className="portal-list-pagination" />
       )}
 
       {/* Apply Modal */}
