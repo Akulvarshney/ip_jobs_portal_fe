@@ -45,14 +45,14 @@ const EmployerJobDetails = () => {
   const [applicantSearch, setApplicantSearch] = useState('');
   const [applicantPage, setApplicantPage] = useState(1);
   const [applicationsList, setApplicationsList] = useState([]);
-  const [applicantPagination, setApplicantPagination] = useState({ total: 0, pageSize: 8 });
+  const [applicantPagination, setApplicantPagination] = useState({ total: 0, pageSize: 5 });
   const [applicantSummary, setApplicantSummary] = useState({ total: 0, statuses: {} });
   const [applicantsLoading, setApplicantsLoading] = useState(false);
 
   const loadApplicants = async () => {
     setApplicantsLoading(true);
     try {
-      const result = await dispatch(fetchJobApplicants({ jobId: id, page: applicantPage, pageSize: 8, status: applicantFilter, search: applicantSearch.trim() || undefined })).unwrap();
+      const result = await dispatch(fetchJobApplicants({ jobId: id, page: applicantPage, pageSize: 5, status: applicantFilter, search: applicantSearch.trim() || undefined })).unwrap();
       setApplicationsList(result.applications);
       setApplicantPagination(result.pagination);
       setApplicantSummary(result.summary);
@@ -176,32 +176,27 @@ const EmployerJobDetails = () => {
 
   const applicantColumns = [
     {
-      title: 'Candidate Profile',
+      title: 'Candidate',
       key: 'name',
-      render: (_, record) => {
-        const c = record.candidate;
-        const profile = c?.candidateProfile;
-        return (
-          <div className="portal-flex-center-gap-12">
-            <div className="portal-avatar-init">
-              {c?.name?.charAt(0) || 'C'}
-            </div>
-            <div>
-              <div className="portal-candidate-name">
-                {c?.name || 'Candidate'}
-              </div>
-              <div className="portal-candidate-sub">
-                {profile?.designation || 'Insolvency Professional'}
-                {profile?.experience ? ` • ${profile.experience} Yrs Exp` : ''}
-                {profile?.city ? ` • ${profile.city}` : ''}
-              </div>
-            </div>
-          </div>
-        );
-      }
+      render: (_, record) => <span className="portal-candidate-name">{record.candidate?.name || 'Candidate'}</span>
     },
     {
-      title: 'Expertise / Skills',
+      title: 'Designation',
+      key: 'designation',
+      render: (_, record) => record.candidate?.candidateProfile?.designation || 'Insolvency Professional'
+    },
+    {
+      title: 'Experience',
+      key: 'experience',
+      render: (_, record) => record.candidate?.candidateProfile?.experience ? `${record.candidate.candidateProfile.experience} years` : '—'
+    },
+    {
+      title: 'City',
+      key: 'city',
+      render: (_, record) => record.candidate?.candidateProfile?.city || '—'
+    },
+    {
+      title: 'Skills',
       key: 'skills',
       render: (_, record) => {
         const skills = record.candidate?.candidateProfile?.skills || [];
@@ -370,7 +365,7 @@ const EmployerJobDetails = () => {
             <Select value={applicantFilter} onChange={value => { setApplicantFilter(value); setApplicantPage(1); }} aria-label="Filter candidate status" options={[{ value: 'ALL', label: 'All stages' }, { value: 'APPLIED', label: 'Applied' }, { value: 'SHORTLISTED', label: 'Shortlisted' }, { value: 'INTERVIEW', label: 'Interviewing' }, { value: 'SELECTED', label: 'Selected' }, { value: 'REJECTED', label: 'Rejected' }]} />
           </div>
         </div>
-        <div className="employer-job-table"><Table columns={applicantColumns} dataSource={applicationsList} rowKey="id" loading={applicantsLoading} pagination={{ current: applicantPage, pageSize: 8, total: applicantPagination.total, hideOnSinglePage: true, showSizeChanger: false, onChange: setApplicantPage }} scroll={{ x: 900 }} className="portal-table" locale={{ emptyText: <div className="portal-empty-table-text">{applicantSummary.total ? 'No candidates match these filters.' : 'No candidates have applied yet.'}</div> }} /></div>
+        <div className="employer-job-table"><Table columns={applicantColumns} dataSource={applicationsList} rowKey="id" loading={applicantsLoading} pagination={{ current: applicantPage, pageSize: 5, total: applicantPagination.total, hideOnSinglePage: true, showSizeChanger: false, onChange: setApplicantPage }} scroll={{ x: 900 }} className="portal-table" locale={{ emptyText: <div className="portal-empty-table-text">{applicantSummary.total ? 'No candidates match these filters.' : 'No candidates have applied yet.'}</div> }} /></div>
         <div className="employer-job-mobile-list">
           {applicationsList.length ? applicationsList.map(application => {
             const candidate = application.candidate;

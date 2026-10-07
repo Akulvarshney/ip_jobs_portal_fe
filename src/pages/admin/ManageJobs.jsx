@@ -12,8 +12,6 @@ import {
   DeleteOutlined, 
   EyeOutlined, 
   ReloadOutlined, 
-  BankOutlined, 
-  SolutionOutlined,
   FilterOutlined,
   ClearOutlined,
   CloseOutlined,
@@ -43,7 +41,7 @@ const ManageJobs = () => {
   const fetchJobs = async (requestedPage = page) => {
     setLoading(true);
     try {
-      const params = { page: requestedPage, pageSize: 8 };
+      const params = { page: requestedPage, pageSize: 5 };
       if (submittedSearch) params.search = submittedSearch;
       if (statusFilter !== 'ALL') params.status = statusFilter;
 
@@ -122,26 +120,25 @@ const ManageJobs = () => {
 
   const columns = [
     {
-      title: 'Job / Job Title',
+      title: 'Job Title',
       key: 'title',
-      render: (_, record) => (
-        <div>
-          <div className="portal-job-cell-title">{record.title}</div>
-          <div className="portal-job-cell-sub">
-            <BankOutlined /> {record.employer?.name || 'Unknown Entity'}
-            {record.employer?.type && <Tag color="purple" className="portal-tag-xs-purple">{record.employer.type}</Tag>}
-          </div>
-        </div>
-      ),
+      dataIndex: 'title',
+      render: (title) => <span className="portal-job-cell-title">{title || '—'}</span>,
+    },
+    {
+      title: 'Organisation',
+      key: 'organisation',
+      render: (_, record) => record.employer?.name || 'Unknown Entity',
+    },
+    {
+      title: 'Organisation Type',
+      key: 'organisationType',
+      render: (_, record) => record.employer?.type || '—',
     },
     {
       title: 'Applications',
       key: 'applications',
-      render: (_, record) => (
-        <Tag color="cyan" className="portal-fw-600">
-          <SolutionOutlined /> {record._count?.applications || 0} Submissions
-        </Tag>
-      ),
+      render: (_, record) => record._count?.applications || 0,
     },
     {
       title: 'Status',
@@ -382,7 +379,7 @@ const ManageJobs = () => {
             dataSource={jobs}
             rowKey="id"
             loading={loading}
-            pagination={{ current: page, pageSize: 8, total: pagination.total, showSizeChanger: false, onChange: setPage }}
+            pagination={{ current: page, pageSize: 5, total: pagination.total, showSizeChanger: false, onChange: setPage }}
             className="portal-table"
           />
         </motion.div>
@@ -391,7 +388,7 @@ const ManageJobs = () => {
         <Modal
           title={
             <div className="portal-modal-header-row">
-              <FileTextOutlined className="portal-text-link" /> Job Review Details #{selectedJob?.id}
+              <FileTextOutlined className="portal-text-link" /> Job Review Details
             </div>
           }
           open={modalOpen}

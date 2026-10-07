@@ -118,9 +118,9 @@ function EmployerDetailsContent({ id }) {
             </div>
             <div className="portal-employer-hero-actions">
               {employer.status === 'APPROVED' ? (
-                <Button danger icon={<StopOutlined />} loading={actionLoading} onClick={() => updateStatus('SUSPENDED')}>Suspend organisation</Button>
+                <Button type="primary" danger icon={<StopOutlined />} loading={actionLoading} onClick={() => updateStatus('SUSPENDED')} className="portal-employer-status-btn portal-employer-status-btn--suspend">Suspend organisation</Button>
               ) : (
-                <Button type="primary" icon={<CheckCircleOutlined />} loading={actionLoading} onClick={() => updateStatus('APPROVED')}>Approve organisation</Button>
+                <Button type="primary" icon={<CheckCircleOutlined />} loading={actionLoading} onClick={() => updateStatus('APPROVED')} className="portal-employer-status-btn portal-employer-status-btn--approve">Approve organisation</Button>
               )}
             </div>
           </header>

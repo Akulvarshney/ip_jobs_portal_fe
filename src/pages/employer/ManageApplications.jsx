@@ -84,7 +84,7 @@ const ManageApplications = () => {
   const loadData = async () => {
     try {
       setLoading(true);
-      const appsRes = await dispatch(fetchEmployerApplications({ page, pageSize: 8, status: activeTab, jobId: selectedJobFilter, search: searchQuery.trim() })).unwrap();
+      const appsRes = await dispatch(fetchEmployerApplications({ page, pageSize: 5, status: activeTab, jobId: selectedJobFilter, search: searchQuery.trim() })).unwrap();
       const appsList = Array.isArray(appsRes) ? appsRes : appsRes?.data || [];
       setApplications(appsList);
     } catch (error) {
@@ -199,66 +199,49 @@ const ManageApplications = () => {
     {
       title: 'Candidate Name',
       key: 'candidateName',
-      render: (_, record) => {
-        const profile = record.candidate?.candidateProfile;
-        return (
-          <div className="portal-flex-center-gap-12">
-            <Avatar
-              size={40}
-              icon={<UserOutlined />}
-              src={getFileUrl(profile?.profilePhoto)}
-              className="portal-avatar-purple"
-            />
-            <div>
-              <div
-                className="portal-card-link-title"
-                onClick={() => {
-                  setSelectedApp(record);
-                  setCandidateModalVisible(true);
-                }}
-              >
-                {record.candidate?.name || 'Candidate'}
-              </div>
-              <div className="portal-text-subtle-12">
-                {profile?.professionalCategory || profile?.designation || record.candidate?.email}
-              </div>
-            </div>
-          </div>
-        );
-      },
+      render: (_, record) => <span className="portal-card-link-title" onClick={() => { setSelectedApp(record); setCandidateModalVisible(true); }}>{record.candidate?.name || 'Candidate'}</span>,
+    },
+    {
+      title: 'Email',
+      key: 'email',
+      render: (_, record) => record.candidate?.email || '—',
+    },
+    {
+      title: 'Category',
+      key: 'category',
+      render: (_, record) => record.candidate?.candidateProfile?.professionalCategory || '—',
+    },
+    {
+      title: 'Designation',
+      key: 'designation',
+      render: (_, record) => record.candidate?.candidateProfile?.designation || '—',
     },
     {
       title: 'Applied Job',
       dataIndex: ['job', 'title'],
       key: 'jobTitle',
-      render: (title, record) => (
-        <div>
-          <span className="portal-card-heading portal-text-14">{title}</span>
-          <div className="portal-card-meta portal-text-12 portal-mt-2">
-            Applied {new Date(record.createdAt).toLocaleDateString()}
-          </div>
-        </div>
-      ),
+      render: (title) => <span className="portal-card-heading portal-text-14">{title || '—'}</span>,
     },
     {
-      title: 'Experience & Qualifications',
-      key: 'exp',
-      render: (_, record) => {
-        const profile = record.candidate?.candidateProfile;
-        const topEdu = profile?.educations?.[0];
-        return (
-          <div>
-            <div className="portal-font-medium portal-text-13 portal-color-detail">
-              {profile?.experience ? `${profile.experience} Yrs Experience` : 'Exp not specified'}
-            </div>
-            {topEdu && (
-              <div className="portal-text-subtle-12">
-                {topEdu.qualification} • {topEdu.institution}
-              </div>
-            )}
-          </div>
-        );
-      },
+      title: 'Applied Date',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
+      render: (date) => new Date(date).toLocaleDateString(),
+    },
+    {
+      title: 'Experience',
+      key: 'experience',
+      render: (_, record) => record.candidate?.candidateProfile?.experience ? `${record.candidate.candidateProfile.experience} years` : '—',
+    },
+    {
+      title: 'Qualification',
+      key: 'qualification',
+      render: (_, record) => record.candidate?.candidateProfile?.educations?.[0]?.qualification || '—',
+    },
+    {
+      title: 'Institution',
+      key: 'institution',
+      render: (_, record) => record.candidate?.candidateProfile?.educations?.[0]?.institution || '—',
     },
     {
       title: 'Status',
@@ -547,7 +530,7 @@ const ManageApplications = () => {
           columns={columns}
           rowKey="id"
           loading={loading}
-          pagination={{ current: page, pageSize: 8, total: pagination.applications?.total || 0, showSizeChanger: false, onChange: setPage, showTotal: (total) => `Total ${total} candidates` }}
+          pagination={{ current: page, pageSize: 5, total: pagination.applications?.total || 0, showSizeChanger: false, onChange: setPage, showTotal: (total) => `Total ${total} candidates` }}
           locale={{
             emptyText: (
               <div className="portal-empty-table-state">

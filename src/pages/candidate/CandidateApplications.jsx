@@ -47,7 +47,7 @@ const CandidateApplications = () => {
   const [detailsModalVisible, setDetailsModalVisible] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => dispatch(fetchCandidateApplications({ page, pageSize: 8, status: activeTab, search: searchQuery.trim() })), 250);
+    const timer = setTimeout(() => dispatch(fetchCandidateApplications({ page, pageSize: 5, status: activeTab, search: searchQuery.trim() })), 250);
     return () => clearTimeout(timer);
   }, [dispatch, page, activeTab, searchQuery]);
 
@@ -76,19 +76,17 @@ const CandidateApplications = () => {
 
   const columns = [
     {
-      title: 'Job / Role',
+      title: 'Job Title',
       dataIndex: ['job', 'title'],
       key: 'jobTitle',
       render: (text, record) => (
-        <div>
-          <Link to={`/jobs/${record.jobId}`} className="portal-app-title portal-color-link" style={{ textDecoration: 'none' }}>
-            {text}
-          </Link>
-          <div className="portal-app-employer">
-            {record.job?.employer?.name || 'Insolvency Entity'}
-          </div>
-        </div>
+        <Link to={`/jobs/${record.jobId}`} className="portal-app-title portal-color-link" style={{ textDecoration: 'none' }}>{text}</Link>
       ),
+    },
+    {
+      title: 'Organisation',
+      key: 'organisation',
+      render: (_, record) => record.job?.employer?.name || 'Insolvency Entity',
     },
     {
       title: 'Organisation Type',
@@ -207,7 +205,7 @@ const CandidateApplications = () => {
           columns={columns}
           rowKey="id"
           loading={loading}
-          pagination={{ current: page, pageSize: 8, total: pagination.applications?.total || 0, showSizeChanger: false, onChange: setPage, showTotal: (total) => `Total ${total} applications` }}
+          pagination={{ current: page, pageSize: 5, total: pagination.applications?.total || 0, showSizeChanger: false, onChange: setPage, showTotal: (total) => `Total ${total} applications` }}
           locale={{
             emptyText: (
               <div className="portal-table-empty">

@@ -6,12 +6,13 @@ import api from '../../api';
 import { getJobTypeLabel } from '../../utils/jobType';
 import './EmployerDetails.css';
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 5;
 const dateLabel = (value) => value ? new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(value)) : '—';
 
 const peopleColumns = [
   { title: 'Name', key: 'name', render: (_, row) => <strong className="portal-employer-table-name">{row.user?.name || 'Unnamed member'}</strong> },
-  { title: 'Contact', key: 'contact', render: (_, row) => <div className="portal-employer-table-contact">{row.user?.email ? <a href={`mailto:${row.user.email}`}>{row.user.email}</a> : <span>—</span>}{row.phone && <a href={`tel:${row.phone}`}>{row.phone}</a>}</div> },
+  { title: 'Email', key: 'email', render: (_, row) => row.user?.email ? <a href={`mailto:${row.user.email}`}>{row.user.email}</a> : '—' },
+  { title: 'Phone', dataIndex: 'phone', render: (phone) => phone ? <a href={`tel:${phone}`}>{phone}</a> : '—' },
   { title: 'Designation', dataIndex: 'designation', render: (value) => value || '—' },
   { title: 'Branch', dataIndex: 'branch', render: (value) => value || '—' },
   { title: 'Access', dataIndex: 'role', render: (value) => <Tag color={value === 'ADMIN' ? 'blue' : 'cyan'}>{value || 'MEMBER'}</Tag> },

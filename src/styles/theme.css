@@ -1,25 +1,35 @@
 /* Shared palette for CSS and inline styles. Dark remains the default. */
 :root {
   color-scheme: dark;
-  --theme-bg: #0f172a;
-  --theme-bg-rgb: 15, 23, 42;
-  --theme-surface: #1e293b;
-  --theme-surface-rgb: 30, 41, 59;
+  --theme-bg: #0b0b0b;
+  --theme-bg-rgb: 11, 11, 11;
+  --theme-surface: #171717;
+  --theme-surface-rgb: 23, 23, 23;
   --theme-contrast-rgb: 255, 255, 255;
-  --theme-heading: #ffffff;
-  --theme-text: #f3f4f6;
-  --theme-secondary: #e2e8f0;
-  --theme-detail: #cbd5e1;
-  --theme-muted: #9ca3af;
-  --theme-subtle: #94a3b8;
-  --theme-placeholder: #6b7280;
-  --theme-link: #38bdf8;
-  --theme-link-soft: #bae6fd;
+  --theme-heading: #f5f5f5;
+  --theme-text: #e5e5e5;
+  --theme-secondary: #d4d4d4;
+  --theme-detail: #b5b5b5;
+  --theme-muted: #a3a3a3;
+  --theme-subtle: #919191;
+  --theme-placeholder: #777777;
+  --theme-link: #e5e5e5;
+  --theme-link-soft: #f5f5f5;
+  --theme-primary: #a3a3a3;
+  --theme-accent: #a3a3a3;
+  --theme-accent-hover: #d4d4d4;
+  --theme-accent-bright: #d4d4d4;
+  --theme-accent-soft: #e5e5e5;
+  --theme-accent-pale: #f5f5f5;
+  --theme-cyan: #b5b5b5;
+  --theme-accent-rgb: 163, 163, 163;
+  --theme-accent-bright-rgb: 212, 212, 212;
+  --theme-accent-pale-rgb: 245, 245, 245;
   --theme-success: #34d399;
   --theme-danger: #fca5a5;
   --theme-warning: #fbbf24;
   --theme-shadow-rgb: 0, 0, 0;
-  --theme-on-primary: #ffffff;
+  --theme-on-primary: #090909;
 }
 
 :root[data-theme='light'] {
@@ -38,10 +48,21 @@
   --theme-placeholder: #64748b;
   --theme-link: #0369a1;
   --theme-link-soft: #075985;
+  --theme-primary: #0284c7;
+  --theme-accent: #0ea5e9;
+  --theme-accent-hover: #0284c7;
+  --theme-accent-bright: #38bdf8;
+  --theme-accent-soft: #bae6fd;
+  --theme-accent-pale: #7dd3fc;
+  --theme-cyan: #06b6d4;
+  --theme-accent-rgb: 14, 165, 233;
+  --theme-accent-bright-rgb: 56, 189, 248;
+  --theme-accent-pale-rgb: 125, 211, 252;
   --theme-success: #047857;
   --theme-danger: #b91c1c;
   --theme-warning: #92400e;
   --theme-shadow-rgb: 100, 116, 139;
+  --theme-on-primary: #ffffff;
   --portal-primary-gradient: linear-gradient(135deg, #075985 0%, #0369a1 50%, #0369a1 100%);
 }
 

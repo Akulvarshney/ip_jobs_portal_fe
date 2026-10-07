@@ -21,7 +21,7 @@
   position: fixed; top: 0; left: 0; width: 16px; height: 16px;
   display: flex; align-items: center; justify-content: center;
   z-index: 10000; pointer-events: none; border-radius: 50%;
-  background: var(--theme-link); color: #ffffff;
+  background: var(--theme-link); color: var(--theme-on-primary);
   font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
   transform: translate(-50%, -50%);
   transition: width .3s cubic-bezier(.16, 1, .3, 1), height .3s cubic-bezier(.16, 1, .3, 1), background-color .3s;
@@ -71,11 +71,11 @@
   min-height: 52px; padding: 0 22px;
   display: inline-flex; align-items: center; justify-content: space-between; gap: 38px;
   border: 1px solid var(--portal-primary-hover); border-radius: 9px;
-  background: var(--portal-primary-hover); color: #ffffff;
+  background: var(--portal-primary-hover); color: var(--theme-on-primary);
   font-size: 14px; font-weight: 680;
   transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
 }
-.resolve-page .resolve-button:hover { background: #0369a1; transform: translateY(-2px); box-shadow: 0 12px 24px rgba(2, 132, 199, .18); }
+.resolve-page .resolve-button:hover { background: var(--theme-link); transform: translateY(-2px); box-shadow: 0 12px 24px rgba(var(--theme-accent-rgb), .18); }
 .resolve-page .resolve-button:active, .resolve-page .resolve-text-link:active { transform: translateY(1px); }
 .resolve-text-link {
   border: 0; background: none; padding: 7px 0;
@@ -98,7 +98,7 @@
   transition: color .18s ease, background .18s ease, border-color .18s ease;
 }
 .resolve-filter-chip:hover { border-color: var(--theme-link); color: var(--theme-heading); }
-.resolve-filter-chip.active { border-color: var(--portal-primary-hover); background: var(--portal-primary-hover); color: #ffffff; }
+.resolve-filter-chip.active { border-color: var(--portal-primary-hover); background: var(--portal-primary-hover); color: var(--theme-on-primary); }
 .resolve-roles-search {
   min-width: 240px; width: 290px; display: flex; align-items: center; gap: 10px;
   padding: 10px 0; border-bottom: 1px solid var(--resolve-line); color: var(--theme-muted);

@@ -90,15 +90,22 @@ function App() {
       theme={{
         algorithm: isDark ? theme.darkAlgorithm : theme.defaultAlgorithm,
         token: {
-          colorPrimary: isDark ? '#0ea5e9' : '#0284c7',
-          colorBgBase: isDark ? '#0f172a' : '#f8fafc',
-          colorBgContainer: isDark ? '#1e293b' : '#ffffff',
-          colorBgElevated: isDark ? '#1e293b' : '#ffffff',
-          colorText: isDark ? '#f3f4f6' : '#1e293b',
-          colorTextSecondary: isDark ? '#9ca3af' : '#475569',
+          colorPrimary: isDark ? '#a3a3a3' : '#0284c7',
+          colorBgBase: isDark ? '#0b0b0b' : '#f8fafc',
+          colorBgContainer: isDark ? '#171717' : '#ffffff',
+          colorBgElevated: isDark ? '#171717' : '#ffffff',
+          colorText: isDark ? '#e5e5e5' : '#1e293b',
+          colorTextSecondary: isDark ? '#a3a3a3' : '#475569',
+          colorTextLightSolid: isDark ? '#090909' : '#ffffff',
           colorBorder: isDark ? 'rgba(255, 255, 255, 0.12)' : '#cbd5e1',
           borderRadius: 12,
         },
+        components: isDark ? {
+          Tooltip: {
+            colorBgSpotlight: '#ffffff',
+            colorTextLightSolid: '#090909',
+          },
+        } : undefined,
       }}
     >
       <BrowserRouter>

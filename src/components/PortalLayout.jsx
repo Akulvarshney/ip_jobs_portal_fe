@@ -20,7 +20,7 @@ const PortalLayout = () => {
   if (!sessionChecked) {
     return <div className="portal-p-24">{error && !loading
       ? <Alert type="error" message="We couldn’t check your session. Please retry." action={<><Button onClick={() => dispatch(fetchCurrentUser())}>Retry</Button><Button onClick={() => dispatch(logout())}>Sign in again</Button></>} />
-      : <Spin tip="Checking your session…"><div className="portal-py-80" /></Spin>}</div>;
+      : <Spin description="Checking your session…"><div className="portal-py-80" /></Spin>}</div>;
   }
 
   if (user?.role === 'EMPLOYER') {
@@ -44,11 +44,6 @@ const PortalLayout = () => {
 
   return (
     <div className="portal-page-wrapper">
-      <div className="portal-bg-glow">
-        <div className="portal-bg-blob-1"></div>
-        <div className="portal-bg-blob-2"></div>
-      </div>
-
       <div className="portal-app-layout">
         <aside className="portal-sidebar">
           <SidebarNav />

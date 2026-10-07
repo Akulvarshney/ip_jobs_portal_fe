@@ -5,10 +5,6 @@ import { fetchAdminEmployers } from '../../store/adminSlice';
 import AdminHeader from '../../components/AdminHeader';
 import {
   SearchOutlined,
-  BankOutlined,
-  GlobalOutlined,
-  EnvironmentOutlined,
-  TeamOutlined,
   FilterOutlined,
   ClearOutlined,
   CloseOutlined,
@@ -36,7 +32,7 @@ const ManageEmployers = () => {
   const fetchEmployers = async (requestedPage = page) => {
     setLoading(true);
     try {
-      const params = { page: requestedPage, pageSize: 8 };
+      const params = { page: requestedPage, pageSize: 5 };
       if (submittedSearch) params.search = submittedSearch;
       params.status = statusFilter;
       if (typeFilter !== 'ALL') params.type = typeFilter;
@@ -74,26 +70,15 @@ const ManageEmployers = () => {
 
   const columns = [
     {
-      title: 'Organisation Name',
+      title: 'Organisation',
       key: 'name',
-      render: (_, record) => (
-        <div className="portal-flex-center-gap-12">
-          <div className="portal-avatar-init">
-            <BankOutlined />
-          </div>
-          <div>
-            <Link className="portal-candidate-name portal-employer-name-link" to={`/admin/employers/${record.id}`}>{record.name}</Link>
-            <div className="portal-text-muted-xs portal-flex-center-gap-6 mt-2">
-              <EnvironmentOutlined /> {record.location || 'India'}
-              {record.website && (
-                <a href={record.website} target="_blank" rel="noopener noreferrer" className="portal-text-link ml-6">
-                  <GlobalOutlined /> Website
-                </a>
-              )}
-            </div>
-          </div>
-        </div>
-      ),
+      render: (_, record) => <Link className="portal-candidate-name portal-employer-name-link" to={`/admin/employers/${record.id}`}>{record.name}</Link>,
+    },
+    {
+      title: 'Location',
+      dataIndex: 'location',
+      key: 'location',
+      render: (location) => location || 'India',
     },
     {
       title: 'Type',
@@ -108,20 +93,12 @@ const ManageEmployers = () => {
     {
       title: 'Jobs Posted',
       key: 'jobs',
-      render: (_, record) => (
-        <Tag color="cyan" className="font-semibold portal-p-2-8">
-          {record._count?.jobs || 0} Jobs
-        </Tag>
-      ),
+      render: (_, record) => record._count?.jobs || 0,
     },
     {
       title: 'Members',
       key: 'members',
-      render: (_, record) => (
-        <span className="portal-text-detail-sm">
-          <TeamOutlined /> {record._count?.members || 0} User(s)
-        </span>
-      ),
+      render: (_, record) => record._count?.members || 0,
     },
     {
       title: 'Status',
@@ -291,7 +268,7 @@ const ManageEmployers = () => {
           dataSource={employers}
           rowKey="id"
           loading={loading}
-          pagination={{ current: page, pageSize: 8, total: pagination.total, showSizeChanger: false, onChange: setPage }}
+          pagination={{ current: page, pageSize: 5, total: pagination.total, showSizeChanger: false, onChange: setPage }}
           className="portal-table"
         />
       </motion.div>

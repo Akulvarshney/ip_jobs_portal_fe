@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchAdminUsers, updateAdminUserStatus } from '../../store/adminSlice';
 import AdminHeader from '../../components/AdminHeader';
+import { getFileUrl } from '../../utils/fileUrl';
 import { 
   SearchOutlined, 
   UserOutlined, 
@@ -18,7 +19,7 @@ import {
   CloseOutlined,
   TagOutlined
 } from '@ant-design/icons';
-import { Table, Input, Select, Tag, Button, Modal, Drawer, Divider, message, Badge, Descriptions, Space, Tooltip } from 'antd';
+import { Table, Input, Select, Tabs, Tag, Button, Modal, Drawer, Divider, message, Badge, Descriptions, Space, Tooltip } from 'antd';
 import { motion } from 'framer-motion';
 
 const { Option } = Select;
@@ -34,7 +35,7 @@ const ManageUsers = () => {
   const [pagination, setPagination] = useState({ total: 0 });
   const [search, setSearch] = useState('');
   const [submittedSearch, setSubmittedSearch] = useState('');
-  const [roleFilter, setRoleFilter] = useState(searchParams.get('role') || 'ALL');
+  const [roleFilter, setRoleFilter] = useState(searchParams.get('role') || 'CANDIDATE');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -44,7 +45,7 @@ const ManageUsers = () => {
   const fetchUsers = async (requestedPage = page) => {
     setLoading(true);
     try {
-      const params = { page: requestedPage, pageSize: 8 };
+      const params = { page: requestedPage, pageSize: 5 };
       if (submittedSearch) params.search = submittedSearch;
       if (roleFilter !== 'ALL') params.role = roleFilter;
       if (statusFilter !== 'ALL') params.status = statusFilter;
@@ -61,18 +62,13 @@ const ManageUsers = () => {
     }
   };
 
-  const activeFiltersCount = [
-    roleFilter !== 'ALL' ? roleFilter : null,
-    statusFilter !== 'ALL' ? statusFilter : null
-  ].filter(Boolean).length;
+  const activeFiltersCount = Number(statusFilter !== 'ALL');
 
   const handleResetFilters = () => {
     setSearch('');
     setSubmittedSearch('');
-    setRoleFilter('ALL');
     setStatusFilter('ALL');
     setPage(1);
-    setSearchParams({});
   };
 
   useEffect(() => {
@@ -111,56 +107,68 @@ const ManageUsers = () => {
 
   const columns = [
     {
-      title: 'User / Identity',
+      title: 'Name',
       key: 'name',
-      render: (_, record) => (
-        <div className="portal-flex-center-gap-12">
-          <div className="portal-avatar-init">
-            {record.name?.charAt(0) || 'U'}
-          </div>
-          <div>
-            <div className="portal-candidate-name">{record.name}</div>
-            <div className="portal-text-muted-xs">{record.email}</div>
-          </div>
-        </div>
+      dataIndex: 'name',
+      render: (name, record) => (
+        <span 
+          className="portal-candidate-name portal-employer-name-link" 
+          onClick={() => openUserDetails(record)}
+          style={{ cursor: 'pointer' }}
+        >
+          {name || '—'}
+        </span>
       ),
+    },
+    {
+      title: 'Email',
+      dataIndex: 'email',
+      key: 'email',
+      render: (email) => email || '—',
     },
     {
       title: 'Role',
       dataIndex: 'role',
       key: 'role',
-      render: (role) => {
+      render: (role, record) => {
+        let displayRole = role;
         let color = 'cyan';
-        if (role === 'EMPLOYER') color = 'purple';
-        if (role === 'ADMIN') color = 'gold';
-        return <Tag color={color} className="font-semibold">{role}</Tag>;
+        
+        if (role === 'EMPLOYER') {
+          if (record.employerMember?.role === 'ADMIN') {
+            displayRole = 'ORG ADMIN';
+            color = 'purple';
+          } else {
+            displayRole = 'EMPLOYER';
+            color = 'geekblue';
+          }
+        } else if (role === 'ADMIN') {
+          displayRole = 'PORTAL ADMIN';
+          color = 'gold';
+        }
+        
+        return <Tag color={color} className="font-semibold">{displayRole}</Tag>;
       },
     },
     {
-      title: 'Affiliation / Profile',
-      key: 'profile',
-      render: (_, record) => {
-        if (record.role === 'EMPLOYER') {
-          return (
-            <span className="portal-text-detail-sm">
-              {record.employerMember?.employer?.name ? (
-                <span>🏢 {record.employerMember.employer.name}</span>
-              ) : (
-                <span className="portal-text-muted">No entity attached</span>
-              )}
-            </span>
-          );
-        }
-        if (record.role === 'CANDIDATE') {
-          return (
-            <span className="portal-text-detail-sm">
-              {record.candidateProfile?.designation || `${record.candidateProfile?.experience || 0} yrs exp`}
-              {record.candidateProfile?.city && ` • ${record.candidateProfile.city}`}
-            </span>
-          );
-        }
-        return <span className="portal-text-muted">System Administrator</span>;
-      },
+      title: 'Organisation',
+      key: 'organisation',
+      render: (_, record) => record.role === 'EMPLOYER' ? record.employerMember?.employer?.name || 'No entity attached' : '—',
+    },
+    {
+      title: 'Designation',
+      key: 'designation',
+      render: (_, record) => record.role === 'ADMIN' ? 'System Administrator' : record.role === 'CANDIDATE' ? record.candidateProfile?.designation || '—' : record.employerMember?.designation || '—',
+    },
+    {
+      title: 'Experience',
+      key: 'experience',
+      render: (_, record) => record.role === 'CANDIDATE' && record.candidateProfile?.experience != null ? `${record.candidateProfile.experience} years` : '—',
+    },
+    {
+      title: 'Location',
+      key: 'location',
+      render: (_, record) => record.role === 'CANDIDATE' ? record.candidateProfile?.city || '—' : record.employerMember?.branch || '—',
     },
     {
       title: 'Status',
@@ -175,37 +183,6 @@ const ManageUsers = () => {
         </Tag>
       ),
     },
-    {
-      title: 'Actions',
-      key: 'actions',
-      render: (_, record) => (
-        <Space size="small">
-          <Tooltip title="View Details">
-            <Button 
-              size="small" 
-              icon={<EyeOutlined />}
-              aria-label={`View ${record.name} details`}
-              onClick={() => openUserDetails(record)}
-              className="portal-btn-neutral"
-            />
-          </Tooltip>
-
-          {record.role !== 'ADMIN' && (
-            <Tooltip title={record.status === 'ACTIVE' ? 'Suspend User' : 'Activate User'}>
-              <Button
-                size="small"
-                danger={record.status === 'ACTIVE'}
-                loading={actionLoadingId === record.id}
-                icon={record.status === 'ACTIVE' ? <StopOutlined /> : <CheckCircleOutlined />}
-                aria-label={`${record.status === 'ACTIVE' ? 'Suspend' : 'Activate'} ${record.name}`}
-                onClick={() => handleToggleStatus(record)}
-                className={record.status === 'ACTIVE' ? 'portal-btn-danger-soft' : 'portal-btn-success-soft'}
-              />
-            </Tooltip>
-          )}
-        </Space>
-      ),
-    },
   ];
 
   return (
@@ -213,6 +190,22 @@ const ManageUsers = () => {
       <AdminHeader 
           title="User Governance" 
           subtitle="Directory of insolvency candidates, employer representatives, and administrative accounts."
+        />
+
+        <Tabs
+          className="portal-employer-status-tabs"
+          activeKey={roleFilter}
+          onChange={(val) => { 
+            setRoleFilter(val); 
+            setPage(1);
+            setSearchParams(val !== 'CANDIDATE' ? { role: val } : {}); 
+          }}
+          items={[
+            { key: 'CANDIDATE', label: 'Candidate' },
+            { key: 'EMPLOYEE', label: 'Employer' },
+            { key: 'ORG_ADMIN', label: 'Organization Admin' },
+            { key: 'PORTAL_ADMIN', label: 'Portal Admin' },
+          ]}
         />
 
         {/* Clean Search & Filter Bar */}
@@ -267,13 +260,6 @@ const ManageUsers = () => {
           {(activeFiltersCount > 0) && (
             <div className="portal-active-filters-bar">
               <span className="portal-active-filters-label">Active Filters:</span>
-              
-              {roleFilter !== 'ALL' && (
-                <span className="portal-filter-tag">
-                  <UserOutlined /> Role: {roleFilter}
-                  <CloseOutlined onClick={() => { setRoleFilter('ALL'); setPage(1); setSearchParams({}); }} />
-                </span>
-              )}
 
               {statusFilter !== 'ALL' && (
                 <span className="portal-filter-tag">
@@ -324,29 +310,6 @@ const ManageUsers = () => {
         >
           <div className="portal-filter-section">
             <div className="portal-filter-section-title">
-              <UserOutlined /> User Role
-            </div>
-            <Select 
-              value={roleFilter} 
-              onChange={(val) => { 
-                setRoleFilter(val); 
-                setPage(1);
-                setSearchParams(val !== 'ALL' ? { role: val } : {}); 
-              }}
-              className="portal-w-full"
-              size="large"
-            >
-              <Option value="ALL">All Roles</Option>
-              <Option value="CANDIDATE">Candidate Accounts</Option>
-              <Option value="EMPLOYER">Employer Accounts</Option>
-              <Option value="ADMIN">Administrative Accounts</Option>
-            </Select>
-          </div>
-
-          <Divider className="portal-divider-subtle portal-my-18" />
-
-          <div className="portal-filter-section">
-            <div className="portal-filter-section-title">
               <TagOutlined /> Account Status
             </div>
             <Select 
@@ -373,7 +336,7 @@ const ManageUsers = () => {
             dataSource={users}
             rowKey="id"
             loading={loading}
-            pagination={{ current: page, pageSize: 8, total: pagination.total, showSizeChanger: false, onChange: setPage }}
+            pagination={{ current: page, pageSize: 5, total: pagination.total, showSizeChanger: false, onChange: setPage }}
             className="portal-table"
           />
         </motion.div>
@@ -382,7 +345,7 @@ const ManageUsers = () => {
         <Modal
           title={
             <div className="portal-modal-title-row">
-              <UserOutlined /> User Profile Details #{selectedUser?.id}
+              <UserOutlined /> User Profile Details
             </div>
           }
           open={detailModalOpen}
@@ -449,6 +412,20 @@ const ManageUsers = () => {
                       ))}
                     </div>
                   )}
+
+                  {selectedUser.candidateProfile.resumeUrl && (
+                    <div className="mt-8">
+                      <Button 
+                        type="primary" 
+                        icon={<SolutionOutlined />} 
+                        href={getFileUrl(selectedUser.candidateProfile.resumeUrl)} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                      >
+                        View CV
+                      </Button>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -462,17 +439,18 @@ const ManageUsers = () => {
               )}
 
               <div className="portal-flex-end-gap-10 mt-24">
-                <Button onClick={() => setDetailModalOpen(false)}>Close</Button>
                 {selectedUser.role !== 'ADMIN' && (
                   <Button
-                    type="primary"
                     danger={selectedUser.status === 'ACTIVE'}
-                    onClick={() => handleToggleStatus(selectedUser)}
                     loading={actionLoadingId === selectedUser.id}
+                    icon={selectedUser.status === 'ACTIVE' ? <StopOutlined /> : <CheckCircleOutlined />}
+                    onClick={() => handleToggleStatus(selectedUser)}
+                    className={selectedUser.status === 'ACTIVE' ? 'portal-btn-danger-soft' : 'portal-btn-success-soft'}
                   >
                     {selectedUser.status === 'ACTIVE' ? 'Suspend User' : 'Activate User'}
                   </Button>
                 )}
+                <Button onClick={() => setDetailModalOpen(false)}>Close</Button>
               </div>
             </div>
           )}

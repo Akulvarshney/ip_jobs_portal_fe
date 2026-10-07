@@ -3,7 +3,7 @@ import { Table, Button, Tag, Badge, message, Tooltip } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchEmployerJobs } from '../../store/employerSlice';
-import { PlusOutlined, FileTextOutlined, ArrowRightOutlined, DollarOutlined } from '@ant-design/icons';
+import { PlusOutlined, FileTextOutlined, ArrowRightOutlined } from '@ant-design/icons';
 import { motion } from 'framer-motion';
 import { 
   getJobTypeLabel, 
@@ -26,7 +26,7 @@ const ManageJobs = () => {
   const loadJobs = async () => {
     setLoading(true);
     try {
-      await dispatch(fetchEmployerJobs({ page, pageSize: 8 })).unwrap();
+      await dispatch(fetchEmployerJobs({ page, pageSize: 5 })).unwrap();
     } catch (err) {
       console.error(err);
     } finally {
@@ -36,33 +36,36 @@ const ManageJobs = () => {
 
   const columns = [
     {
-      title: 'Job / Role Title',
+      title: 'Job Title',
       dataIndex: 'title',
       key: 'title',
       render: (text, record) => (
-        <div>
-          <div className="portal-flex-center-gap-8 portal-flex-wrap">
-            <span 
-              className="portal-card-link-title"
-              onClick={() => navigate(`/employer/jobs/${record.id}`)}
-            >
-              {text}
-            </span>
-            <Tag color={getJobTypeColor(record.jobType)} className="portal-tag-compact">
-              {getJobTypeLabel(record.jobType)}
-            </Tag>
-            <Tag color="geekblue" className="portal-tag-compact">
-              {getExperienceLevelShortLabel(record.experienceLevel)}
-            </Tag>
-          </div>
-          <div className="portal-flex-center-gap-12 portal-text-12 portal-color-muted portal-mt-4">
-            <span>Listed on {new Date(record.createdAt).toLocaleDateString()}</span>
-            <span className="portal-color-success portal-font-medium">
-              <DollarOutlined /> {getSalaryRangeLabel(record.salaryRange)}
-            </span>
-          </div>
-        </div>
+        <span className="portal-card-link-title" onClick={() => navigate(`/employer/jobs/${record.id}`)}>{text}</span>
       )
+    },
+    {
+      title: 'Job Type',
+      dataIndex: 'jobType',
+      key: 'jobType',
+      render: (jobType) => <Tag color={getJobTypeColor(jobType)} className="portal-tag-compact">{getJobTypeLabel(jobType)}</Tag>
+    },
+    {
+      title: 'Experience',
+      dataIndex: 'experienceLevel',
+      key: 'experienceLevel',
+      render: (experienceLevel) => getExperienceLevelShortLabel(experienceLevel)
+    },
+    {
+      title: 'Listed Date',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
+      render: (createdAt) => new Date(createdAt).toLocaleDateString()
+    },
+    {
+      title: 'Salary',
+      dataIndex: 'salaryRange',
+      key: 'salaryRange',
+      render: (salaryRange) => getSalaryRangeLabel(salaryRange)
     },
     {
       title: 'Status',
@@ -87,7 +90,7 @@ const ManageJobs = () => {
       title: 'Applications Received',
       key: 'applicants',
       render: (_, record) => (
-        <Badge count={record._count?.applications || 0} showZero color="#0ea5e9" />
+        <Badge count={record._count?.applications || 0} showZero color="var(--theme-accent)" />
       )
     },
     {
@@ -128,7 +131,7 @@ const ManageJobs = () => {
           columns={columns}
           rowKey="id"
           loading={loading}
-          pagination={{ current: page, pageSize: 8, total: pagination.jobs?.total || 0, showSizeChanger: false, onChange: setPage }}
+          pagination={{ current: page, pageSize: 5, total: pagination.jobs?.total || 0, showSizeChanger: false, onChange: setPage }}
           className="portal-table"
         />
       </motion.div>

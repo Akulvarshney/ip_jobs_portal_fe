@@ -1178,7 +1178,7 @@ const CandidateProfile = () => {
 
             <Progress
               percent={profile.completeness.score}
-              strokeColor={profile.completeness.score === 100 ? '#10b981' : { '0%': '#0ea5e9', '100%': '#38bdf8' }}
+              strokeColor={profile.completeness.score === 100 ? '#10b981' : { '0%': 'var(--theme-accent)', '100%': 'var(--theme-accent-bright)' }}
               trailColor="rgba(var(--theme-contrast-rgb), 0.08)"
               showInfo={false}
             />

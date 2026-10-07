@@ -18,7 +18,7 @@ export default function EmployerPending({ suspended = false }) {
   };
   return <div className="portal-page-wrapper" style={{ minHeight: '75vh', display: 'grid', placeItems: 'center', padding: 24 }}>
     <div className="portal-glass-card portal-p-32" style={{ maxWidth: 560, width: '100%', textAlign: 'center' }}>
-      {suspended ? <ClockCircleOutlined style={{ fontSize: 42, color: '#f59e0b' }} /> : <CheckCircleOutlined style={{ fontSize: 42, color: '#0ea5e9' }} />}
+      {suspended ? <ClockCircleOutlined style={{ fontSize: 42, color: '#f59e0b' }} /> : <CheckCircleOutlined style={{ fontSize: 42, color: 'var(--theme-accent)' }} />}
       <h1 className="portal-text-heading" style={{ marginTop: 20 }}>{suspended ? 'Organisation access is paused' : 'You are in line for approval'}</h1>
       <p className="portal-text-muted-sm">{suspended ? 'Please contact the platform team about your organisation.' : `${user?.onboarding?.organisation || 'Your organisation'} has been submitted. Please wait until the platform admin approves it. We will email the organisation admin when it is confirmed.`}</p>
       <div className="portal-flex-center-gap-10" style={{ justifyContent: 'center', marginTop: 24 }}>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   Form,
   Input,
+  Modal,
   Radio,
   Switch,
   Button,
@@ -41,6 +42,11 @@ const CandidateSettings = () => {
   const [savingVisibility, setSavingVisibility] = useState(false);
   const [savingNotificationKey, setSavingNotificationKey] = useState(null);
   const [savingPassword, setSavingPassword] = useState(false);
+  const [passwordModalOpen, setPasswordModalOpen] = useState(false);
+  const [passwordOtpRequested, setPasswordOtpRequested] = useState(false);
+  const [sendingPasswordOtp, setSendingPasswordOtp] = useState(false);
+  const [passwordOtpCountdown, setPasswordOtpCountdown] = useState(0);
+  const [devPasswordOtp, setDevPasswordOtp] = useState('');
 
   const [visibility, setVisibility] = useState('PUBLIC');
   const [jobAlerts, setJobAlerts] = useState(true);
@@ -91,6 +97,12 @@ const CandidateSettings = () => {
       .finally(() => { if (active) setCheckingStayUpdated(false); });
     return () => { active = false; };
   }, [user?.email, user?.role]);
+
+  useEffect(() => {
+    if (passwordOtpCountdown <= 0) return;
+    const timer = setTimeout(() => setPasswordOtpCountdown((seconds) => seconds - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [passwordOtpCountdown]);
 
   const handleVisibilityChange = async (newVisibility) => {
     if (newVisibility === visibility || savingVisibility) return;
@@ -180,16 +192,36 @@ const CandidateSettings = () => {
     return 'Manage profile privacy, recruiter discovery modes, notification alerts, appearance theme, and account security.';
   };
 
+  const handleSendPasswordOtp = async () => {
+    setSendingPasswordOtp(true);
+    try {
+      const response = await api.post('/api/auth/password/otp');
+      setPasswordOtpRequested(true);
+      setPasswordOtpCountdown(60);
+      setDevPasswordOtp(response.data?.otp || '');
+      passwordForm.setFieldsValue({ otp: '' });
+      message.success('Verification code sent to your account email.');
+    } catch (error) {
+      message.error(error?.response?.data?.error || 'Could not send the verification code.');
+    } finally {
+      setSendingPasswordOtp(false);
+    }
+  };
+
   const handlePasswordChange = async (values) => {
     try {
       setSavingPassword(true);
       const res = await api.put('/api/auth/password', {
-        currentPassword: values.currentPassword,
+        otp: values.otp.trim(),
         newPassword: values.newPassword
       });
       if (res.data?.success) {
         message.success('Password updated successfully!');
         passwordForm.resetFields();
+        setPasswordModalOpen(false);
+        setPasswordOtpRequested(false);
+        setPasswordOtpCountdown(0);
+        setDevPasswordOtp('');
       }
     } catch (error) {
       message.error(error?.response?.data?.error || 'Failed to change password');
@@ -220,7 +252,7 @@ const CandidateSettings = () => {
         </div>
 
         {/* Account Overview */}
-        <div className="portal-settings-account-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+        <div className="portal-settings-account-card">
           <div>
             <div className="portal-settings-account-badge">
               Active Account
@@ -294,7 +326,7 @@ const CandidateSettings = () => {
                   )}
                 </div>
                 <p className="portal-theme-card-desc">
-                  Deep slate palette with crisp blue accents. Designed for high contrast and intensive document review.
+                  Near-black surfaces with soft gray accents. Designed for high contrast and intensive document review.
                 </p>
               </div>
             </Col>
@@ -537,43 +569,17 @@ const CandidateSettings = () => {
             <LockOutlined className="portal-settings-icon" /> Account Security & Password
           </h3>
           <p className="portal-settings-section-desc">
-            Update your login password regularly to protect your profile data.
+            Verify your account email with a one-time code before choosing a new password.
           </p>
-
-          <Form
-            form={passwordForm}
-            layout="vertical"
-            onFinish={handlePasswordChange}
-            className="portal-password-form"
-          >
-            <Form.Item
-              label={<span className="portal-password-label">Current Password</span>}
-              name="currentPassword"
-              rules={[{ required: true, message: 'Please enter current password' }]}
-            >
-              <Input.Password placeholder="••••••••" className="portal-password-input" />
-            </Form.Item>
-
-            <Form.Item
-              label={<span className="portal-password-label">New Password</span>}
-              name="newPassword"
-              rules={[
-                { required: true, message: 'Please enter new password' },
-                { min: 8, message: 'Password must be at least 8 characters' }
-              ]}
-            >
-              <Input.Password placeholder="••••••••" className="portal-password-input" />
-            </Form.Item>
-
-            <Button
-              type="primary"
-              htmlType="submit"
-              loading={savingPassword}
-              className="portal-btn-theme-primary"
-            >
-              Update Password
+          <div className="portal-settings-password-action">
+            <div>
+              <div className="portal-notification-title">Password</div>
+              <div className="portal-notification-desc">A code will be sent to {user?.email || 'your account email'}.</div>
+            </div>
+            <Button type="primary" icon={<LockOutlined />} onClick={() => setPasswordModalOpen(true)} className="portal-btn-theme-primary">
+              Change Password
             </Button>
-          </Form>
+          </div>
         </div>
 
         <Divider className="portal-settings-divider" />
@@ -618,6 +624,79 @@ const CandidateSettings = () => {
         </div>
 
       </motion.div>
+      <Modal
+        title={<span><LockOutlined /> Change Password</span>}
+        open={passwordModalOpen}
+        onCancel={() => {
+          if (sendingPasswordOtp || savingPassword) return;
+          passwordForm.resetFields();
+          setPasswordModalOpen(false);
+        }}
+        footer={null}
+        destroyOnHidden
+        maskClosable={!sendingPasswordOtp && !savingPassword}
+        className="portal-password-modal"
+      >
+        <p className="portal-password-modal-intro">
+          {passwordOtpRequested
+            ? <>Enter the six-digit code sent to <strong>{user?.email}</strong>. It expires in 10 minutes.</>
+            : <>Send a one-time verification code to <strong>{user?.email || 'your account email'}</strong> to update your password.</>}
+        </p>
+        {!passwordOtpRequested ? (
+          <Button type="primary" block loading={sendingPasswordOtp} onClick={handleSendPasswordOtp}>
+            Send Verification Code
+          </Button>
+        ) : (
+          <>
+            {devPasswordOtp && <p className="portal-password-dev-code">Development code: <strong>{devPasswordOtp}</strong></p>}
+            <Form form={passwordForm} layout="vertical" onFinish={handlePasswordChange}>
+              <Form.Item
+                label="Verification code"
+                name="otp"
+                rules={[
+                  { required: true, message: 'Enter the verification code.' },
+                  { pattern: /^\d{6}$/, message: 'Enter the six-digit code.' }
+                ]}
+              >
+                <Input inputMode="numeric" autoComplete="one-time-code" maxLength={6} placeholder="6-digit code" />
+              </Form.Item>
+              <Form.Item
+                label="New password"
+                name="newPassword"
+                rules={[
+                  { required: true, message: 'Enter a new password.' },
+                  { min: 8, max: 128, message: 'Use 8 to 128 characters.' }
+                ]}
+              >
+                <Input.Password autoComplete="new-password" placeholder="New password" />
+              </Form.Item>
+              <Form.Item
+                label="Confirm new password"
+                name="confirmPassword"
+                dependencies={['newPassword']}
+                rules={[
+                  { required: true, message: 'Confirm your new password.' },
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      return !value || getFieldValue('newPassword') === value
+                        ? Promise.resolve()
+                        : Promise.reject(new Error('Passwords do not match.'));
+                    }
+                  })
+                ]}
+              >
+                <Input.Password autoComplete="new-password" placeholder="Confirm new password" />
+              </Form.Item>
+              <div className="portal-password-modal-actions">
+                <Button type="link" disabled={passwordOtpCountdown > 0 || sendingPasswordOtp} loading={sendingPasswordOtp} onClick={handleSendPasswordOtp}>
+                  {passwordOtpCountdown > 0 ? `Resend code in ${passwordOtpCountdown}s` : 'Resend code'}
+                </Button>
+                <Button type="primary" htmlType="submit" loading={savingPassword}>Update Password</Button>
+              </div>
+            </Form>
+          </>
+        )}
+      </Modal>
     </div>
   );
 };

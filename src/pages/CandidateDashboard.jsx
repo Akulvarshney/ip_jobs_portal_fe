@@ -100,7 +100,7 @@ const CandidateDashboard = () => {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'APPLIED': return '#38bdf8';
+      case 'APPLIED': return 'var(--theme-accent-bright)';
       case 'SHORTLISTED': return '#a855f7';
       case 'INTERVIEW': return '#eab308';
       case 'SELECTED': return '#10b981';
@@ -154,7 +154,7 @@ const CandidateDashboard = () => {
           <Progress
             percent={stats.profileCompleteness}
             showInfo={false}
-            strokeColor={stats.profileCompleteness === 100 ? '#10b981' : { '0%': '#0ea5e9', '100%': '#38bdf8' }}
+            strokeColor={stats.profileCompleteness === 100 ? '#10b981' : { '0%': 'var(--theme-accent)', '100%': 'var(--theme-accent-bright)' }}
             trailColor="rgba(var(--theme-contrast-rgb), 0.1)"
           />
           <div className="portal-flex-between-center portal-mt-10 portal-gap-8">

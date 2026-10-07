@@ -127,9 +127,9 @@ const Navbar = () => {
         <div className="portal-nav-actions">
           {isAuthenticated ? (
             <div className="portal-nav-user-wrap">
-              <Tag className="portal-nav-role-tag">
+              {/* <Tag className="portal-nav-role-tag">
                 {user?.role === 'ADMIN' ? 'Platform Admin' : (user?.role === 'EMPLOYER' ? 'Employer' : 'Candidate')}
-              </Tag>
+              </Tag> */}
 
               <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" arrow>
                 <div className="portal-nav-user-pill">
@@ -146,11 +146,11 @@ const Navbar = () => {
               </Dropdown>
             </div>
           ) : (
-              <Dropdown menu={{ items: loginMenuItems }} placement="bottomRight" trigger={['click']}>
-                <button type="button" className="portal-btn-primary portal-nav-btn" aria-label="Choose login type" aria-haspopup="menu">
-                  Log in <DownOutlined aria-hidden="true" />
-                </button>
-              </Dropdown>
+            <Dropdown menu={{ items: loginMenuItems }} placement="bottomRight" trigger={['click']}>
+              <button type="button" className="portal-btn-primary portal-nav-btn" aria-label="Choose login type" aria-haspopup="menu">
+                Log in <DownOutlined aria-hidden="true" />
+              </button>
+            </Dropdown>
           )}
         </div>
       </div>

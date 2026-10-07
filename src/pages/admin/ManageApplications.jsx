@@ -38,7 +38,7 @@ const ManageApplications = () => {
   const fetchApplications = async (requestedPage = page) => {
     setLoading(true);
     try {
-      const params = { page: requestedPage, pageSize: 8 };
+      const params = { page: requestedPage, pageSize: 5 };
       if (submittedSearch) params.search = submittedSearch;
       if (statusFilter !== 'ALL') params.status = statusFilter;
 
@@ -113,29 +113,22 @@ const ManageApplications = () => {
     {
       title: 'Candidate',
       key: 'candidate',
-      render: (_, record) => (
-        <div className="portal-flex-center-gap-10">
-          <div className="portal-candidate-avatar-36">
-            {record.candidate?.name?.charAt(0) || 'C'}
-          </div>
-          <div>
-            <div className="portal-candidate-name-cell">{record.candidate?.name || 'Unknown Candidate'}</div>
-            <div className="portal-text-muted-12">{record.candidate?.email}</div>
-          </div>
-        </div>
-      ),
+      render: (_, record) => <span className="portal-candidate-name-cell">{record.candidate?.name || 'Unknown Candidate'}</span>,
     },
     {
-      title: 'Job / Role',
+      title: 'Email',
+      key: 'email',
+      render: (_, record) => record.candidate?.email || '—',
+    },
+    {
+      title: 'Job Title',
       key: 'job',
-      render: (_, record) => (
-        <div>
-          <div className="portal-job-title-cell">{record.job?.title || 'Unknown Job'}</div>
-          <div className="portal-job-employer-cell">
-            🏢 {record.job?.employer?.name || 'Unknown Entity'}
-          </div>
-        </div>
-      ),
+      render: (_, record) => <span className="portal-job-title-cell">{record.job?.title || 'Unknown Job'}</span>,
+    },
+    {
+      title: 'Organisation',
+      key: 'organisation',
+      render: (_, record) => record.job?.employer?.name || 'Unknown Entity',
     },
     {
       title: 'Applied Date',
@@ -336,7 +329,7 @@ const ManageApplications = () => {
           dataSource={applications}
           rowKey="id"
           loading={loading}
-          pagination={{ current: page, pageSize: 8, total: pagination.total, showSizeChanger: false, onChange: setPage }}
+          pagination={{ current: page, pageSize: 5, total: pagination.total, showSizeChanger: false, onChange: setPage }}
           className="portal-table"
         />
       </motion.div>
@@ -345,7 +338,7 @@ const ManageApplications = () => {
       <Modal
         title={
           <div className="portal-modal-header-row">
-            <SolutionOutlined className="portal-text-link" /> Application Details #{selectedApp?.id}
+            <SolutionOutlined className="portal-text-link" /> Application Details
           </div>
         }
         open={modalOpen}

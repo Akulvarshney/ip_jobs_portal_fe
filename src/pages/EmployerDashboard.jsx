@@ -4,7 +4,7 @@ import { Table, Button, Modal, Form, Input, Select, Typography, message, Tag, Ba
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchEmployerJobs, createJob, inviteCandidate, fetchJobApplicants, fetchOrganisationProfile } from '../store/employerSlice';
-import { PlusOutlined, UserOutlined, MailOutlined, SendOutlined, CheckCircleOutlined, BankOutlined, DollarOutlined, SolutionOutlined, ArrowRightOutlined, LockOutlined } from '@ant-design/icons';
+import { PlusOutlined, UserOutlined, MailOutlined, SendOutlined, CheckCircleOutlined, BankOutlined, SolutionOutlined, ArrowRightOutlined, LockOutlined } from '@ant-design/icons';
 import { motion } from 'framer-motion';
 import {
   JOB_TYPES,
@@ -41,7 +41,7 @@ const EmployerDashboard = () => {
     try {
       if (!localStorage.getItem('token')) return navigate('/login?redirect=/employer/dashboard');
       await dispatch(fetchOrganisationProfile()).unwrap();
-      await dispatch(fetchEmployerJobs({ page, pageSize: 6 })).unwrap();
+      await dispatch(fetchEmployerJobs({ page, pageSize: 5 })).unwrap();
     } catch (error) {
       if (error?.response?.status === 401 || error?.response?.status === 403) {
         navigate('/login?redirect=/employer/dashboard');
@@ -74,7 +74,7 @@ const EmployerDashboard = () => {
 
   const viewApplicants = async (job) => {
     try {
-      const res = await dispatch(fetchJobApplicants({ jobId: job.id, page: 1, pageSize: 8 })).unwrap();
+      const res = await dispatch(fetchJobApplicants({ jobId: job.id, page: 1, pageSize: 5 })).unwrap();
       setSelectedJob({ ...job, applications: res.applications });
       setApplicantsPage(1);
       setApplicantsPagination(res.pagination);
@@ -86,30 +86,30 @@ const EmployerDashboard = () => {
 
   const columns = [
     {
-      title: 'Role Profile',
+      title: 'Job Title',
       dataIndex: 'title',
       key: 'title',
       render: (text, record) => (
-        <div>
-          <div className="portal-flex-center-gap-8 portal-mb-4 portal-flex-wrap">
-            <span
-              className="portal-card-link-title"
-              onClick={() => navigate(`/employer/jobs/${record.id}`)}
-            >
-              {text}
-            </span>
-            <Tag color={getJobTypeColor(record.jobType)} className="portal-tag-compact">
-              {getJobTypeLabel(record.jobType)}
-            </Tag>
-            <Tag color="geekblue" className="portal-tag-compact">
-              {getExperienceLevelShortLabel(record.experienceLevel)}
-            </Tag>
-          </div>
-          <div className="portal-salary-row-meta">
-            <DollarOutlined /> {getSalaryRangeLabel(record.salaryRange)}
-          </div>
-        </div>
+        <span className="portal-card-link-title" onClick={() => navigate(`/employer/jobs/${record.id}`)}>{text}</span>
       )
+    },
+    {
+      title: 'Job Type',
+      dataIndex: 'jobType',
+      key: 'jobType',
+      render: (jobType) => <Tag color={getJobTypeColor(jobType)} className="portal-tag-compact">{getJobTypeLabel(jobType)}</Tag>
+    },
+    {
+      title: 'Experience',
+      dataIndex: 'experienceLevel',
+      key: 'experienceLevel',
+      render: (experienceLevel) => getExperienceLevelShortLabel(experienceLevel)
+    },
+    {
+      title: 'Salary',
+      dataIndex: 'salaryRange',
+      key: 'salaryRange',
+      render: (salaryRange) => getSalaryRangeLabel(salaryRange)
     },
     {
       title: 'Listed Date',
@@ -130,7 +130,7 @@ const EmployerDashboard = () => {
       title: 'Candidates Matched',
       key: 'applicants',
       render: (_, record) => (
-        <Badge count={record._count?.applications || 0} showZero color="#0ea5e9" />
+        <Badge count={record._count?.applications || 0} showZero color="var(--theme-accent)" />
       )
     },
     {
@@ -158,7 +158,7 @@ const EmployerDashboard = () => {
   if (!organisation) {
     return (
       <div className="portal-w-full portal-flex-col-center portal-py-80 text-center">
-        <BankOutlined style={{ fontSize: 64, color: '#0ea5e9' }} className="portal-mb-24" />
+        <BankOutlined style={{ fontSize: 64, color: 'var(--theme-accent)' }} className="portal-mb-24" />
         <Title level={2}>Complete Your Organization Profile</Title>
         <Text type="secondary" className="portal-mb-24 portal-max-w-600">
           Add your organisation details to start hiring. We will guide you through the information needed for review.
@@ -206,7 +206,7 @@ const EmployerDashboard = () => {
       </div>
       <div className="portal-glass-card portal-p-24 portal-mb-24">
         <h2 className="portal-text-heading">Branch performance</h2>
-        <Table size="small" rowKey="branch" dataSource={branchStats} pagination={false} locale={{ emptyText: 'No jobs have been posted yet.' }} columns={[{ title: 'Branch', dataIndex: 'branch' }, { title: 'Total jobs', dataIndex: 'jobs' }, { title: 'Active jobs', dataIndex: 'active' }, { title: 'Applications', dataIndex: 'applications' }]} />
+        <Table size="small" rowKey="branch" dataSource={branchStats} pagination={{ pageSize: 5, showSizeChanger: false, hideOnSinglePage: true }} locale={{ emptyText: 'No jobs have been posted yet.' }} columns={[{ title: 'Branch', dataIndex: 'branch' }, { title: 'Total jobs', dataIndex: 'jobs' }, { title: 'Active jobs', dataIndex: 'active' }, { title: 'Applications', dataIndex: 'applications' }]} />
       </div>
 
       <motion.div
@@ -219,7 +219,7 @@ const EmployerDashboard = () => {
           dataSource={jobs}
           columns={columns}
           rowKey="id"
-          pagination={{ current: page, pageSize: 6, total: pagination.jobs?.total || 0, showSizeChanger: false, onChange: setPage }}
+          pagination={{ current: page, pageSize: 5, total: pagination.jobs?.total || 0, showSizeChanger: false, onChange: setPage }}
           className="portal-table"
         />
       </motion.div>
@@ -305,8 +305,8 @@ const EmployerDashboard = () => {
         <Table
           dataSource={selectedJob?.applications || []}
           rowKey="id"
-          pagination={{ current: applicantsPage, pageSize: 8, total: applicantsPagination.total, showSizeChanger: false, onChange: async (nextPage) => {
-            const result = await dispatch(fetchJobApplicants({ jobId: selectedJob.id, page: nextPage, pageSize: 8 })).unwrap();
+          pagination={{ current: applicantsPage, pageSize: 5, total: applicantsPagination.total, showSizeChanger: false, onChange: async (nextPage) => {
+            const result = await dispatch(fetchJobApplicants({ jobId: selectedJob.id, page: nextPage, pageSize: 5 })).unwrap();
             setSelectedJob(current => ({ ...current, applications: result.applications }));
             setApplicantsPage(nextPage);
             setApplicantsPagination(result.pagination);

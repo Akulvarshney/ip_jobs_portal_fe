@@ -41,7 +41,7 @@ export default function InviteAcceptance() {
 
   return <div className="portal-page-wrapper" style={{ minHeight: '76vh', display: 'grid', placeItems: 'center', padding: 24 }}>
     <div className="portal-glass-card portal-p-32" style={{ width: '100%', maxWidth: 560, textAlign: 'center', overflow: 'hidden' }}>
-      {!invite && !error && <Spin tip="Checking invitation"><div style={{ minHeight: 80 }} /></Spin>}
+      {!invite && !error && <Spin description="Checking invitation"><div style={{ minHeight: 80 }} /></Spin>}
       {invite && <>
         <motion.div initial={reduceMotion ? false : { scale: 0.5, opacity: 0, rotate: -24 }} animate={{ scale: 1, opacity: 1, rotate: 0 }} transition={{ type: 'spring', stiffness: 170, damping: 13 }}>
           <CheckCircleFilled style={{ fontSize: 72, color: '#16a34a', marginBottom: 16 }} aria-hidden="true" />
